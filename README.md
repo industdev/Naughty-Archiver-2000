@@ -20,9 +20,9 @@ See changelogs.txt for more features
 Because every extractor has it's own options and it's customized based on gallery-dl, there's only a few already implemented, most gallery-dl settings are also predetermined, such as file names (although still easily modifiable from source).
 
 NA2000 is meant to be run in the background mind-free and can be forcefully terminated at any time
-<img width="906" height="646" alt="python_UjiPB7HpRK" src="https://github.com/user-attachments/assets/0ff9d2c3-56ed-424d-b0bc-9ab754c166be" />
-<img width="1293" height="392" alt="python_PMFd4FFOdG" src="https://github.com/user-attachments/assets/65871d95-3b26-4403-a082-8a29154e55dc" />
-<img width="588" height="445" alt="python_gVcsD8qI0Q" src="https://github.com/user-attachments/assets/9b394e75-5ce6-4d10-92b7-ee5e75a34d85" />
+<img width="906" height="646" alt="NA2000" src="https://github.com/user-attachments/assets/76e101a2-3283-4fbe-83bb-37e870ac690c" />
+<img width="1293" height="392" alt="NA2000" src="https://github.com/user-attachments/assets/a7fd3fc4-5a82-4e38-9696-ed528408d9b4" />
+<img width="588" height="445" alt="NA2000" src="https://github.com/user-attachments/assets/750c72c5-8370-4fff-a8f8-5e8c1f833ca7" />
 
 ## How to report issues
 Please report any bugs or changes you wish, some extractors weren't tested fully
@@ -61,10 +61,7 @@ General is the broth in your ramen, everything else is ingredients, you should n
 - Now you decide which extractor you want to have, in the dropdown select it and click insert extractor, a new tab will appear
 
 ### Save data & updates
-Data is stored in the same directory as na2000.exe, making it a portable program, in a folder called `saved`
-Please do not delete any file outside the saved folder, do not modify or occupy files in `external`
-To update download the new version and drag the saved folder in there, or drag the new version onto the existing one
-If you want you can just update gallery-dl by replacing the exe inside `external`
+Data is stored in the same directory as na2000.exe, making it a portable program, in a folder called `saved`<br/>Please do not delete any file outside the saved folder, do not modify or occupy files in `external`<br/>To update download the new version and drag the saved folder in there, or drag the new version onto the existing one<br/>If you want you can just update gallery-dl by replacing the exe inside `external`
 ### Arguments
 NA2000 can be called with the following arguments:
 
@@ -77,8 +74,7 @@ To auto-start on boot press `Win + R`  and type `shell:startup` here create a ba
     "D:\PROGRAMS_X64\anaconda\envs\NA2000\python.exe" "D:\\NA 2000\na2000.py" --hidden --runall
  
 ### Extractors
-Extractors are like robots that do the work for you, they extract media and information from specific websites. Settings, users and cookies between extractors aren't shared
-Select your extractor in the tabs above and take a look at the buttons and settings:
+Extractors are like robots that do the work for you, they extract media and information from specific websites.<br/>Settings, users and cookies between extractors aren't shared<br/>Select your extractor in the tabs above and take a look at the buttons and settings:
  - `Skip`: Skips the user it's currently extracting
  - `Run`: Force run the extractor (usually you run all extractors at once from the general tab)
  - `Users`: Manage the users for the extractor
@@ -87,7 +83,7 @@ Select your extractor in the tabs above and take a look at the buttons and setti
  - `Custom run`: Define single custom URLs to extract (select the type of url, type the argument and click insert)
 
 What you first want to do is go in the extractor settings and set:
- - `default destination`: which is where the extraction of users with literal 'default' as destination will go in (folder named with the username). Useful for archiving many accounts to the same folder
+ - `default destination`: which is where the extraction of users with literal 'default' as destination will go in (folder named with the username).<br/>Useful for archiving many accounts to the same folder
  - `sleep`: How much to sleep between download and API requests (leaving it default is good)
 Other extractors might have more settings, you can disable extractors without deleting them by unchecking the group box in the extractor settings
 
@@ -95,8 +91,8 @@ See extractors.md for more information about each extractor's options
 
 ### Users
 Click on the 'users' button on the extractors and two tables will pop up:
- - **Bottom table:** used to insert your user data and preferences. Example: If we want to extract user 'shrimp' on twitter put 'shrimp' under User Handle, put C:/users/shrimp under 'destination path', select 'normal' as extraction level and check 'media' then we click 'insert' on the bottom right of the window. Now the user will be in the Top table and will be extracted first
- - **Top table:** Users already added for extraction, you can change the settings of the users immediately from the table. The operations you see on the bottom of the window are for this table and will operate of selected users (most left checkbox selected)
+ - **Bottom table:** used to insert your user data and preferences. <br/>Example: If we want to extract user 'shrimp' on twitter put 'shrimp' under User Handle, put C:/users/shrimp under 'destination path', select 'normal' as extraction level and check 'media' then we click 'insert' on the bottom right of the window. Now the user will be in the Top table and will be extracted first
+ - **Top table:** Users already added for extraction, you can change the settings of the users immediately from the table. <br/>The operations you see on the bottom of the window are for this table and will operate of selected users (most left checkbox selected)
 
 To save the table for the extractor press the bottom left button with a writing icon, hover for tooltips
 ### Cookies
@@ -105,10 +101,7 @@ Create a new file by putting a filename, clicking '+' and follow the instruction
 The cookies must be NETSCAPE formatted
 
 ###	Running extractor & logging
-Go to the General tab and press 'Run all', this will run all extractors enabled
-You will see output coming out on the console, you can hide or show verbose output with the button above 'debug'
- As an optimization NA2000 will keep track of the last time you've extracted each user, so that it can stop when it meets files it already goes through
- After every user of one extractor are done it will repeat the process again as many times as you define
+Go to the General tab and press 'Run all', this will run all extractors enabled<br/>You will see output coming out on the console, you can hide or show verbose output with the button above 'debug'As an optimization NA2000 will keep track of the last time you've extracted each user, so that it can stop when it meets files it already goes through<br/>After every user of one extractor are done it will repeat the process again as many times as you define
  
  ## Creating a custom extractor
  You are sad that your favorite extractor is not there, I tried to make it as easy as possible to create a custom one, it will involve some easy coding 
@@ -153,26 +146,18 @@ Now open the program, go in the general tab, settings, turn on `'Validate extrac
 
 ### Debugging your extractor
 Jobs are configuration files passed to gallery-dl like you would do with `.conf` files
-If there's an annoying thing it's this: You need a filename for your extracted files but to know which keys and format to use you need metadata extracted from the extractor. What you should do is set the filename key to `temp.json`, and run an extraction, then save that file and base your filenames after the keys in there
-You can even call an module to decide the filename for you, like the extractors already present, gallery-dl will path the metadata to that python file and the python file returns a filename, very useful for dynamic filenames
+<br/>If there's an annoying thing it's this: You need a filename for your extracted files but to know which keys and format to use you need metadata extracted from the extractor. <br/>What you should do is set the filename key to `temp.json`, and run an extraction, then save that file and base your filenames after the keys in there, alternatively run the url with the `-K` flag<br/>You can even call an module to decide the filename for you, like the extractors already present, very useful for dynamic filenames
 
 ## Useful classes 
-You may edit these classes for your specific purpose if you are feeling adventurous 
+You may edit these classes for your specific purpose 
 
-`GalleryOutputHandler` Manages extractor events based on gallery-dl output, the pattern data gets fed from `outputHandlerCreator_manager`
-`OutputEvents` List of events that can occur in `GalleryOutputHandler`
-`GalleryRunner` Class that starts a gallery-dl process
-`Logic.py` Base .conf file for gallery-dl (Before extractors override the settings) 
-`Extractor` Main class that starts and setups an extractor, provides the already-made widgets and configuration
-`ExtractorManager` Does operations on all extractors
-`CrashHelper` Kills gallery-dl on sudden crashes
-`\external\logic*` Filenames of the extractors
+`GalleryOutputHandler` Manages extractor events based on gallery-dl output, the pattern data gets fed from `outputHandlerCreator_manager`<br/><br/>`OutputEvents` List of events that can occur in `GalleryOutputHandler`<br/>`GalleryRunner` Class that starts a gallery-dl process<br/>`Logic.py` Base .conf file for gallery-dl (Before extractors override the settings) <br/>`Extractor` Main class that starts and setups an extractor, provides the already-made widgets and configuration<br/>`ExtractorManager` Does operations on all extractors<br/>`CrashHelper` Kills gallery-dl on sudden crashes<br/>`\external\logic*` Filenames of the extractors
  
 Helper classes:
 `QtHelper` `VarHelper` `Enums`
 
 ## Resources
-- Icons by Microsoft
+- Every icon in lib/ui/ico by Microsoft
 - Gallery-dl by mikf. This program is completely dependent on gallery-dl and as such every rule that applies to gallery-dl's license also applies to this program, code from this repository outside FFMPEG, MKVMERGE and GALLERY-DL, is considered part of original code.
 
 Do not get discouraged by the program's name
