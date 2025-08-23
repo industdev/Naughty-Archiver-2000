@@ -1,0 +1,239 @@
+[
+    {
+        "MATCH": "Could not authenticate you",
+        "MESSAGE_ON_ACTION": "Make sure your cookies are set up properly",
+        "LINE_LEVEL": "RED",
+        "ACTION": [
+            "STOP",
+            2
+        ],
+        "RESET_AT": 200,
+        "VERSION": "1.2",
+        "DEFAULT": true
+    },
+    {
+        "MATCH": "Requesting guest",
+        "MESSAGE_ON_ACTION": "Make sure your cookies are set up properly",
+        "LINE_LEVEL": "RED",
+        "ACTION": [
+            "STOP",
+            true
+        ],
+        "VERSION": "1.2",
+        "DEFAULT": true
+    },
+    {
+        "MATCH": "AuthorizationError",
+        "MESSAGE_ON_ACTION": "Make sure your cookies are set up properly",
+        "LINE_LEVEL": "RED",
+        "ACTION": [
+            "STOP",
+            2
+        ],
+        "RESET_AT": 200,
+        "VERSION": "1.2",
+        "DEFAULT": true
+    },
+    {
+        "MATCH": "NameResolutionE",
+        "MESSAGE_ON_ACTION": "Gallery-dl had a NameResolution Error too many times in a row",
+        "LINE_LEVEL": "RED",
+        "INHIBIT_BOX": false,
+        "ACTION": [
+            "STOP",
+            3
+        ],
+        "RESET_AT": 100,
+        "VERSION": "1.2",
+        "DEFAULT": true
+    },
+    {
+        "MATCH": "Logging in as g",
+        "MESSAGE_ON_ACTION": "Make sure your cookies are set up properly",
+        "LINE_LEVEL": "RED",
+        "ACTION": [
+            "STOP",
+            true
+        ],
+        "VERSION": "1.2",
+        "DEFAULT": true
+    },
+    {
+        "MATCH": "An unexpected error occurred",
+        "MESSAGE_ON_ACTION": "Gallery-dl had an unexpected error too many times in a row",
+        "LINE_LEVEL": "RED",
+        "INHIBIT_BOX": false,
+        "ACTION": [
+            "STOP",
+            3
+        ],
+        "RESET_AT": 150,
+        "VERSION": "1.2",
+        "DEFAULT": true
+    },
+    {
+        "MATCH": "cookies: \\[Errno 2\\]",
+        "MESSAGE_ON_ACTION": "Cannot find the proper cookies in the specified path",
+        "LINE_LEVEL": "RED",
+        "ACTION": [
+            "STOP",
+            true
+        ],
+        "VERSION": "1.2",
+        "DEFAULT": true
+    },
+    {
+        "MATCH": "ImportError",
+        "MESSAGE_ON_ACTION": "Something is wrong with gallery-dl, try replacing gallery-dl with a newer version",
+        "LINE_LEVEL": "RED",
+        "ACTION": [
+            "STOP",
+            2
+        ],
+        "VERSION": "1.2",
+        "DEFAULT": true
+    },
+    {
+        "MATCH": "Waiting until ",
+        "MESSAGE_ON_ACTION": "The extraction stopped because you got too many rate limited messages in a row\nIncrease the sleep time on the next run\nto prevent your account from possibly getting suspended",
+        "MESSAGE_ON_LINE": "You just got rate limited, increase the sleep time on the next run, the extraction will stop automatically if too many \nrate limits happen",
+        "LINE_LEVEL": "RED",
+        "INHIBIT_BOX": false,
+        "ACTION": [
+            "STOP",
+            3
+        ],
+        "RESET_AT": 600,
+        "VERSION": "1.2",
+        "DEFAULT": true
+    },
+    {
+        "MATCH": "is not recognized as an internal or external command",
+        "MESSAGE_ON_ACTION": "Gallery-dl was not found in the external folder",
+        "LINE_LEVEL": "RED",
+        "INHIBIT_BOX": false,
+        "ACTION": [
+            "STOP",
+            1
+        ],
+        "VERSION": "1.2",
+        "DEFAULT": true
+    },
+    {
+        "MATCH": "Unsupported URL",
+        "MESSAGE_ON_LINE": "Unsupported URL alert",
+        "LINE_LEVEL": "YELLOW",
+        "INHIBIT_BOX": false,
+        "ACTION": [
+            "SKIP_JOB",
+            1
+        ],
+        "MASK": "ANY_URLS_EXTRACTION",
+        "VERSION": "1.2",
+        "DEFAULT": true
+    },
+    {
+        "MATCH": "NotFoundError",
+        "MESSAGE_ON_ACTION": "This user doesn't exist! (Supposedly)\nThe user will be set to skip in the user table",
+        "LINE_LEVEL": "YELLOW",
+        "INHIBIT_BOX": false,
+        "ACTION": [
+            "SKIP_JOB",
+            1
+        ],
+        "EVENT": "USER_NOTFOUND",
+        "MASK": "NORMAL_EXTRACTION",
+        "VERSION": "1.2",
+        "DEFAULT": true
+    },
+    {
+        "MATCH": "KeyError - 'user'",
+        "MESSAGE_ON_ACTION": "This user doesn't exist! (Supposedly)\nThe user will be set to skip in the user table",
+        "LINE_LEVEL": "YELLOW",
+        "INHIBIT_BOX": false,
+        "ACTION": [
+            "SKIP_JOB",
+            1
+        ],
+        "EVENT": "USER_NOTFOUND",
+        "MASK": "NORMAL_EXTRACTION",
+        "VERSION": "1.2",
+        "DEFAULT": true
+    },
+    {
+        "MATCH": "NotFoundError",
+        "MESSAGE_ON_ACTION": "This user/url doesn't exist! (Supposedly)",
+        "LINE_LEVEL": "YELLOW",
+        "INHIBIT_BOX": true,
+        "ACTION": [
+            "SKIP_JOB",
+            1
+        ],
+        "MASK": "ANY_URLS_EXTRACTION",
+        "VERSION": "1.2",
+        "DEFAULT": true
+    },
+    {
+        "MATCH": "KeyError - 'user'",
+        "MESSAGE_ON_ACTION": "This user/url doesn't exist! (Supposedly)",
+        "LINE_LEVEL": "YELLOW",
+        "INHIBIT_BOX": true,
+        "ACTION": [
+            "SKIP_JOB",
+            1
+        ],
+        "MASK": "ANY_URLS_EXTRACTION",
+        "VERSION": "1.2",
+        "DEFAULT": true
+    },
+    {
+        "MATCH": "Unknown request cursor:",
+        "LINE_LEVEL": "YELLOW",
+        "EVENT": "RESET_CURSOR",
+        "ACTION": [
+            "RETRY_JOB",
+            true
+        ],
+        "VERSION": "1.2",
+        "DEFAULT": true
+    },
+    {
+        "MATCH": " \"GET ",
+        "LINE_LEVEL": "OTHER",
+        "EVENT": "API_CALL",
+        "VERSION": "1.2",
+        "DEFAULT": true
+    },
+    {
+        "MATCH": " \"POST ",
+        "LINE_LEVEL": "OTHER",
+        "EVENT": "API_CALL",
+        "VERSION": "1.2",
+        "DEFAULT": true
+    },
+    {
+        "MATCH": "depreca",
+        "LINE_LEVEL": "YELLOW",
+        "VERSION": "1.2",
+        "DEFAULT": true
+    },
+    {
+        "MATCH": "api err",
+        "MESSAGE_ON_ACTION": "Too many API Errors, report to gallery-dl",
+        "INHIBIT_BOX": true,
+        "LINE_LEVEL": "YELLOW",
+        "ACTION": [
+            "STOP",
+            5
+        ],
+        "RESET_AT": 100,
+        "VERSION": "1.2",
+        "DEFAULT": true
+    },
+    {
+        "MATCH": "comple",
+        "LINE_LEVEL": "WHITE",
+        "VERSION": "1.2",
+        "DEFAULT": true
+    }
+]

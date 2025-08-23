@@ -1,0 +1,137 @@
+Naughty Archiver 2000 v1.2 PreRelease
+	-	App: Custom url jobs cannot be started while extractor is running
+	-	App: Added option to not show loading bars
+	-	App: CMD Debug messages aside from initialization and stopping are now file-only (--debug argument)
+	-	Twitter: Added more urls to custom URL box
+	-	App: Made general tab more readable
+	-	Table: No more freak-outs if the path doesn't exist and the auto button was pressed
+	
+Naughty Archiver 2000 v1.1 Release
+	-	Extractors: No more need to create a custom ui, a dictionary specifying the widgets is all you need
+	-	Extractors: Implemented running custom urls window
+	-	App: General tab is no more considered an extractor 
+	-	App: Ui will no longer spam saves on start
+	-	App: Console logging cleared up
+	-	Logic: Errored urls retries and custom urls jobs will now not skip the user if the user has been set to skip
+	-	App: init Tests files will be deleted properly
+	-	General: Added UNIX Timestamp creator to easily create unix timestamps
+	-	Bluesky: Require full user handle instead of short user handle and made filenames only get the first word before the dot as the username
+	-	App: Users table, errored Urls, timestap etc windows are no more tool windows
+	-	App: Removed GUI progress bar as it was slowing down loops 2000 to 100 times, now it's replaced by a cmd window that pops up with a progress bar
+	-	App: --debug flag also logs other useful information in the debug folder
+	-	App: Added icons to windows
+	-	Table: Added button to automatically set UNIX timestamp based on the last media file in the extraction folder of the user
+	-	Table: Cursor textboxes are now in the end of the table
+	-	App: Set gallery-dl url to version 1.30.4 
+	-	General: Added options to stop extractors that error too many times a minute
+	-	Logic: Output manager can now differentiate between throwing error boxes on every line or once an action is taken
+	-	Logic: Output manager new mask key to only act only if a specific operation is being done, for example to ignore an error box while extracting custom urls
+	-	General: Added tool to make it easier to create custom rules for outputs
+	-	Table: Made move up and down buttons auto-repeat if held
+	-	App: Fixed custom url extraction looping n times
+	-	Logic: If user doesn't exist in custom jobs then it will not set the user to skip 
+
+Naughty Archiver 2000 v1.0 Release
+	-	Extractors: Base config for jobs is already provided now 
+	-	App: Filtering output levels on console loggers now doesn't hang the program
+	-	Tray: Now display proper extractor names
+	-	Extractors: Shift clicking the skip button will skip the user 
+	-	App: Added option to shuffle users randomly before starting an extraction
+	-	Table: Save immediately instead of showing a pop-up
+	-	Logger: Unmatched text is now INFO level by default
+	-	CrashHelper: Fixed not unregistering PIDs
+	-	App: Added extended metadata option for downloaded files to include metadata for http data, gdl version, extractor data, url used
+	-	App: Added an option to not update the user cursor
+	-	Twitter: Non-existent users will now be set to skip automatically instead of stopping extraction
+	-	App: Added skip user option for output manager
+	-	Table: Skipped rows will appear disabled
+	-	App: Switching from Console to Settings tab will happen for every extractor
+	-	Cookies: If there's no cookie file selected then the textboxes will be disabled
+	-	App: Message boxes will no longer close the program if the program is in a tool window state
+	-	Pixiv: Fixed pixiv cookies
+	-	Logger:	Tall characters will no longer change the line height
+	-	App: Fixed error handling using last entry if no other match is found
+	-	Extractors: Widgets inserted in the template's Groupbox will show a black text by default, added tooltips to existing widgets
+	-	General: Added button to download FFmpeg, Gallery-dl, mkvmux
+	-	Pixiv: Added options to convert ugoira to different formats and added more novel options
+	-	App: If the extraction is restarted too many times in a short span because gallery-dl has failed/returns error code 1, then the extraction will be interrupted
+	-	Logic: Fixed cursor not updating + restart silently if cursor is invalid
+	
+Naughty Archiver 2000 v0.9 Beta
+	-	Extractors: A template will be required to be used for custom extractors
+	-	App: It will be easier to implement custom extractors
+	-	App: Wrote simple documentation
+	-	App: Some code refactoring and better stability
+	-	Logic: Instead of stopping immediately some outputs have the ability to stop after n times or skip the user
+	-	App: Moved to gallery-dl v1.30.0
+	-	Extractors: Added other extractors back
+	-	Extractors: Added functionality to remove extractors
+	-	Logger: Fixed not being able to filter outputs
+	-	Logger: Fixed extractors of the same type logging on the same file
+	-	App: Renamed extractor's config files
+	
+Naughty Archiver 2000 v0.8 Beta
+	-	Extractors: Added the ability to add and remove any extractor with multiples of the same type
+	-	Extractors: Extractors ui now will have a new inner tab separating console with the settings
+	-	Extractors: Settings of extractors are now separated in neatly small files
+	-	App: Tool windows will now be brought on top when the show button is clicked
+	-	Twitter: Conversations will have 5 seconds of sleep-request added
+	-	Tray: Option to show window instead of toggling visibility
+	-	App: Refactored config manager code
+	-	Table: Use better import window
+	-	App: Added cool icons everywhere	
+	-	Extractors: Added a list that keeps track of errored urls
+	-	Logger: Also write stdin logs to the cmd instead of only file
+	-	Table: Corrected row count for popup errors
+	-	App: Better error handling
+	-	Extractors: Added a tester for helping debug a custom extractor
+
+Naughty Archiver 2000 v0.7 Beta
+	-	App: Console scrollbar now snaps correctly for auto-scroll
+	-	App: Config saves checkboxes states as booleans instead of integers
+	-	App: Performance improvements
+	-	Logic: Added cursor option for extraction, resetting and restart in case it's invalid
+	-	Log: Selecting text will no longer have it change color once new logs appear
+	-	Twitter: Separated extractions and deep timeline settings, extracting users will be faster
+
+Naughty Archiver 2000 v0.6 Beta
+	-	Logic: Added skip option (only on twitter for now)
+	-	App: Implemented a more robust gallery-dl process manager
+	-	App: Fixed some threading issues
+	-	App: Added a new file that keeps tracks of some extraction data, sharable with your friends to let them know how naughty you are
+	-	General: Added more options
+	-	Config: More robust config load with backups
+	-	Twitter: Added button to copy the last valid cursor value
+	-	Twitter: Separated extraction for /timeline and /tweets
+
+Naughty Archiver 2000 v0.5 Beta
+	-	App: Fixed app not registering mutex to prevent multiple instances of it on same paths	
+	-	App: Moved to PySide6
+	-	App: You can now spam the start stop button without problems
+	-	App: Added logs to file instead of printing
+	-	Twitter: Added cursor option
+	-	Twitter: 'replied to' statuses now go in replies/repliedto
+	-	App: Added Bluesky extractor
+	
+Naughty Archiver 2000 v0.4 Beta
+	-	Twitter: New verbose filenames for retweets and replies 
+	-	App: Added a new crash handler that closes gallery-dl processes if the main app crashes
+	-	App: Better thread safety on stats and file monitors that would crash the app on some python versions
+	-	App: More lambda functions have their arguments properly passed
+	-	Logic: Fixed throwing error boxes 
+	
+Naughty Archiver 2000 v0.3 Beta
+	-	General: Added a log limit display
+	-	App: Added Furaffinity, Inkbunny, Pixiv, Itaku, Kemonoparty Extractors
+
+Naughty Archiver 2000 v0.2 Beta
+	-	Table: Added Save buttons
+	-	Table: Added combo box that defines where to add the user
+	-	Table: Implemented import function
+	-	Twitter: Added legacy filename option
+	-	Logic: Cookie error check
+	-	Cookies: 'Use this' button now closes the window
+	- 	Ui: Different implementation to hide from taskbar
+
+Naughty Archiver 2000 v0.1 Beta
+	-	Initial release
