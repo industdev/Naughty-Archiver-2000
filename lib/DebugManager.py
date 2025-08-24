@@ -40,7 +40,7 @@ class DebugManager:
     def closeAll(self):
         """Closes and deletes all opened files"""
         self.main.cmd.info(f"[{datetime.now()}] Closing debug manager...")
-        for filepath, file in self.openFiles.items():
+        for filepath, file in self.openFiles.copy().items():
             file.close()
             self.main.safeTrash(filepath)
         self.openFiles.clear()

@@ -260,7 +260,7 @@ class ExtractorTemplate(ExtractorInterface):
 
             return jobs, self.defaultJob(user, fullBaseConf)
         except Exception as e:
-            self.main.varHelper.exception(e)
+            main.varHelper.exception(e)
             raise Exception(f"Error getting the jobs for {self.extractorName}: {e}")
 
     #   This job returns the original configuration

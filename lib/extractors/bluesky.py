@@ -95,7 +95,7 @@ class Bluesky(ExtractorInterface):
 
             return jobs, self._bluesky_normalJob(user, fullBaseConf)
         except Exception as e:
-            self.main.varHelper.exception(e)
+            main.varHelper.exception(e)
             raise Exception(f"Error getting the jobs for {self.extractorName}: {e}")
 
     def _bluesky_profileJob(self, user, base_config):

@@ -86,6 +86,7 @@ class MainApp(QMainWindow):
         self.setWindowIcon(QIcon(self.iconPath))
         self.debug = False
         self.argHelper = ArgHelper(self)
+        self.debugManager = DebugManager(self, self._debugDPath)
         self.args = self.argHelper.args
         if self.args.debug:
             faulthandler.enable()
@@ -104,7 +105,6 @@ class MainApp(QMainWindow):
             self.debuggy(f"\t_animPath: {self._animPath}", "init")
             self.debuggy(f"\t_iconsPath: {self._iconsPath}", "init")
 
-        self.debugManager = DebugManager(self, self._debugDPath)
         self.varHelper = VarHelper(self)
         self.threadHelper = ThreadHelper()
         self.loadingBar = LoadingBar(self)
