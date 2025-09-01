@@ -43,7 +43,12 @@ class DebugManager:
         """Closes and deletes all opened files"""
         self.main.cmd.info(f"[{datetime.now()}] Closing debug manager...")
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
         for filepath, file in self.openFiles.items():
+=======
+        self.closed = True
+        for file in list(self.openFiles.values()):
+>>>>>>> Stashed changes
 =======
         self.closed = True
         for file in list(self.openFiles.values()):

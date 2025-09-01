@@ -131,6 +131,9 @@ class UnixCreator(QWidget):
             filesFound = False
             items = 0
             exts = (".png", ".jpg", ".mp4", ".mov", ".jpeg", ".gif", ".wepb", ".html", ".zip", ".mkv")
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes
 
             with os.scandir(folder) as entries:

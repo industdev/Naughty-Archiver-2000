@@ -1,6 +1,11 @@
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
 Naughty Archiver 2000 v1.2 PreRelease
 	-	App: Custom url jobs cannot be started while extractor is running
+=======
+Naughty Archiver 2000 v1.2 Release
+	-	Extractors: Custom url jobs cannot be started while extractor is running
+>>>>>>> Stashed changes
 =======
 Naughty Archiver 2000 v1.2 Release
 	-	Extractors: Custom url jobs cannot be started while extractor is running
@@ -11,8 +16,11 @@ Naughty Archiver 2000 v1.2 Release
 	-	App: Made general tab more readable
 	-	Table: No more freak-outs if the path doesn't exist and the auto button was pressed
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
 	
 =======
+=======
+>>>>>>> Stashed changes
 	-	App: Fixed Loading bar keeping console on 
 	-	App: Fixed app crashing from debug mode
 	-	App: Fixed auto UNIX timestamp not selecting the proper latest file value
