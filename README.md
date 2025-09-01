@@ -42,7 +42,7 @@ Report issues in [gallery-dl](https://github.com/mikf/gallery-dl) repository if:
  - There's API errors that don't progress the extraction
 
 Errors that begin with '[g-dl]' in the console are from the gallery-dl process
-The configuration files passed in gallery-dl are found in `./external/`
+The configuration files passed in gallery-dl are found in `./saved/run`
 
 ## How to install
 This is a windows only software for now

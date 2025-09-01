@@ -25,6 +25,7 @@ Naughty Archiver 2000 v1.2 Release
 	-	Table: Added option to trash user's sql file
 	-	Table: Fixed addtable button
 	-	App: Bumped config bak files to 3 levels and save only half of the time (except when exiting)
+	-	App: Moved running conf files to saved
 
 Naughty Archiver 2000 v1.1 Release
 	-	Extractors: No more need to create a custom ui, a dictionary specifying the widgets is all you need
