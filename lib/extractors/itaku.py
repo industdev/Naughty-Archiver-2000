@@ -45,6 +45,10 @@ class Itaku(ExtractorInterface):
         ]
         return urls
 
+    def getOutputHandlingCases(self) -> list[dict[str, Any]]:
+        append = []
+        return append
+
     def getUsertableTemplate(self) -> tuple[list[list[Any]], list[str], str]:
         tableTemplate = []
         comboTemplate = []

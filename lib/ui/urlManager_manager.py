@@ -4,12 +4,12 @@ from lib.Enums import ExtractorState, MessageType
 
 if TYPE_CHECKING:
     from na2000 import MainApp
-    from lib.Extractor import Extractor
+    from lib.Extractor import Extractor, ExtractorEntry
 
 from PySide6.QtGui import QKeySequence, QShortcut
 from PySide6.QtWidgets import QWidget, QListWidgetItem
 from PySide6.QtCore import Qt
-from lib.ui.urlManager_ui import Ui_URLManager
+from lib.ui.UrlManager_ui import Ui_URLManager
 from lib.VarHelper import VarHelper
 import time
 
@@ -213,7 +213,7 @@ class URLManager(QWidget):
         if self.main.debug:
             self.main.debuggy("Start extraction", self)
             self.main.debuggy(VarHelper.prettyJson(self.jobOverride), self, noFormat=True)
-            string = "\n".join(entry["url"] for entry in self.jobOverride)
+            string = "\n".join(f"Added {entry['url']}" for entry in self.jobOverride)
             self.main.debuggy(string, self, noFormat=True)
 
         self.extractor.startExtraction(self.jobOverride, [ExtractorState.CUSTOM_URLS_EXTRACTION, ExtractorState.ANY_URLS_EXTRACTION])

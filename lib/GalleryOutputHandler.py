@@ -1,3 +1,4 @@
+import json
 from typing import TYPE_CHECKING
 
 from lib.Enums import EventNames, Handlers, HandlersActions, LogLevel, MessageType, Return
@@ -34,19 +35,34 @@ class GalleryOutputHandler:
         self.stopTrigger = stopTrigger
 
         #   Track how many times each pattern has occurred
-        self.patternCounters = {}
-        #   Track total lines for resetAt functionality
-        self.totalLinesProcessed = 0
         #   Track the line number when each pattern last occurred
+        #   Track total lines for resetAt functionality
+        self.patternCounters = {}
+        self.totalLinesProcessed = 0
         self.lastPatternLine = {}
-        self._init_patterns()
+
+        self.lastErrorID = ""
+        self.currentErrorID = ""
+
+        self.compiledExtPatterns: list[tuple[re.Pattern[str], dict]] = self.main.General.outputHandlerCreator.getCompiledPatterns(
+            self.extractor
+        )
+
+        self.reloadPatterns()
+        self._compileErrorPatterns()
         self.main.cmd.debug(f" :{__name__}::__init__ ->{(time.perf_counter() - start) * 1000:.6f}ms")
 
         # threading.Timer(2.0, self.levelChanger, args=("[g-dl][debug] Cursor: DAAFCgABGyTMlmw__9ULAAIAAABcRW1QQzZ3QUFBZlEvZ0dKTjB2R3AvQUFBQUFZYkkydm5GWnFRWUJzaWhyck5taEh3R3lLR2w3dFdVTDRiSXh6UFJwc2hCUnNpbllBNldtQWNHeUtISkNKV2tZZz0IAAMAAAACAAA",)).start()
 
-    def _init_patterns(self):
-        self.compiledConfig: list[tuple[re.Pattern[str], dict]] = self.main.General.outputHandlerCreator.getCompiledPatterns(self)
-        self._compileErrorPatterns()
+    def newRun(self):
+        self.lastErrorID = self.currentErrorID
+        self.currentErrorID = ""
+        self.errorBoxesEnabled = self.main.General.config.settings["errorboxes"]
+
+    def reloadPatterns(self):
+        compiledPatterns: list[tuple[re.Pattern[str], dict]] = self.main.General.outputHandlerCreator.getCompiledPatterns()
+
+        self.compiledPatterns = self.compiledExtPatterns + compiledPatterns
 
         self.inv(lambda: self.extractor.logger.info("Reloaded output patterns"))
 
@@ -100,11 +116,20 @@ class GalleryOutputHandler:
                         self.inv(lambda v=value: Events.updateCursor(self.main.debuggy, self.extractor, v, self.gallery))
             #   Sets the user cursor to an empty string
             elif id == EventNames.RESET_CURSOR.name:
-                if self.extractor.cursorExtractionEnabled and not self.extractor.inhibitCursorUpdate:
+                if self.extractor.cursorExtractionEnabled:
                     self.inv(lambda: Events.updateCursor(self.main.debuggy, self.extractor, "", self.gallery))
                     self.extractor.resetConfigCursor = True
+
+                    if self.setAndCheckErrorID("RESET_CURSOR_FAIL"):
+                        self.extractor.logger.warning("Skipping job as resetting the cursor didn't fix the problem")
+                        self.gallery.skip()
+                    else:
+                        self.gallery._stop(Return.ERR_GALLERY_RETRY)
+
             elif id == EventNames.USER_NOTFOUND.name:
                 self.inv(lambda: Events.setUserToSkip(self.main.debuggy, self.gallery))
+            elif id == EventNames.CONVERT_TO_GIF.name:
+                self.inv(lambda: Events.convertToGif(self.main.debuggy, self.main, self.extractor, rawline))
 
         except Exception as e:
             raise Exception(f"_handleIds -> {e}")
@@ -158,7 +183,7 @@ class GalleryOutputHandler:
             #   Check merged patterns
 
             pIdentifier = None
-            for pattern, config in self.compiledConfig:
+            for pattern, config in self.compiledPatterns:
                 if pattern.search(rawline):
                     #   Check mask, continue if the mask doesn't match the current extractor operation
                     mask = config.get(Handlers.MASK.name)
@@ -280,10 +305,23 @@ class GalleryOutputHandler:
         extMask = ", ".join([enu.name for enu in self.extractor.currentOperations])
         mask = config.get(Handlers.MASK.name)
         short = rawline.replace("[g-dl]", "")
-        short = (short[:35] + "...") if len(short) > 35 else short
+        short = (short[:35] + "...") if len(short) > 60 else short
 
-        self.main.debuggy(f"{short} ->  mask: {mask} extractor: {extMask}", self)
+        if mask:
+            self.main.debuggy(f"{short} ->  mask: {mask} extractor: {extMask}", self)
         self.main.debuggy(
-            f"{short} -> {config[Handlers.LINE_LEVEL.name]}::{pattern.pattern}, {config.get(Handlers.MESSAGE_ON_LINE.name)}",
+            f"{short} -> {config[Handlers.LINE_LEVEL.name]}::{pattern.pattern}, MSG: {config.get(Handlers.MESSAGE_ON_LINE.name)} EVT: {config.get(Handlers.EVENT.name)} ACT: {config.get(Handlers.ACTION.name)}",
             self,
         )
+
+    def setAndCheckErrorID(self, error):
+        """
+        Checks if last and new current error, passed as string, is the same
+        If it's the same then return true otherwise false
+        """
+        self.main.debuggy(f"setAndCheckErrorID -> set {self.currentErrorID}", self)
+        self.currentErrorID = error
+        if self.lastErrorID == self.currentErrorID:
+            return True
+        else:
+            return False

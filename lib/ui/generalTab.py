@@ -5,7 +5,7 @@ from PySide6.QtCore import Qt
 
 from lib.Enums import Validation
 from lib.ui.UnixCreator_manager import UnixCreator
-from lib.ui.generalTab_ui import Ui_TabGeneral
+from lib.ui.GeneralTab_ui import Ui_TabGeneral
 from lib.ConsoleLogger import ConsoleLogger
 from lib.ConfigManager import Config, Configure
 
@@ -13,7 +13,7 @@ from lib.ConsoleLogger import LogLevel
 import time
 from datetime import datetime
 
-from lib.ui.outputHandlerCreator_manager import OutputHandlerCreator
+from lib.ui.OutputHandlerCreator_manager import OutputHandlerCreator
 
 
 class General(QWidget):
@@ -114,6 +114,10 @@ class General(QWidget):
                     Configure.WIDGET: "cfgui_showontaskbar",
                     Configure.KEY: "showtaskbar",
                 },
+                {
+                    Configure.WIDGET: "cfgui_nosqlcreation",
+                    Configure.KEY: "nosqlcreation",
+                },
                 {Configure.WIDGET: "cfgui_maxlogentries", Configure.KEY: "maxlogentries", Configure.VALIDATION: Validation.INTEGER},
                 {Configure.WIDGET: "cfgui_sleepmodulate", Configure.KEY: "sleepmodulate", Configure.VALIDATION: Validation.INTEGER},
                 {Configure.WIDGET: "btn_StopRun", Configure.FUNCTION: lambda: main.extractorsManager.startExtractors()},
@@ -128,7 +132,7 @@ class General(QWidget):
             self.configTemplate = {
                 "looptime": 3600,
                 "maximumruns": 100,
-                "maxdlspeed": 250,
+                "maxdlspeed": 2500,
                 "errorboxes": True,
                 "maxlogsize": 1000,
                 "showtaskbar": True,
@@ -149,13 +153,15 @@ class General(QWidget):
                 "exitcoderestart": True,
                 "supersecretoption": False,
                 "skiploadingbars": False,
+                "nosqlcreation": False,
                 "stoptrigger": 20,
+                "Downloader": {"everdownloaded": False, "gdlversion": "0", "gdlprompt": True},
                 "uuid": None,
                 "autotester": False,
                 "extractors": [],
             }
 
-            self.config = Config(self.main, self.widgetsConnection, self.configTemplate, self.configFPath, self.fullName, self.ui)
+            self.config = Config(self.main, self.configTemplate, self.configFPath, self.fullName, self, self.widgetsConnection, self.ui)
             self.logger = ConsoleLogger(self.main, self.ui.theLogPlace, self.logsPath, self.configName, self.config.settings)
             self.unixCreator = UnixCreator(self.main)
             self.outputHandlerCreator = OutputHandlerCreator(self.main, self)

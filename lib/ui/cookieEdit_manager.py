@@ -3,11 +3,11 @@ from typing import TYPE_CHECKING
 from lib.Enums import SpecialWidgets
 
 if TYPE_CHECKING:
-    from lib.Extractor import Extractor
+    from lib.Extractor import Extractor, ExtractorEntry
 
 from PySide6.QtWidgets import QTextEdit, QWidget
 from PySide6.QtCore import Qt
-from lib.ui.cookieEdit_ui import Ui_Form
+from lib.ui.CookieEdit_ui import Ui_Form
 import os
 import subprocess
 from PySide6.QtGui import QKeySequence, QShortcut
@@ -39,7 +39,7 @@ class CookieEdit(QWidget):
             self.ui.btn_oauth.clicked.connect(self.runOauth)
         else:
             self.ui.btn_oauth.setVisible(False)
-            self.ui.btn_oauth.deleteLater()
+
         self.galleryFPath = galleryFPath
         self.currentSelectedFullPath = "None!"
         self.filesPath = filesPath
@@ -58,15 +58,8 @@ class CookieEdit(QWidget):
 
         #   Configure based on text box type
         if cookiesTextBoxType == 0:
-            if hasattr(self.ui, "textEdit2"):
-                self.ui.textEdit2.deleteLater()
-
-            if hasattr(self.ui, "textEdit2_line"):
-                self.ui.textEdit2_line.deleteLater()
-
-            #   Set custom focusOutEvent handler
-            self.ui.textEdit1.focusOutEvent = lambda event: self._focusOutEvent(event, self.ui.textEdit1)  # type: ignore
-
+            self.ui.textEdit2.setVisible(False)
+            self.ui.textEdit2_line.setVisible(False)
         else:
             if cookiesTextBoxText[1]:
                 self.ui.textEdit2.setPlaceholderText(cookiesTextBoxText[1])
@@ -74,16 +67,15 @@ class CookieEdit(QWidget):
             if cookiesTextBoxType == 1:
                 self.ui.textEdit2.setMaximumHeight(32)
 
-            #   Set custom focusOutEvent handlers for both text edits
-            self.ui.textEdit1.focusOutEvent = lambda event: self._focusOutEvent(event, self.ui.textEdit1)  # type: ignore
-            self.ui.textEdit2.focusOutEvent = lambda event: self._focusOutEvent(event, self.ui.textEdit2)  # type: ignore
+        #   Set custom focusOutEvent handlers
+        self.ui.textEdit1.focusOutEvent = lambda event: self._focusOutEvent(event, self.ui.textEdit1)  # type: ignore
+        self.ui.textEdit2.focusOutEvent = lambda event: self._focusOutEvent(event, self.ui.textEdit2)  # type: ignore
 
     def updateTextboxStates(self):
         hasFile = bool(self.ui.cb_fileDropdown.currentText())
 
         self.ui.textEdit1.setEnabled(hasFile)
-        if hasattr(self.ui, "textEdit2") and self.ui.textEdit2:
-            self.ui.textEdit2.setEnabled(hasFile)
+        self.ui.textEdit2.setEnabled(hasFile)
 
         #   Also disable the save selection button if no file is selected
         self.ui.btn_saveSelection.setEnabled(hasFile)
@@ -134,8 +126,7 @@ class CookieEdit(QWidget):
         #   No file selected
         if not currentFile:
             self.ui.textEdit1.clear()
-            if hasattr(self.ui, "textEdit2") and self.ui.textEdit2:
-                self.ui.textEdit2.clear()
+            self.ui.textEdit2.clear()
             return
 
         #   Load cookie file
@@ -150,25 +141,23 @@ class CookieEdit(QWidget):
         else:
             self.ui.textEdit1.setPlainText(f"Error: File '{currentFile}' not found.")
 
-        #   Load token file if second text box exists
-        if hasattr(self.ui, "textEdit2") and self.ui.textEdit2:
-            tokenFilePath = os.path.join(self.filesPath, f"{currentFile}_token")
-            if os.path.exists(tokenFilePath):
-                try:
-                    with open(tokenFilePath, "r", encoding="utf-8") as file:
-                        content = file.read()
-                        self.ui.textEdit2.setPlainText(content)
-                except Exception as e:
-                    self.ui.textEdit2.setPlainText(f"Error loading token file: {str(e)}")
-            else:
-                self.ui.textEdit2.clear()
+        #   Load token file for second text box
+        tokenFilePath = os.path.join(self.filesPath, f"{currentFile}_token")
+        if os.path.exists(tokenFilePath):
+            try:
+                with open(tokenFilePath, "r", encoding="utf-8") as file:
+                    content = file.read()
+                    self.ui.textEdit2.setPlainText(content)
+            except Exception as e:
+                self.ui.textEdit2.setPlainText(f"Error loading token file: {str(e)}")
+        else:
+            self.ui.textEdit2.clear()
 
     def _focusOutEvent(self, event, edit):
         currentFile = self.ui.cb_fileDropdown.currentText()
 
         #   No file selected
         if not currentFile:
-            # Call the original method via the QTextEdit class
             QTextEdit.focusOutEvent(edit, event)
             return
 
@@ -181,7 +170,8 @@ class CookieEdit(QWidget):
                     cookiefile.write(content)
             except Exception as e:
                 self.extractor.logger.error(f"Error saving A cookie file: {str(e)}")
-        elif hasattr(self.ui, "textEdit2") and edit == self.ui.textEdit2:
+        elif edit == self.ui.textEdit2 and self.cookiesTextBoxType != 0:
+            #   Only save token file if textbox type is not 0
             tokenFilePath = os.path.join(self.filesPath, f"{currentFile}_token")
             try:
                 with open(tokenFilePath, "w", encoding="utf-8") as tokenfile:
@@ -223,7 +213,8 @@ class CookieEdit(QWidget):
                 with open(cookieFilePath, "w", encoding="utf-8") as file:
                     file.write("")
 
-            if hasattr(self.ui, "textEdit2") and self.ui.textEdit2:
+            # Always create token file if textbox type is not 0
+            if self.cookiesTextBoxType != 0:
                 if not os.path.exists(tokenFilePath):
                     with open(tokenFilePath, "w", encoding="utf-8") as file:
                         file.write("")
@@ -251,10 +242,10 @@ class CookieEdit(QWidget):
 
         try:
             if os.path.exists(cookieFilePath):
-                os.remove(cookieFilePath)
+                self.extractor.main.safeTrash(cookieFilePath)
 
             if os.path.exists(tokenFilePath):
-                os.remove(tokenFilePath)
+                self.extractor.main.safeTrash(tokenFilePath)
 
             self.loadFile()
             self._Refresh()

@@ -2,8 +2,7 @@ import copy
 from typing import Any
 from lib.Configurator import Widgets
 from lib.Enums import Configure, Validation
-from lib.VarHelper import VarHelper
-from lib.ui.userTable_manager import Table
+from lib.ui.UserTable_manager import Table
 from lib.extractors.ExtractorInterface import ExtractorInterface
 import os
 
@@ -35,6 +34,71 @@ class Pixiv(ExtractorInterface):
         errorListFullURL = ""
 
         return errorListEnabled, errorListRegex, errorListIdExtractRegex, errorListFullURL
+
+    def getOutputHandlingCases(self) -> list[dict[str, Any]]:
+        append = [
+            {
+                "MATCH": "Missing search term",
+                "MESSAGE_ON_ACTION": "Missing search term, skipping URL",
+                "LINE_LEVEL": "RED",
+                "INHIBIT_BOX": False,
+                "ACTION": ["SKIP_JOB", 1],
+                "MASK": "ANY_URLS_EXTRACTION",
+                "VERSION": "1.2",
+            },
+            {
+                "MATCH": "Invalid search order",
+                "MESSAGE_ON_ACTION": "Invalid search order, skipping URL",
+                "LINE_LEVEL": "RED",
+                "INHIBIT_BOX": False,
+                "ACTION": ["SKIP_JOB", 1],
+                "MASK": "ANY_URLS_EXTRACTION",
+                "VERSION": "1.2",
+            },
+            {
+                "MATCH": "Invalid search mode",
+                "MESSAGE_ON_ACTION": "Invalid search mode, skipping URL",
+                "LINE_LEVEL": "RED",
+                "INHIBIT_BOX": False,
+                "ACTION": ["SKIP_JOB", 1],
+                "MASK": "ANY_URLS_EXTRACTION",
+                "VERSION": "1.2",
+            },
+            {
+                "MATCH": "Invalid mode",
+                "MESSAGE_ON_ACTION": "Invalid mode, skipping job",
+                "LINE_LEVEL": "RED",
+                "INHIBIT_BOX": False,
+                "ACTION": ["SKIP_JOB", 2],
+                "RESET_AT": 100,
+                "VERSION": "1.2",
+            },
+            {
+                "MATCH": "'refresh-token' required",
+                "MESSAGE_ON_ACTION": "A valid refresh token is required to run the extraction, open the cookie table and run pixiv's Oauth",
+                "LINE_LEVEL": "RED",
+                "INHIBIT_BOX": False,
+                "ACTION": ["STOP", 1],
+                "VERSION": "1.2",
+            },
+            {
+                "MATCH": "API request failed",
+                "MESSAGE_ON_ACTION": "API request failed",
+                "LINE_LEVEL": "RED",
+                "INHIBIT_BOX": False,
+                "ACTION": ["STOP", 2],
+                "VERSION": "1.2",
+            },
+            {
+                "MATCH": "Invalid refresh token",
+                "MESSAGE_ON_ACTION": "A valid refresh token is required to run the extraction, open the cookie table and run pixiv's Oauth",
+                "LINE_LEVEL": "RED",
+                "INHIBIT_BOX": False,
+                "ACTION": ["STOP", 1],
+                "VERSION": "1.2",
+            },
+        ]
+        return append
 
     def getExtractorUrls(self) -> list[str]:
         #   Define an array of strings where '%s' will be replaced by the user input, this will be used for the custom urls page

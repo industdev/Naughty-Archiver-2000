@@ -9,8 +9,11 @@ Extractors have these entities in common:
  - `Note`: A note field for the user 
  - `User Handle`: It may be called differently, it's the name of the user to extract. Extractors might want a particular format explained below
  - `Destination Path`: The user files during the extraction will be saved here
- - `Cursor ID`: Restart the extraction from this point (must be a valid cursor for the timeline)
  - `Extracted (UNIX)`: Saves the exact date when the user last got extracted
+ - `Auto`: Finds latest UNIX timestamp based on the user's folder
+ - `Delete Sql`: Delete the sql file that keeps the user's file history, press if you want to be able to download pictures that have already been marked as downloaded 
+ - `Cursor ID`: Restart the extraction from this point (must be a valid cursor for the timeline)
+
 ## Twitter
 ### Settings Tab
  - `Output filename`: If set to NA2000 it will use the newer filenames, which is recommended

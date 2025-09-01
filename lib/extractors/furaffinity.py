@@ -1,6 +1,6 @@
 import copy
 from typing import Any
-from lib.ui.userTable_manager import Table
+from lib.ui.UserTable_manager import Table
 from lib.Enums import Configure, Validation, Widgets
 from lib.extractors.ExtractorInterface import ExtractorInterface
 
@@ -29,6 +29,10 @@ class Furaffinity(ExtractorInterface):
         errorListFullURL = ""
 
         return errorListEnabled, errorListRegex, errorListIdExtractRegex, errorListFullURL
+
+    def getOutputHandlingCases(self) -> list[dict[str, Any]]:
+        append = []
+        return append
 
     def getExtractorUrls(self) -> list[str]:
         urls = [

@@ -7,7 +7,7 @@ class DebugManager:
         self.main = main
         self.debugDPath = debugDPath
         self.openFiles = {}
-
+        self.closed = False
         if not os.path.exists(debugDPath):
             os.makedirs(debugDPath)
 
@@ -19,6 +19,8 @@ class DebugManager:
             filename (str): Name of the debug filename
             noFormat (bool, optional): Don't add date and format new lines correctly. Defaults to False
         """
+        if self.closed:
+            return
 
         if filename:
             filepath = os.path.join(self.debugDPath, f"{filename}.txt")
@@ -40,14 +42,13 @@ class DebugManager:
     def closeAll(self):
         """Closes and deletes all opened files"""
         self.main.cmd.info(f"[{datetime.now()}] Closing debug manager...")
+<<<<<<< Updated upstream
         for filepath, file in self.openFiles.items():
+=======
+        self.closed = True
+        for file in list(self.openFiles.values()):
+>>>>>>> Stashed changes
             file.close()
-            self.main.safeTrash(filepath)
-        self.openFiles.clear()
+        print("Closed debug manager")
 
-    def closeFile(self, filename: str):
-        """Close single file and deletes entry"""
-        filepath = os.path.join(self.debugDPath, f"{filename}.txt")
-        if filepath in self.openFiles:
-            self.openFiles[filepath].close()
-            del self.openFiles[filepath]
+        self.openFiles.clear()

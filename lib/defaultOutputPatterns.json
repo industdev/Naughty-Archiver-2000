@@ -36,14 +36,7 @@
     },
     {
         "MATCH": "NameResolutionE",
-        "MESSAGE_ON_ACTION": "Gallery-dl had a NameResolution Error too many times in a row",
-        "LINE_LEVEL": "RED",
-        "INHIBIT_BOX": false,
-        "ACTION": [
-            "STOP",
-            3
-        ],
-        "RESET_AT": 100,
+        "LINE_LEVEL": "YELLOW",
         "VERSION": "1.2",
         "DEFAULT": true
     },
@@ -194,6 +187,27 @@
             "RETRY_JOB",
             true
         ],
+        "VERSION": "1.2",
+        "DEFAULT": true
+    },
+    {
+        "MATCH": " Cursor: ",
+        "LINE_LEVEL": "GREY",
+        "INHIBIT_BOX": false,
+        "EVENT": "UPDATE_CURSOR",
+        "VERSION": "1.2",
+        "DEFAULT": true
+    },
+    {
+        "MATCH": "Unable to retrieve (.*) from this timeline",
+        "LINE_LEVEL": "RED",
+        "INHIBIT_BOX": false,
+        "ACTION": [
+            "SKIP_JOB",
+            3
+        ],
+        "RESET_AT": 300,
+        "EVENT": "RESET_CURSOR",
         "VERSION": "1.2",
         "DEFAULT": true
     },

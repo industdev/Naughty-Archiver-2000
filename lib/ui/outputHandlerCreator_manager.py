@@ -10,10 +10,10 @@ from lib.VarHelper import VarHelper
 
 if TYPE_CHECKING:
     from na2000 import MainApp
-    from lib.ui.generalTab import General
+    from lib.ui.GeneralTab import General
 
 from lib.Enums import EventNames, ExtractorState, Handlers, HandlersActions, LogLevel, MessageType, QColor
-from lib.ui.outputHandlerCreator_ui import Ui_Creator
+from lib.ui.OutputHandlerCreator_ui import Ui_Creator
 from PySide6.QtWidgets import QWidget
 
 import time
@@ -40,6 +40,11 @@ class OutputHandlerCreator(QWidget):
         self.defaultPatterns = {}
 
         self.hiddenPatterns: list[dict[str, Any]] = [
+            {
+                Handlers.MATCH.name: r"rem Naughty Archiver, please",
+                Handlers.LINE_LEVEL.name: LogLevel.GREY.name,
+                Handlers.EVENT.name: EventNames.CONVERT_TO_GIF.name,
+            },
             {Handlers.MATCH.name: r"warning", Handlers.LINE_LEVEL.name: LogLevel.YELLOW.name},
             {Handlers.MATCH.name: r" 503 ", Handlers.LINE_LEVEL.name: LogLevel.RED.name},
             {Handlers.MATCH.name: r"\[debug\]", Handlers.LINE_LEVEL.name: LogLevel.GREY.name},
@@ -90,13 +95,23 @@ class OutputHandlerCreator(QWidget):
         self.main.debuggy(f"outputHandlerCreator_manager::saveJson -> {self.main.userOutputPatternsFPath}", self)
         self.main.debuggy(VarHelper.prettyJson(self.getCompiledPatterns(None)), "GalleryOutputHandler", noFormat=True)
 
-    def getCompiledPatterns(self, manager) -> list[tuple[re.Pattern[str], dict[str, Any]]]:
-        patterns = self.patterns.copy()
-        patterns.extend(self.hiddenPatterns)
+    def getCompiledPatterns(self, extractor=None) -> list[tuple[re.Pattern[str], dict[str, Any]]]:
+        if extractor:
+            patterns = extractor.settings.getOutputHandlingCases()
+            self.main.debuggy(f"Compiling {extractor.name} output handling patterns", extractor)
+        else:
+            patterns = self.patterns.copy()
+            patterns.extend(self.hiddenPatterns)
+            self.main.debuggy("Compiling output handling patterns", self)
+
         #   Create the tuple with the compiled pattern and the config dict
         compiled = []
         for config in patterns:
             cTuple = (re.compile(config[Handlers.MATCH.name]), config)
+            if extractor:
+                self.main.debuggy(f"-> {cTuple}", extractor)
+            else:
+                self.main.debuggy(f"-> {cTuple}", self)
             compiled.append(cTuple)
         return compiled
 
@@ -183,7 +198,7 @@ class OutputHandlerCreator(QWidget):
                     pass
         #   Append leftover defaults
         merged.extend(list(defaults))
-        self.main.cmd.info(f"[{datetime.now()}]Updated output handler entries to new version")
+        self.main.cmd.info(f"[{datetime.now()}] Updated output handler entries to new version")
         self.patterns = merged
 
     def loadJson(self):
