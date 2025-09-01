@@ -5,8 +5,8 @@ if TYPE_CHECKING:
 
 from PySide6.QtWidgets import QWidget
 from PySide6.QtGui import QPalette, QColor
-from lib.ui.statistics_ui import Ui_Form
-from lib.ui.statCounter import StatCounter
+from lib.ui.Statistics_ui import Ui_Form
+from lib.ui.StatCounter import StatCounter
 import time
 
 

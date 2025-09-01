@@ -35,9 +35,8 @@ class TrayHelper:
         ]
 
         #   Extractor submenu
-        extractors = self.main._getExtractors(False)
-        for extractor in extractors:
-            ext = extractor["ext"]
+        for entry in self.main._getExtractors(False):
+            ext = entry.ext
             if ext.loopRunning:
                 items.append(self.___stopitem(ext))
             else:
@@ -50,9 +49,8 @@ class TrayHelper:
         items = [pystray.Menu.SEPARATOR]
 
         #   Extractor submenu
-        extractors = self.main._getExtractors(False)
-        for extractor in extractors:
-            ext = extractor["ext"]
+        for entry in self.main._getExtractors(False):
+            ext = entry.ext
             items.append(self.___tableitem(ext))
 
         return items
@@ -85,7 +83,7 @@ class TrayHelper:
             self.icon.run()
         except Exception as e:
             self.main.varHelper.exception(e)
-            self.inv(self.main.General.logger.error(f"Failed to initialize the tray: {e}"))
+            self.inv(lambda: self.main.General.logger.error(f"Failed to initialize the tray: {e}"))
 
     def _optExit(self):
         QMetaObject.invokeMethod(self.main, "close", Qt.ConnectionType.QueuedConnection)  # type: ignore

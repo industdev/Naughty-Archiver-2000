@@ -283,7 +283,7 @@ class Ui_TabGeneral(object):
         self.scrollArea.setWidgetResizable(True)
         self.settings = QWidget()
         self.settings.setObjectName("settings")
-        self.settings.setGeometry(QRect(0, 0, 583, 656))
+        self.settings.setGeometry(QRect(0, -86, 583, 684))
         self.verticalLayout_3 = QVBoxLayout(self.settings)
         self.verticalLayout_3.setObjectName("verticalLayout_3")
         self.verticalLayout_3.setContentsMargins(-1, 6, 12, -1)
@@ -831,6 +831,15 @@ class Ui_TabGeneral(object):
 
         self.formLayout.setWidget(2, QFormLayout.ItemRole.FieldRole, self.cfgui_extendedmetadata)
 
+        self.cfgui_nosqlcreation = QCheckBox(self.grpbox_settings_3)
+        self.cfgui_nosqlcreation.setObjectName("cfgui_nosqlcreation")
+        palette39 = QPalette()
+        palette39.setBrush(QPalette.ColorGroup.Active, QPalette.ColorRole.WindowText, brush2)
+        palette39.setBrush(QPalette.ColorGroup.Inactive, QPalette.ColorRole.WindowText, brush2)
+        self.cfgui_nosqlcreation.setPalette(palette39)
+
+        self.formLayout.setWidget(3, QFormLayout.ItemRole.FieldRole, self.cfgui_nosqlcreation)
+
         self.verticalLayout_3.addWidget(self.grpbox_settings_3)
 
         self.scrollArea.setWidget(self.settings)
@@ -1048,6 +1057,16 @@ class Ui_TabGeneral(object):
         )
         # endif // QT_CONFIG(tooltip)
         self.cfgui_extendedmetadata.setText(QCoreApplication.translate("TabGeneral", "Extended metadata", None))
+        # if QT_CONFIG(tooltip)
+        self.cfgui_nosqlcreation.setToolTip(
+            QCoreApplication.translate(
+                "TabGeneral",
+                "<html><head/><body><p>Every user is supplied with their own .sql file</p><p>It's used to keep track of files downloaded so to skip re-downloading them</p><p>If you don't want this functionality enable this</p></body></html>",
+                None,
+            )
+        )
+        # endif // QT_CONFIG(tooltip)
+        self.cfgui_nosqlcreation.setText(QCoreApplication.translate("TabGeneral", "Ignore users SQL files", None))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab2), QCoreApplication.translate("TabGeneral", "Settings", None))
 
     # retranslateUi

@@ -36,7 +36,7 @@ class StatCounter:
             "since": None,
         }
         config = os.path.join(self.main._extConfigDPath, "Stats.json")
-        self.config = Config(main, [], template, config, "Stats")
+        self.config = Config(main, template, config, "Stats", self)
 
         self.secret = self.statsUi.image
 

@@ -9,7 +9,7 @@ from PySide6.QtWidgets import QApplication, QTextEdit
 from PySide6.QtGui import QTextCursor
 from datetime import datetime
 import os
-from PySide6.QtGui import QTextCursor
+from PySide6.QtGui import QTextCursor, QTextBlockFormat
 import time
 
 
@@ -206,7 +206,7 @@ class ConsoleLogger:
         if len(self.logEntries) > 500:
             self.debug(f"Filtering {len(self.logEntries)} entries")
 
-        self.loading.start(len(self.logEntries), "Filtering output", 500)
+        self.loading.start(len(self.logEntries), "Filtering output", 100, minimum=500)
         for i, (entry, level, color) in enumerate(self.logEntries, 1):
             if level in self.enabledLevels and self.enabledLevels[level]:
                 self.textbox.setTextColor(color)
@@ -235,7 +235,7 @@ class ConsoleLogger:
         self.textbox.setUpdatesEnabled(True)
 
     def _setFixedLineHeight(self):
-        from PySide6.QtGui import QTextBlockFormat, QTextCursor
+
 
         cursor = self.textbox.textCursor()
         cursor.select(QTextCursor.SelectionType.Document)

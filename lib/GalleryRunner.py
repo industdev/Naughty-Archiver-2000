@@ -4,16 +4,15 @@ from lib.Enums import Return
 
 if TYPE_CHECKING:
     from na2000 import MainApp
-    from lib.Extractor import Extractor
+    from lib.Extractor import Extractor, ExtractorEntry
 
 import subprocess
 import time
 import threading
+from threading import Lock
 import psutil
 from lib.QtHelper import QtHelper
 from lib.GalleryOutputHandler import GalleryOutputHandler
-
-import time
 
 
 class GalleryRunner:
@@ -31,8 +30,14 @@ class GalleryRunner:
         self.running = False
         self.stopReason = None
 
-        self.batchSize = 10
-        self.batchTimeout = 0.1
+        #   Output settings
+        self.batchSize = 100
+        self.batchTimeout = 0.02  #  Seconds
+
+        self._batch = []
+        self._batchLock = Lock()
+        self._last_flush = time.monotonic()
+        self._flushTimer = None
 
         self.debugTextTest = None
         self.lineCount = 0
@@ -49,12 +54,33 @@ class GalleryRunner:
         )
         self.main.cmd.debug(f" :{__name__}::__init__ ->{(time.perf_counter() - start) * 1000:.6f}ms")
 
-    def _process_output(self, stream):
-        try:
-            batch = []
-            last_flush = time.monotonic()
+    def _startFlushTimer(self):
+        """Start the periodic flush timer"""
+        if self._flushTimer is not None:
+            self._flushTimer.cancel()
 
-            #   Whenever a new line is ready pass it in linelevelchanger and log it
+        self._flushTimer = threading.Timer(self.batchTimeout, self._flusher)
+        self._flushTimer.daemon = True
+        self._flushTimer.start()
+
+    def _flusher(self):
+        """Flush batch when timer expires"""
+        with self._batchLock:
+            current_time = time.monotonic()
+            if self._batch and current_time - self._last_flush >= self.batchTimeout:
+                self.__flush(self._batch.copy())
+                self._batch.clear()
+                self._last_flush = current_time
+
+        # Restart timer if still running
+        if self.running:
+            self._startFlushTimer()
+
+    def _processOutput(self, stream):
+        try:
+            self._startFlushTimer()
+
+            # Process lines from stream
             for raw in iter(stream.readline, b""):
                 if not self.running:
                     break
@@ -76,18 +102,21 @@ class GalleryRunner:
 
                 level = self.lineChanger.levelChanger(line)
                 if level:
-                    batch.append((line, level))
+                    with self._batchLock:
+                        self._batch.append((line, level))
+                        current_time = time.monotonic()
 
-                #   Flush batch when it's full or timeout reached
-                currentTime = time.monotonic()
-                if len(batch) >= self.batchSize or currentTime - last_flush >= self.batchTimeout:
-                    self.__flush(batch)
-                    batch = []
-                    last_flush = currentTime
+                        #   Flush if batch is full
+                        if len(self._batch) >= self.batchSize:
+                            self.__flush(self._batch.copy())
+                            self._batch.clear()
+                            self._last_flush = current_time
 
-            #   Flush remaining items
-            if batch:
-                self.__flush(batch)
+            #   Final flush of remaining items
+            with self._batchLock:
+                if self._batch:
+                    self.__flush(self._batch.copy())
+                    self._batch.clear()
 
         except (ValueError, OSError, IOError) as e:
             if not stream.closed and self.running:
@@ -95,6 +124,10 @@ class GalleryRunner:
         except Exception as e:
             self.main.varHelper.exception(e)
             self.inv(lambda e=e: self.extractor.logger.error(f"GalleryRunner::_process_output -> Unexpected error: {e}"))
+        finally:
+            if self._flushTimer is not None:
+                self._flushTimer.cancel()
+                self._flushTimer = None
 
     def __flush(self, batch):
         if not batch:
@@ -114,7 +147,7 @@ class GalleryRunner:
         )
         try:
             if self.reloadPatterns:
-                self.lineChanger._init_patterns()
+                self.lineChanger.reloadPatterns()
                 self.reloadPatterns = False
             self._reset()
 
@@ -133,8 +166,8 @@ class GalleryRunner:
             self.stopByOutput = False
 
             #   Output-reading threads
-            out_thread = threading.Thread(target=self._process_output, args=(self.process.stdout,))
-            err_thread = threading.Thread(target=self._process_output, args=(self.process.stderr,))
+            out_thread = threading.Thread(target=self._processOutput, args=(self.process.stdout,))
+            err_thread = threading.Thread(target=self._processOutput, args=(self.process.stderr,))
             out_thread.daemon = err_thread.daemon = True
             out_thread.start()
             err_thread.start()
@@ -194,14 +227,27 @@ class GalleryRunner:
         finally:
             if self.main.debug:
                 self.inv(lambda: self.extractor.logger.debug(f"GalleryRunner::run -> return"))
+            self._stopFlushTimer()
             self.running = False
-            self.lineChanger.errorBoxesEnabled = self.main.General.config.settings["errorboxes"]
+            self.lineChanger.newRun()
+
+    def _stopFlushTimer(self):
+        """Stop the flush timer and perform final flush"""
+        if self._flushTimer is not None:
+            self._flushTimer.cancel()
+            self._flushTimer = None
+
+        with self._batchLock:
+            if self._batch:
+                self.__flush(self._batch.copy())
+                self._batch.clear()
 
     def _stop(self, reason=None):
         self.inv(lambda r=self.running: self.extractor.logger.debug(f"GalleryRunner::_stop -> {reason} running:{r}"))
         if reason:
             self.stopReason = reason
         self.running = False
+        self._stopFlushTimer()
         self.event_loopStop.set()
 
     #   Button is pressed or tray
@@ -279,6 +325,10 @@ class GalleryRunner:
         self.running = False
         self.lineCount = 0
         self.event_loopStop.clear()
+        self._stopFlushTimer()
+        #   Clear batch
+        with self._batchLock:
+            self._batch.clear()
         try:
             self._terminateProcess()
         except:

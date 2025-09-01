@@ -1,7 +1,6 @@
 import copy
 from typing import Any
-from lib.VarHelper import VarHelper
-from lib.ui.userTable_manager import Table
+from lib.ui.UserTable_manager import Table
 from lib.Enums import Configure
 from lib.extractors.ExtractorInterface import ExtractorInterface
 
@@ -34,6 +33,10 @@ class Inkbunny(ExtractorInterface):
         errorListFullURL = ""
 
         return errorListEnabled, errorListRegex, errorListIdExtractRegex, errorListFullURL
+
+    def getOutputHandlingCases(self) -> list[dict[str, Any]]:
+        append = []
+        return append
 
     def getExtractorUrls(self) -> list[str]:
         urls = [
@@ -86,7 +89,7 @@ class Inkbunny(ExtractorInterface):
 
             return jobs, self.defaultJob(user, fullBaseConf)
         except Exception as e:
-            main.varHelper.exception(e, main.General.logger)
+            self.main.varHelper.exception(e, main.General.logger)
             raise Exception(f"Error getting the jobs for {self.extractorName}: {e}")
 
     def _inkbunny_galleryConfig(self, user, base_config):

@@ -52,6 +52,8 @@ Download the and run the exe file or download the repo and run the following com
     python na2000.py
  
 The program will be ready to use, it can only run one instance at a time per folder
+
+To build install the modules and use `pyinstaller na2000.spec`
 ## How to use
 ### First time
 On first launch you only have two tabs: statistics and General
@@ -93,6 +95,20 @@ See extractors.md for more information about each extractor's options
 Click on the 'users' button on the extractors and two tables will pop up:
  - **Bottom table:** used to insert your user data and preferences. <br/>Example: If we want to extract user 'shrimp' on twitter put 'shrimp' under User Handle, put C:/users/shrimp under 'destination path', select 'normal' as extraction level and check 'media' then we click 'insert' on the bottom right of the window. Now the user will be in the Top table and will be extracted first
  - **Top table:** Users already added for extraction, you can change the settings of the users immediately from the table. <br/>The operations you see on the bottom of the window are for this table and will operate of selected users (most left checkbox selected)
+
+Shortcuts:
+    - `Ctrl+A`: Select all users
+    - `Ctrl+D`: Unselect all users
+    - `Ctrl+Up`: Move checked users up
+    - `Ctrl+Down`: Move checked users dow
+    - `Del: Remove` checked users
+    - `Ctrl+N`: Insert a new user
+    - `Ctrl+Shift+D`: Duplicate selected users
+    - `Ctrl+E`: Export the table
+    - `Ctrl+I`: Import a table
+    - `Ctrl+S`: Save and close
+    - `Ctrl+Q`: Discard changes and close
+    - `Escape`: Save and close
 
 To save the table for the extractor press the bottom left button with a writing icon, hover for tooltips
 ### Cookies
@@ -158,7 +174,6 @@ Helper classes:
 
 ## Resources
 - Every icon in lib/ui/ico by Microsoft
-- Gallery-dl by mikf. This program is completely dependent on gallery-dl and as such every rule that applies to gallery-dl's license also applies to this program, code from this repository outside FFMPEG, MKVMERGE and GALLERY-DL, is considered part of original code.
+- Gallery-dl by mikf. This program is fully dependent on gallery-dl and as such every rule that applies to gallery-dl's license also applies to this program, code from this repository outside FFMPEG, MKVMERGE and GALLERY-DL, is considered part of original code.
 
-Do not get discouraged by the program's name
-Written in python as a learning vector
+Do not get discouraged by the program's name<br>Written in python as a learning vector

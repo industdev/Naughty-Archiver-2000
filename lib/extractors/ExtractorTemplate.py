@@ -7,8 +7,7 @@
 #   Don't forget to import these modules
 import copy
 from typing import Any
-from lib.VarHelper import VarHelper
-from lib.ui.userTable_manager import Table
+from lib.ui.UserTable_manager import Table
 from lib.Enums import Configure, Validation, Widgets
 from lib.extractors.ExtractorInterface import ExtractorInterface
 
@@ -82,8 +81,8 @@ class ExtractorTemplate(ExtractorInterface):
         ]
         #   Skipping 8662361832117276043 (deleted) matches 8662361832117276043
         errorListIdExtractRegex = r"\b\d{6,}\b"
-        #   build extractor.com/i/status/8662361832117276043/
-        errorListFullURL = "extractor.com/i/status/%s/"
+        #   build extractor.com/status/8662361832117276043/
+        errorListFullURL = "extractor.com/status/%s/"
 
         return errorListEnabled, errorListRegex, errorListIdExtractRegex, errorListFullURL
 
@@ -93,13 +92,30 @@ class ExtractorTemplate(ExtractorInterface):
         urls = ["extractor.com/%s", "extractor.com/search?q=%s", "extractor.com/i/status/%s"]
         return urls
 
+    def getOutputHandlingCases(self) -> list[dict[str, Any]]:
+        #   Optional: Append to the top of the output manager table more handling cases specifically tied to this extractor
+        #   They have the same format as the ones in /external/defaultOutputPatterns.json
+        #   You may create them using the manager and copy each entry in here
+
+        append = [
+            {
+                "MATCH": "AuthorizationError: (.+) Tweets are protected",
+                "MESSAGE_ON_ACTION": "Setting the user to skip as you don't have access to this twitter account",
+                "LINE_LEVEL": "YELLOW",
+                "INHIBIT_BOX": False,
+                "ACTION": ["SKIP_USER", 1],
+                "EVENT": "USER_NOTFOUND",
+                "VERSION": "1.2",
+            }
+        ]
+        return append
+
     def getUsertableTemplate(self) -> tuple[list[list[Any]], list[str], str]:
         #   Stores information to create user tables of different extractors
         #   Each entry in the matrix describes what the row holds, inside the rows there's what each column will have
         #       0:Show on Addtable (Shows the option in the smaller table when adding an user to not make it too cluttered, use Table.SHOW or Table.HIDE)
         #       1:Widget type
         #           Table.CHECKBOX
-        #           Table.DESTINATION (destination browser will write the path in the cell on it's left)
         #           Table.COMBO
         #           Table.TEXTBOX
         #       2:Header Title (Title of the column)
@@ -260,7 +276,7 @@ class ExtractorTemplate(ExtractorInterface):
 
             return jobs, self.defaultJob(user, fullBaseConf)
         except Exception as e:
-            main.varHelper.exception(e)
+            self.main.varHelper.exception(e)
             raise Exception(f"Error getting the jobs for {self.extractorName}: {e}")
 
     #   This job returns the original configuration
@@ -282,4 +298,4 @@ class ExtractorTemplate(ExtractorInterface):
     def copyLastCursor(self, cursor):
         pass
 
-    #   The next step is to define the extractor in ExtractorManager.py
+    #   The next step is to define the extractor in ExtractorsManager.py

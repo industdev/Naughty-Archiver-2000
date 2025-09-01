@@ -91,6 +91,7 @@ class Table(Enum):
     CHECKBOX = "CHECKBOX"
     DESTINATION = "DESTINATION"
     AUTOTIMESTAMP = "AUTOTIMESTAMP"
+    SQLDELETER = "SQLDELETER"
     COMBO = "COMBO"
     TEXTBOX = "TEXTBOX"
 
@@ -125,10 +126,11 @@ class EventNames(Enum):
     RESET_CURSOR = "RESET_CURSOR"
     ERRORED_URL = "ERRORED_URL"
     USER_NOTFOUND = "USER_NOTFOUND"
+    CONVERT_TO_GIF = "CONVERT_TO_GIF"
 
     @classmethod
     def comboBoxEvents(cls):
-        return [cls.API_CALL, cls.UPDATE_CURSOR, cls.RESET_CURSOR, cls.ERRORED_URL, cls.USER_NOTFOUND]
+        return [cls.API_CALL, cls.UPDATE_CURSOR, cls.RESET_CURSOR, cls.ERRORED_URL, cls.USER_NOTFOUND, cls.CONVERT_TO_GIF]
 
 
 #   Current state of extractor

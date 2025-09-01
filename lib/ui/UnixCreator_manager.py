@@ -8,6 +8,7 @@ from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QWidget, QFileDialog, QApplication
 from PySide6.QtGui import QKeySequence, QShortcut
 from datetime import datetime
+from lib.VarHelper import VarHelper
 
 import os
 
@@ -19,13 +20,12 @@ class UnixCreator(QWidget):
         super().__init__(None)
 
         self.main = main
-        self.manualTimestampUpdate = False  # Flag to prevent circular updates
 
         self.ui = Ui_UnixCreator()
         self.ui.setupUi(self)
         self.setWindowFlags(Qt.WindowType.Window | Qt.WindowType.MSWindowsFixedSizeDialogHint)
         self.setWindowTitle("UNIX timestamp creator")
-        self.resize(480, 140)
+        self.resize(480, 130)
         self.setFixedSize(self.size())
 
         self.initializeWidget()
@@ -33,7 +33,9 @@ class UnixCreator(QWidget):
 
         self.loading = self.main.loadingBar
         QShortcut(QKeySequence(Qt.Key.Key_Escape), self).activated.connect(self.close)
-
+        self.ui.btn_folder.setToolTip(
+            "Find the timestamp of the latest file created in a folder. This indicates when the last file got extracte\n It only take in consideration files with the following extensions:\n .png, .jpg, .mp4, .mov, .jpeg, .gif, .wepb, .html, .zip, .mkv"
+        )
         self.main.qtHelper.setIcon(self, "ieframe_20783.ico")
         self.main.qtHelper.setIcon(self.ui.btn_folder, "ieframe_20784.ico")
         self.main.qtHelper.setIcon(self.ui.btn_copy, "dsquery_153.ico")
@@ -55,14 +57,10 @@ class UnixCreator(QWidget):
         self.ui.cfg_day.textChanged.connect(self.updateTimestamp)
         self.ui.cfg_month.textChanged.connect(self.updateTimestamp)
         self.ui.cfg_year.textChanged.connect(self.updateTimestamp)
-        self.ui.cfg_result.textChanged.connect(self.updateDateFromTimestamp)
         self.ui.btn_copy.clicked.connect(self.copyTimestamp)
         self.ui.btn_folder.clicked.connect(self.selectFolder)
 
     def updateTimestamp(self):
-        if self.manualTimestampUpdate:
-            return
-
         try:
             day = int(self.ui.cfg_day.text()) if self.ui.cfg_day.text() else 1
             month = int(self.ui.cfg_month.text()) if self.ui.cfg_month.text() else 1
@@ -72,48 +70,21 @@ class UnixCreator(QWidget):
             date_obj = datetime(year, month, day)
             timestamp = int(date_obj.timestamp())
 
-            self.ui.cfg_result.setText(str(timestamp))
+            self.ui.lbl_unix.setText(f"UNIX: {timestamp}")
 
         except (ValueError, OverflowError):
-            self.ui.cfg_result.setText("Invalid Date")
-
-    def updateDateFromTimestamp(self):
-        if self.manualTimestampUpdate:
-            return
-
-        try:
-            timestamp_text = self.ui.cfg_result.text().strip()
-
-            #   Skip if empty or invalid
-            if not timestamp_text or timestamp_text == "Invalid Date":
-                return
-
-            timestamp = int(timestamp_text)
-
-            #   Convert timestamp to datetime
-            date_obj = datetime.fromtimestamp(timestamp)
-
-            self.manualTimestampUpdate = True
-
-            self.ui.cfg_day.setText(str(date_obj.day))
-            self.ui.cfg_month.setText(str(date_obj.month))
-            self.ui.cfg_year.setText(str(date_obj.year))
-
-        except (ValueError, OverflowError, OSError) as e:
-            #   Don't update anything if timestamp is invalid
-            pass
-        finally:
-            self.manualTimestampUpdate = False
+            self.ui.lbl_unix.setText("UNIX: Invalid Date")
 
     def copyTimestamp(self):
         try:
-            timestamp_text = self.ui.cfg_result.text().strip()
+            label_text = self.ui.lbl_unix.text()
+            if label_text.startswith("UNIX: ") and not "Invalid" in label_text:
+                timestamp = label_text.replace("UNIX: ", "")
 
-            if timestamp_text and timestamp_text != "Invalid Date":
                 clipboard = QApplication.clipboard()
-                clipboard.setText(timestamp_text)
+                clipboard.setText(timestamp)
 
-                self.main.General.logger.debug(f"Copied timestamp: {timestamp_text}")
+                self.main.General.logger.debug(f"Copied timestamp: {timestamp}")
 
         except Exception as e:
             self.main.varHelper.exception(e)
@@ -130,7 +101,7 @@ class UnixCreator(QWidget):
 
             timestamp = self.getTimestampFromFolder(folderPath)
             if not timestamp:
-                self.ui.cfg_result.setText("No files found")
+                self.ui.lbl_unix.setText("UNIX: No files found")
                 return
 
             latestDate = datetime.fromtimestamp(timestamp)
@@ -140,42 +111,45 @@ class UnixCreator(QWidget):
             self.ui.cfg_month.setText(str(latestDate.month))
             self.ui.cfg_year.setText(str(latestDate.year))
 
-            self.ui.cfg_result.setText(str(int(timestamp)))
+            self.ui.lbl_unix.setText(f"UNIX: {int(timestamp)}")
 
         except Exception as e:
             self.main.varHelper.exception(e)
             self.main.General.logger.debug(f"Error selecting folder: {e}")
-            self.ui.cfg_result.setText("Error reading folder")
+            self.ui.lbl_unix.setText("UNIX: Error reading folder")
 
-    def getTimestampFromFolder(self, folder):
+    def getTimestampFromFolder(self, folder):  # Add your extensions
+        timestamp = 0
+        filesFound = False
+        items = 0
+        exts = (".png", ".jpg", ".mp4", ".mov", ".jpeg", ".gif", ".wepb", ".html", ".zip")
         try:
             timestamp = 0
+<<<<<<< Updated upstream
+=======
             maxTimestamp = 0
             filesFound = False
             items = 0
-            exts = (".png", ".jpg", ".mp4", ".mov", ".jpeg", ".gif", ".wepb", ".html", ".zip")
+            exts = (".png", ".jpg", ".mp4", ".mov", ".jpeg", ".gif", ".wepb", ".html", ".zip", ".mkv")
+>>>>>>> Stashed changes
 
             with os.scandir(folder) as entries:
                 #   Count files with allowed extensions
                 items = sum(1 for entry in entries if entry.is_file() and entry.name.lower().endswith(exts))
 
             self.loading.start(items, f"Searching for timestamp...", 200, "files", 40)
-            self.main.debuggy(f"Searching for timestamp in {folder}", self)
 
             with os.scandir(folder) as entries:
                 for entry in entries:
+                    if not (entry.is_file() and entry.name.lower().endswith(exts)):
+                        continue
+                    self.loading.increase(1)
+                    filesFound = True
                     try:
-                        if not (entry.is_file() and entry.name.lower().endswith(exts)):
-                            self.main.debuggy(f"Skipping {entry.name} ({entry.stat().st_mtime})", self)
-                            continue
-                        self.main.debuggy(f"Considering {entry.name} ({entry.stat().st_mtime})", self)
-                        self.loading.increase(1)
-                        filesFound = True
-                        timestamp = entry.stat().st_mtime
-                        if maxTimestamp < timestamp:
-                            maxTimestamp = timestamp
+                        maxTimestamp = entry.stat().st_mtime
+                        if maxTimestamp > timestamp:
+                            timestamp = maxTimestamp
                     except OSError:
-                        self.main.debuggy(f"OSError on {entry.name}", self)
                         continue
         except FileNotFoundError:
             return 0
@@ -185,5 +159,4 @@ class UnixCreator(QWidget):
         finally:
             self.loading.terminate()
 
-        self.main.debuggy(f"Decided on {maxTimestamp if filesFound else 0}", self)
         return maxTimestamp if filesFound else 0

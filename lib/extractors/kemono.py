@@ -1,10 +1,8 @@
 import copy
 from typing import Any
-from lib.VarHelper import VarHelper
-from lib.ui.userTable_manager import Table
+from lib.ui.UserTable_manager import Table
 from lib.Enums import Configure
 from lib.extractors.ExtractorInterface import ExtractorInterface
-import os
 
 
 class Kemono(ExtractorInterface):
@@ -42,6 +40,18 @@ class Kemono(ExtractorInterface):
         errorListFullURL = ""
 
         return errorListEnabled, errorListRegex, errorListIdExtractRegex, errorListFullURL
+
+    def getOutputHandlingCases(self) -> list[dict[str, Any]]:
+        append = [
+            {
+                "MATCH": "NotFoundError",
+                "MESSAGE_ON_LINE": "The item you were searching for was not found!",
+                "LINE_LEVEL": "YELLOW",
+                "INHIBIT_BOX": True,
+                "VERSION": "1.2",
+            }
+        ]
+        return append
 
     def getUsertableTemplate(self):
         tableTemplate = [
@@ -106,7 +116,7 @@ class Kemono(ExtractorInterface):
             jobs.append(self._kemono_baseConfig(user, fullBaseConf))
             return jobs, self._kemono_baseConfig(user, fullBaseConf)
         except Exception as e:
-            main.varHelper.exception(e)
+            self.main.varHelper.exception(e)
             raise Exception(f"Error getting the jobs for {self.extractorName} (See cmd with CTRL+.): {e}")
 
     def _kemono_baseConfig(self, user, base_config):

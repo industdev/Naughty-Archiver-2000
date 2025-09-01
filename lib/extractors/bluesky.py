@@ -1,7 +1,6 @@
 import copy
 from typing import Any
-from lib.VarHelper import VarHelper
-from lib.ui.userTable_manager import Table
+from lib.ui.UserTable_manager import Table
 from lib.Enums import Configure
 from lib.extractors.ExtractorInterface import ExtractorInterface
 
@@ -36,6 +35,10 @@ class Bluesky(ExtractorInterface):
             "bsky.app/hashtag/%s",
         ]
         return urls
+
+    def getOutputHandlingCases(self) -> list[dict[str, Any]]:
+        append = []
+        return append
 
     def getCookiesSettings(self) -> tuple[int, list[str], bool]:
         cookiesTextBoxType = 0
@@ -95,7 +98,7 @@ class Bluesky(ExtractorInterface):
 
             return jobs, self._bluesky_normalJob(user, fullBaseConf)
         except Exception as e:
-            main.varHelper.exception(e)
+            self.main.varHelper.exception(e)
             raise Exception(f"Error getting the jobs for {self.extractorName}: {e}")
 
     def _bluesky_profileJob(self, user, base_config):

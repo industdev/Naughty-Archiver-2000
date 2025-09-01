@@ -6,13 +6,12 @@ if TYPE_CHECKING:
 import os
 import time
 
-from lib.Extractor import Extractor
+from lib.Extractor import Extractor, ExtractorEntry
 from lib.QtHelper import QtHelper
 from PySide6.QtWidgets import QMessageBox
 from datetime import datetime
 
 from lib.extractors.pixiv import Pixiv
-
 from lib.extractors.kemono import Kemono
 from lib.extractors.furaffinity import Furaffinity
 from lib.extractors.inkbunny import Inkbunny
@@ -41,8 +40,8 @@ class ExtractorsManager:
                 "Twitter": lambda id: Extractor(Twitter(), main, id),
                 "Bluesky": lambda id: Extractor(Bluesky(), main, id),
                 "Pixiv": lambda id: Extractor(Pixiv(), main, id),
-                "KemonoParty": lambda id: Extractor(Kemono(), main, id),
-                "FurAffinity": lambda id: Extractor(Furaffinity(), main, id),
+                "Kemonoparty": lambda id: Extractor(Kemono(), main, id),
+                "Furaffinity": lambda id: Extractor(Furaffinity(), main, id),
                 "Inkbunny": lambda id: Extractor(Inkbunny(), main, id),
                 "Itaku": lambda id: Extractor(Itaku(), main, id),
             }
@@ -54,30 +53,29 @@ class ExtractorsManager:
         self.main.cmd.debug(f" :{__name__}::__init__ -> {(time.perf_counter() - start) * 1000:.6f}ms")
 
     def _generateExtractorId(self):
-        existing_ids = set()
+        existing = set()
 
         #   Check in activeExtractors
-        existing_ids.update(self.activeExtractors.keys())
+        existing.update(self.activeExtractors.keys())
 
         #   Check in config
         for ext in self.main.General.config.settings["extractors"]:
-            existing_ids.add(int(ext["id"]))
+            existing.add(int(ext["id"]))
 
         #   Find the next available number starting from 0
         counter = 0
-        while counter in existing_ids:
+        while counter in existing:
             counter += 1
 
         return counter
 
     def startExtractors(self):
-        self.generalLogger.info("Starting new extraction process")
-        extractors = self.main._getExtractors(False)
+        self.generalLogger.info("- - - Starting new extraction process - - -")
 
         #   Start each enabled extractor
-        for _extractor in extractors:
-            isEnabled = _extractor["enabled"]
-            extractor = _extractor["ext"]
+        for entry in self.main._getExtractors(False):
+            isEnabled = entry.enabled
+            extractor = entry.ext
 
             if isEnabled and not extractor.galleryRunner.running:
                 extractor.logger.debug("Requested start")
@@ -85,45 +83,33 @@ class ExtractorsManager:
 
     def setOutputHandlerReloadingFlag(self):
         self.generalLogger.info("Refreshing all extractor's output handlers patterns on next run")
-        extractors = self.main._getExtractors(False)
-
-        #   Start each enabled extractor
-        for _extractor in extractors:
-            extractor = _extractor["ext"]
+        for entry in self.main._getExtractors(False):
+            extractor = entry.ext
             extractor.galleryRunner.reloadPatterns = True
 
     def stopExtractors(self):
         self.generalLogger.info("Stopping all extractors...")
-        extractors = self.main._getExtractors(False)
-
-        #   Stop each extractor
-        for _extractor in extractors:
-            extractor = _extractor["ext"]
+        for entry in self.main._getExtractors(False):
+            extractor = entry.ext
             extractor.stop()
             self.main.General.logger.info(f"Stopped: {extractor.configName}")
 
     def resetExtractorsErrorsPerMinute(self):
-        extractors = self.main._getExtractors(False)
-        for _extractor in extractors:
-            extractor: "Extractor" = _extractor["ext"]
+        for entry in self.main._getExtractors(False):
+            extractor: "Extractor" = entry.ext
             extractor.galleryRunner.lineChanger.errorCounter = 0
 
     def saveExtractorsTables(self):
         self.generalLogger.debug(f"Saving extractors tables...")
-        extractors = self.main._getExtractors(False)
 
-        #   Save each extractor
-        for _extractor in extractors:
-            extractor = _extractor["ext"]
+        for entry in self.main._getExtractors(False):
+            extractor = entry.ext
             extractor.users.saveTable()
             self.main.General.logger.info(f"Saved {extractor.configName} users table")
 
     def trimLogs(self):
-        extractors = self.main._getExtractors(False)
-
-        #   Trim each extractor
-        for _extractor in extractors:
-            extractor = _extractor["ext"]
+        for entry in self.main._getExtractors(False):
+            extractor = entry.ext
             extractor.logger.trim(self.main.General.config.settings["maxlogentries"])
 
     def initExtractors(self):
@@ -154,7 +140,7 @@ class ExtractorsManager:
                 self.activeExtractors[extractorId] = extractor
 
                 #   Add to main.extractors list in the required format
-                extractorEntry = {"ext": extractor, "enabled": extractor.config.settings.get("enabled", True)}
+                extractorEntry = ExtractorEntry(extractor)
                 self.main.extractors.append(extractorEntry)
                 self.main.General.logger.debug(f"Loaded {extractor.configName}")
 
@@ -173,7 +159,6 @@ class ExtractorsManager:
 
         self.main._hideWinConsole()
         if not self.main.args.hidden:
-            self.main.cmd.info(f"[{datetime.now()}] Show main window")
             self.main.show()
             self.main.activateWindow()
 
@@ -231,7 +216,7 @@ class ExtractorsManager:
         extractor = factory(extractorId)
         self.activeExtractors[extractorId] = extractor
 
-        extractorEntry = {"ext": extractor, "enabled": extractor.config.settings["enabled"]}
+        extractorEntry = ExtractorEntry(extractor)
         self.main.extractors.append(extractorEntry)
 
         extractorConfig = {"id": str(extractorId), "type": extractorType}
@@ -276,7 +261,7 @@ class ExtractorsManager:
                 QtHelper.removeCurrentExtractorTab(self.main.tabs)
 
                 #   Remove from main.extractors list
-                self.main.extractors = [entry for entry in self.main.extractors if entry["ext"] != extractor]
+                self.main.extractors = [entry for entry in self.main.extractors if entry.ext != extractor]
 
                 #   Remove from active extractors
                 del self.activeExtractors[extractorId]
@@ -326,7 +311,7 @@ class ExtractorsManager:
                 self.activeExtractors[extractorId] = extractor
 
                 #   Add to main.extractors list in the required format
-                extractorEntry = {"ext": extractor, "enabled": extractor.config.settings.get("enabled", True)}
+                extractorEntry = ExtractorEntry(extractor)
                 self.main.extractors.append(extractorEntry)
                 self.main.General.logger.debug(f"Loaded {extractor.configName}")
 
@@ -339,19 +324,19 @@ class ExtractorsManager:
                 self.generalLogger.error(f"Failed to load extractor {extractorType} (ID: {extractorId}): {str(e)}")
 
     def savelogs(self):
-        self.generalLogger.info("Saving extractor logs")
+        self.generalLogger.info("Saving extractor logs...")
         self.main.cmd.info(f"[{datetime.now()}] Saving extractor logs")
-        for _extractor in self.main._getExtractors():
-            extractor = _extractor["ext"]
+        for entry in self.main._getExtractors():
+            extractor = entry.ext
             extractor.logger.info("NA2000 Stopped")
         self._removeExceedingLogs()
 
     def saveConfigs(self):
         self.generalLogger.info("Saving extractors config")
         self.main.cmd.info(f"[{datetime.now()}] Saving extractors config")
-        for _extractor in self.main._getExtractors():
-            extractor = _extractor["ext"]
-            extractor.config.saveConfig()
+        for entry in self.main._getExtractors():
+            extractor = entry.ext
+            extractor.config.saveConfig(forced=True)
 
     def getExtractorById(self, extractorId) -> "Extractor | None":
         # Handle both string and integer IDs

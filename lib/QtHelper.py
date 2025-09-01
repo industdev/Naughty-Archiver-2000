@@ -10,7 +10,7 @@ if TYPE_CHECKING:
 from PySide6.QtWidgets import QMessageBox, QFileDialog, QPushButton, QTabWidget, QToolButton, QLabel, QWidget
 import ctypes
 from PySide6.QtGui import QIcon
-from PySide6.QtCore import QSize
+from PySide6.QtCore import QSize, Qt
 import os
 import time
 
@@ -56,12 +56,25 @@ class QtHelper(QObject):
             dialogParent = parent if parent else self.main
             windowTitle = title if title else type.name.capitalize()
 
+            #   Create custom message box
+            msgBox = QMessageBox(dialogParent)
+            msgBox.setWindowTitle(windowTitle)
+            msgBox.setText(message)
+
             if type == MessageType.CRITICAL:
-                QMessageBox.critical(dialogParent, windowTitle, message)
+                msgBox.setIcon(QMessageBox.Icon.Critical)
             elif type == MessageType.WARNING:
-                QMessageBox.warning(dialogParent, windowTitle, message)
+                msgBox.setIcon(QMessageBox.Icon.Warning)
             else:
-                QMessageBox.information(dialogParent, windowTitle, message)
+                msgBox.setIcon(QMessageBox.Icon.Information)
+
+            msgBox.setWindowFlags(msgBox.windowFlags() | Qt.WindowType.WindowStaysOnTopHint)
+            msgBox.setWindowModality(Qt.WindowModality.ApplicationModal)
+
+            msgBox.show()
+            msgBox.activateWindow()
+            msgBox.raise_()
+            msgBox.exec_()
 
         self.main.threadHelper.callFunction.emit(func)
 
