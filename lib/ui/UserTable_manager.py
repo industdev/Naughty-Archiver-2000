@@ -1,3 +1,4 @@
+from tkinter import E
 from typing import TYPE_CHECKING, Literal
 
 from lib.ConfigManager import Config
@@ -367,11 +368,14 @@ class UserTable(QWidget):
     def insertRowFromData(self, data, row):
         try:
             self.table.insertRow(row)
+            self.main.debuggy(f"insertRowFromData -> {data=}, {row=}", self)
 
             #   For each column defined in the custom table
             for column in range(len(self.tableTemplate)):
                 widgetType = self.tableTemplate[column][1]
                 jsonKeyName = self.tableTemplate[column][3]
+                self.main.debuggy(f" :{widgetType=}, {jsonKeyName=}", self)
+
                 if jsonKeyName == None:
                     jsonValue = False
                 else:
@@ -409,9 +413,11 @@ class UserTable(QWidget):
 
     def updateRowFromData(self, data, row):
         try:
+            self.main.debuggy(f"updateRowFromData -> {data=}, {row=}", self)
             for column in range(len(self.tableTemplate)):
                 widgetType = self.tableTemplate[column][1]
                 jsonKeyName = self.tableTemplate[column][3]
+                self.main.debuggy(f" :{widgetType=}, {jsonKeyName=}", self)
 
                 if widgetType == Table.CHECKBOX:
                     self._updateCheckbox(self.table, row, column, bool(data[f"{jsonKeyName}"]))
@@ -426,7 +432,7 @@ class UserTable(QWidget):
 
         except Exception as e:
             self.main.varHelper.exception(e)
-            self.logger.error(f"Table: There was an error inserting the row from data: {e}")
+            self.logger.error(f"Table: There was an error updating the row from data: {e}")
 
     def _moveRowUp(self, row):
         if row <= 0:
@@ -497,29 +503,33 @@ class UserTable(QWidget):
             self.table.removeRow(row)
 
     def _insertCheckbox(self, table, row, column, checked, faintRowStyle=False, update=False):
-        checkbox = QCheckBox()
-        checkbox.setChecked(checked)
+        try:
+            checkbox = QCheckBox()
+            checkbox.setChecked(checked)
 
-        container = QWidget()
-        layout = QHBoxLayout(container)
-        layout.addWidget(checkbox)
-        layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        layout.setContentsMargins(0, 0, 0, 0)
-        table.setCellWidget(row, column, container)
+            container = QWidget()
+            layout = QHBoxLayout(container)
+            layout.addWidget(checkbox)
+            layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
+            layout.setContentsMargins(0, 0, 0, 0)
+            table.setCellWidget(row, column, container)
 
-        if not faintRowStyle:
-            return
+            if not faintRowStyle:
+                return
 
-        def onClick(state):
-            targetRow = self.getWidgetRow(table, column, checkbox)
-            if targetRow is not None:
-                self._updateRowStyle(table, targetRow, bool(state))
+            def onClick(state):
+                targetRow = self.getWidgetRow(table, column, checkbox)
+                if targetRow is not None:
+                    self._updateRowStyle(table, targetRow, bool(state))
 
-        checkbox.stateChanged.connect(onClick)
+            checkbox.stateChanged.connect(onClick)
 
-        #   Update style immediately if prompted
-        if update:
-            self._updateRowStyle(table, row, checked)
+            #   Update style immediately if prompted
+            if update:
+                self._updateRowStyle(table, row, checked)
+        except Exception as e:
+            self.main.varHelper.exception(e)
+            raise Exception(f"Failed to insert checkbox: {e}")
 
     def _updateRowStyle(self, table, row, checked):
         try:
@@ -594,10 +604,7 @@ class UserTable(QWidget):
             table.setCellWidget(row, column, combo_box)
         except Exception as e:
             self.main.varHelper.exception(e)
-            self.main.cmd.error(
-                f"[{datetime.now()}] There was an error adding a comboBox, make sure the table implementation for {self.extractor.name} is properly made: {e}"
-            )
-            sys.exit(1)
+            raise Exception(f"Failed to insert combobox: {e}")
 
         return combo_box
 
@@ -613,19 +620,23 @@ class UserTable(QWidget):
         return comboBox
 
     def _insertText(self, table: QTableWidget, row: int, column: int, value: str, editable=False, short=False):
-        item = QTableWidgetItem(str(value))
+        try:
+            item = QTableWidgetItem(str(value))
 
-        if not editable:
-            item.setFlags(item.flags() & ~Qt.ItemFlag.ItemIsEditable)
+            if not editable:
+                item.setFlags(item.flags() & ~Qt.ItemFlag.ItemIsEditable)
 
-        if short:
-            #   todo
-            item.setToolTip(value)
-            table.setItem(row, column, item)
-        else:
-            table.setItem(row, column, item)
+            if short:
+                #   todo
+                item.setToolTip(value)
+                table.setItem(row, column, item)
+            else:
+                table.setItem(row, column, item)
 
-        return item
+            return item
+        except Exception as e:
+            self.main.varHelper.exception(e)
+            raise Exception(f"Failed to insert text: {e}")
 
     def _updateText(self, table: QTableWidget, row: int, column: int, value: str):
         text = table.item(row, column)
@@ -634,122 +645,138 @@ class UserTable(QWidget):
         return text
 
     def _insertDestinationBrowser(self, table: QTableWidget, row: int, column: int):
-        button = QPushButton("...")
-        button.setFixedWidth(30)
-        button.setStyleSheet(self.stylesheetQPushbutton)
+        try:
+            button = QPushButton("...")
+            button.setFixedWidth(30)
+            button.setStyleSheet(self.stylesheetQPushbutton)
 
-        #   Closure to remember row/column and update the cell before the button
-        def onBrowse(self):
-            targetRow = self.getWidgetRow(table, column, button)
-            if targetRow is None:
-                return
-            targetColumn = column - 1
-            targetItem = table.item(targetRow, targetColumn)
+            #   Closure to remember row/column and update the cell before the button
+            def onBrowse(self):
+                targetRow = self.getWidgetRow(table, column, button)
+                if targetRow is None:
+                    return
+                targetColumn = column - 1
+                targetItem = table.item(targetRow, targetColumn)
 
-            path = targetItem.text() if targetItem and targetItem.text() else ""
-            self.logger.debug(f"Table: _insertDestinationBrowser::onBrowse was clicked on row {row}")
+                path = targetItem.text() if targetItem and targetItem.text() else ""
+                self.logger.debug(f"Table: _insertDestinationBrowser::onBrowse was clicked on row {row}")
 
-            folderPath = QFileDialog.getExistingDirectory(None, "Select Folder", path)
-            if folderPath and targetItem:
-                targetItem.setText(folderPath)
+                folderPath = QFileDialog.getExistingDirectory(None, "Select Folder", path)
+                if folderPath and targetItem:
+                    targetItem.setText(folderPath)
 
-        button.clicked.connect(lambda: onBrowse(self))
-        table.setCellWidget(row, column, button)
+            button.clicked.connect(lambda: onBrowse(self))
+            table.setCellWidget(row, column, button)
+        except Exception as e:
+            self.main.varHelper.exception(e)
+            raise Exception(f"Failed to insert destination browser button: {e}")
 
     def _insertAutoTimestampButton(self, table, row, column):
-        button = QPushButton("Auto")
-        button.setMinimumWidth(60)
-        button.setStyleSheet(self.stylesheetQPushbutton)
+        try:
+            button = QPushButton("Auto")
+            button.setMinimumWidth(60)
+            button.setStyleSheet(self.stylesheetQPushbutton)
 
-        def onClick(self):
-            #   Get the path from column 5
-            targetRow = self.getWidgetRow(table, column, button)
-            if targetRow is None:
-                return
-            targetColumn = column
-            targetItem = table.item(targetRow, targetColumn - 1)
-            pathItem = table.item(targetRow, 4)
-
-            path = pathItem.text()
-
-            #   If default build complete string
-            if path == "default":
-                nameItem = table.item(targetRow, 3)
-                if not nameItem.text():
+            def onClick(self):
+                #   Get the path from column 5
+                targetRow = self.getWidgetRow(table, column, button)
+                if targetRow is None:
                     return
-                name = nameItem.text()
-                default = self.extractor.config.settings["defaultpath"]
-                path = f"{default}/{name}"
+                targetColumn = column
+                targetItem = table.item(targetRow, targetColumn - 1)
+                pathItem = table.item(targetRow, 4)
 
-            self.logger.debug(f"Table: _insertAutoTimestampButton::onBrowse was clicked on row {targetRow}")
-            timestamp = int(self.extractor.main.General.unixCreator.getTimestampFromFolder(path))
+                path = pathItem.text()
 
-            targetItem.setText(str(int(timestamp)) if timestamp else "0")
+                #   If default build complete string
+                if path == "default":
+                    nameItem = table.item(targetRow, 3)
+                    if not nameItem.text():
+                        return
+                    name = nameItem.text()
+                    default = self.extractor.config.settings["defaultpath"]
+                    path = f"{default}/{name}"
 
-        button.clicked.connect(lambda: onClick(self))
-        table.setCellWidget(row, column, button)
+                self.logger.debug(f"Table: _insertAutoTimestampButton::onBrowse was clicked on row {targetRow}")
+                timestamp = int(self.extractor.main.General.unixCreator.getTimestampFromFolder(path))
+
+                targetItem.setText(str(int(timestamp)) if timestamp else "0")
+
+            button.clicked.connect(lambda: onClick(self))
+            table.setCellWidget(row, column, button)
+        except Exception as e:
+            self.main.varHelper.exception(e)
+            raise Exception(f"Failed to insert auto timestamp button: {e}")
 
     def _insertSqlDeleteButton(self, table, row, column):
-        button = QPushButton("Delete SQL")
-        button.setMinimumWidth(70)
-        button.setStyleSheet(self.stylesheetQPushbutton)
+        try:
+            button = QPushButton("Delete SQL")
+            button.setMinimumWidth(70)
+            button.setStyleSheet(self.stylesheetQPushbutton)
 
-        def onClick(self):
-            #   Get the path from column 5
-            targetRow = self.getWidgetRow(table, column, button)
-            if targetRow is None:
-                return
+            def onClick(self):
+                #   Get the path from column 5
+                targetRow = self.getWidgetRow(table, column, button)
+                if targetRow is None:
+                    return
 
-            path = table.item(targetRow, 4).text()
-            username = table.item(targetRow, 3).text()
+                path = table.item(targetRow, 4).text()
+                username = table.item(targetRow, 3).text()
 
-            #   Determine the directory to search in
-            if path == "default":
-                default = self.extractor.config.settings["defaultpath"]
-                searchDPath = os.path.join(default, username)
-            else:
-                searchDPath = path
-
-            #   Look for SQL files in the directory
-            try:
-                if os.path.exists(searchDPath) and os.path.isdir(searchDPath):
-                    sqlFiles = [f for f in os.listdir(searchDPath) if f.lower().endswith(".sql")]
-
-                    if len(sqlFiles) == 1:
-                        sqlFPath = os.path.join(searchDPath, sqlFiles[0])
-                        self.logger.debug(f"Found single SQL file: {sqlFiles[0]}")
-                    elif len(sqlFiles) > 1:
-                        sqlFPath = os.path.join(searchDPath, f"{username}.sql")
-                        self.logger.debug(f"Multiple SQL files found ({len(sqlFiles)}), using username fallback: {username}.sql")
-                    else:
-                        self.logger.debug(f"No SQL files found in directory: {searchDPath}")
-                        return
+                #   Determine the directory to search in
+                if path == "default":
+                    default = self.extractor.config.settings["defaultpath"]
+                    searchDPath = os.path.join(default, username)
                 else:
+                    searchDPath = path
+
+                #   Look for SQL files in the directory
+                try:
+                    if os.path.exists(searchDPath) and os.path.isdir(searchDPath):
+                        sqlFiles = [f for f in os.listdir(searchDPath) if f.lower().endswith(".sql")]
+
+                        if len(sqlFiles) == 1:
+                            sqlFPath = os.path.join(searchDPath, sqlFiles[0])
+                            self.logger.debug(f"Found single SQL file: {sqlFiles[0]}")
+                        elif len(sqlFiles) > 1:
+                            sqlFPath = os.path.join(searchDPath, f"{username}.sql")
+                            self.logger.debug(f"Multiple SQL files found ({len(sqlFiles)}), using username fallback: {username}.sql")
+                        else:
+                            self.logger.debug(f"No SQL files found in directory: {searchDPath}")
+                            return
+                    else:
+                        sqlFPath = os.path.join(searchDPath, f"{username}.sql")
+                        self.logger.debug(f"Directory doesn't exist, using username fallback: {username}.sql")
+
+                except Exception as e:
+                    self.logger.error(f"Error reading directory {searchDPath}: {e}")
                     sqlFPath = os.path.join(searchDPath, f"{username}.sql")
-                    self.logger.debug(f"Directory doesn't exist, using username fallback: {username}.sql")
 
-            except Exception as e:
-                self.logger.error(f"Error reading directory {searchDPath}: {e}")
-                sqlFPath = os.path.join(searchDPath, f"{username}.sql")
+                self.logger.debug(f"Table: _insertSqlDeleteButton::onClick was clicked on row {targetRow}")
+                self.logger.info(f"Table: Deleting {sqlFPath}")
+                self.main.safeTrash(sqlFPath, "file", safe=False)
 
-            self.logger.debug(f"Table: _insertSqlDeleteButton::onClick was clicked on row {targetRow}")
-            self.logger.info(f"Table: Deleting {sqlFPath}")
-            self.main.safeTrash(sqlFPath, "file", safe=False)
-
-        button.clicked.connect(lambda: onClick(self))
-        table.setCellWidget(row, column, button)
+            button.clicked.connect(lambda: onClick(self))
+            table.setCellWidget(row, column, button)
+        except Exception as e:
+            self.main.varHelper.exception(e)
+            raise Exception(f"Failed to insert SQL delete button: {e}")
 
     def getTableData(self) -> dict | Literal[False]:
-        fullTable = []
-        for row in range(self.table.rowCount()):
-            data = self._saveRowData(row)
-            if not self.isRowValid(data, row):
-                return False
+        try:
+            fullTable = []
+            for row in range(self.table.rowCount()):
+                data = self._saveRowData(row)
+                if not self.isRowValid(data, row):
+                    return False
 
-            fullTable.append(data)
+                fullTable.append(data)
 
-        fullTable = {"users": fullTable}
-        return fullTable
+            fullTable = {"users": fullTable}
+            return fullTable
+        except Exception as e:
+            self.main.varHelper.exception(e)
+            raise Exception(f"Failed to get table data: {e}")
 
     def saveTable(self):
         try:
@@ -872,9 +899,10 @@ class UserTable(QWidget):
         try:
             for i, user in enumerate(self.list):
                 if user.get("UserHandle") == username:
+                    self.main.debuggy(f"Updating {username}'s {keyname} key to '{value}' at index {i} ({user=})", self)
                     self.inv(lambda: self.logger.debug(f"Updating {username}'s {keyname} key to '{value[:12]}'..."))
                     user[keyname] = value
-                    self.updateRowFromData(user, i)
+                    self.inv(lambda u=user, i=i: self.updateRowFromData(u, i))
                     return
             self.inv(lambda: self.logger.alert(f"{username} not found in list"))
         except Exception as e:

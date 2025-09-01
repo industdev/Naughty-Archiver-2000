@@ -136,7 +136,7 @@ class Extractor(QWidget):
         for row in template:
             keyname = row[3]
             defaultvalue = row[4]
-            if keyname == None:
+            if not keyname:
                 continue
 
             for user in userlist:
@@ -147,8 +147,9 @@ class Extractor(QWidget):
                     user[keyname] = defaultvalue
 
     def getUserList(self) -> list[dict]:
-        self._fillUserEntries(self.users.config.settings["users"])
-        return self.users.config.settings["users"]
+        copy = self.users.config.settings["users"].copy()
+        self._fillUserEntries(copy)
+        return copy
 
     def showUsersTable(self):
         self.main.debuggy(f"Extractor::showUsersTable", self)
@@ -336,7 +337,7 @@ class Extractor(QWidget):
                     return status
 
                 if not self.inhibitUnixUpdate:
-                    self.inv(lambda u=self.user["UserHandle"]: self.users.setUserKey(u, "LastExtracted", int(time.time())))
+                    self.users.setUserKey(self.user["UserHandle"], "LastExtracted", int(time.time()))
             return Return.SUCCESS
         except Exception as e:
             self.main.varHelper.exception(e)

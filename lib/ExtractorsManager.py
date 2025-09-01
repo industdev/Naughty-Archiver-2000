@@ -87,11 +87,17 @@ class ExtractorsManager:
             extractor = entry.ext
             extractor.galleryRunner.reloadPatterns = True
 
+    def stopProcedure(self):
+        self.stopExtractors()
+        self.closeExtractorsUi()
+        self.saveConfigs()
+
     def stopExtractors(self):
         self.generalLogger.info("Stopping all extractors...")
         for entry in self.main._getExtractors(False):
             extractor = entry.ext
             extractor.stop()
+            extractor.users.discardClose()
             self.main.General.logger.info(f"Stopped: {extractor.configName}")
 
     def resetExtractorsErrorsPerMinute(self):
@@ -99,13 +105,15 @@ class ExtractorsManager:
             extractor: "Extractor" = entry.ext
             extractor.galleryRunner.lineChanger.errorCounter = 0
 
-    def saveExtractorsTables(self):
-        self.generalLogger.debug(f"Saving extractors tables...")
-
+    def closeExtractorsUi(self):
+        self.generalLogger.debug(f"Closing and saving extractors UI...")
         for entry in self.main._getExtractors(False):
             extractor = entry.ext
             extractor.users.saveTable()
-            self.main.General.logger.info(f"Saved {extractor.configName} users table")
+            extractor.users.discardClose()
+            extractor.urlManager.close()
+            extractor.errorLister.close()
+            self.main.General.logger.info(f"Closed and saved {extractor.configName} UI")
 
     def trimLogs(self):
         for entry in self.main._getExtractors(False):

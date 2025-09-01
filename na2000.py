@@ -268,9 +268,7 @@ class MainApp(QMainWindow):
         try:
             self.General.logger.info(f"[{datetime.now()}] NA2000 tries to shut down...")
             self.loadingBar.terminate()
-            self.extractorsManager.stopExtractors()
-            self.extractorsManager.saveExtractorsTables()
-            self.extractorsManager.saveConfigs()
+            self.extractorsManager.stopProcedure()
             self.hide()
             self.tray.stop()
             self.threadTimeCounter.stop()
@@ -283,6 +281,7 @@ class MainApp(QMainWindow):
             self.safeTrash(self._tempDPath, "folder")
             self.safeTrash(self.exceptionFPath, "file")
             event.accept()
+            sys.exit(0)
 
         except Exception as e:
             self.varHelper.exception(e)

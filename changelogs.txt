@@ -1,3 +1,6 @@
+Naughty Archiver 2000 v1.2.1 Update
+	-	
+
 Naughty Archiver 2000 v1.2 Release
 	-	Extractors: Custom url jobs cannot be started while extractor is running
 	-	App: Added option to not show loading bars

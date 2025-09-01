@@ -1,14 +1,14 @@
-
 import os
 import sys
 from datetime import datetime
 
-class PathManager():
+
+class PathManager:
     def __init__(self, file):
         self.file = file
-        
+
     def getScriptDir(self):
-        if getattr(sys, 'frozen', False):
+        if getattr(sys, "frozen", False):
             return os.path.normpath(os.path.dirname(sys.executable))
         else:
             return os.path.normpath(os.path.dirname(os.path.abspath(self.file)))
