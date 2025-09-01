@@ -1,3 +1,10 @@
+import base64
+import os
+import re
+import subprocess
+import sys
+
+
 class Events:
     @staticmethod
     def apicall(debuggy, main):
@@ -78,3 +85,55 @@ class Events:
 
         debuggy(f"addErroredUrl -> {newEntry}", "Events")
         return newEntry, None
+
+    @staticmethod
+    def convertToGif(debuggy, main, extractor, message):
+        try:
+            #   Since gallery-dl doesn't let it's interal python process to be called
+            #   We have to rely on it's output, so we have to parse the message and thank it for doing so
+
+            extractor.logger.debug("[debug] As you please, Gallery-dl stdout sir.")
+            ffmpegPath = os.path.join(main.toolsPath, "ffmpeg.exe")
+
+            match = re.search(r'Archiver, please convert\s+"([^"]+)"', message)
+            if not match:
+                debuggy("[debug] Could not find video path in message", "Events")
+            videoPath = os.path.normpath(match.group(1))  # type: ignore
+
+            delete = True if "removing the original" in message else False
+
+            debuggy(f"[info] Converting {os.path.basename(videoPath)} to GIF", "Events")
+            debuggy(f"[debug] ffmpegPath: {ffmpegPath}, delete: {delete}, Path: {videoPath}", "Events")
+
+            if not os.path.exists(videoPath):
+                debuggy("[debug] Video file does not exist", "Events")
+
+            base, ext = os.path.splitext(videoPath)
+            gifPath = base + ".gif"
+
+            try:
+                subprocess.run(
+                    [
+                        ffmpegPath,
+                        "-v",
+                        "warning",
+                        "-i",
+                        videoPath,
+                        "-filter_complex",
+                        "[0:v] fps=15,scale=640:-1:flags=lanczos,split [a][b]; [a] palettegen=max_colors=256:reserve_transparent=0 [p]; [b][p] paletteuse=dither=bayer:bayer_scale=5:diff_mode=rectangle",
+                        "-y",
+                        gifPath,
+                    ],
+                    check=True,
+                    stdout=subprocess.DEVNULL,
+                    stderr=subprocess.DEVNULL,
+                )
+                if delete:
+                    debuggy(f"[debug] Deleting source video {videoPath}", "Events")
+                    main.safeTrash(videoPath)
+
+            except subprocess.CalledProcessError as e:
+                debuggy(f"[debug] FFmpeg command failed with return code {e.returncode}", "Events")
+
+        except Exception as e:
+            debuggy(f"[debug] Failed to convert gif: {e}", "Events")

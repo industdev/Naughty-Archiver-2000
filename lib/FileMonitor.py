@@ -124,7 +124,8 @@ class FileCreationHandler(FileSystemEventHandler):
 
                 #    Update
                 self.inv(lambda c=cSize: self.main.stats.counter.increase(c, counterType))
-                self.inv(lambda c=cSize, a=attempt: self.logger.debug(f"{counterType}+= {c}b: {a} checks"))
+
+                self.main.debuggy(f"{counterType}+={cSize} ({attempt} checks) for ({filePath})", self)
 
             except Exception as e:
                 self.inv(lambda e=e: self.logger.alert(f"Error measuring file size for {filePath}: {str(e)}"))

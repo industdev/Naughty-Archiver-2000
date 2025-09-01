@@ -2,12 +2,12 @@ from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from na2000 import MainApp
-    from lib.Extractor import Extractor
+    from lib.Extractor import Extractor, ExtractorEntry
 
 from lib.Enums import Configure, SpecialWidgets, Validation, Widgets
 from lib.VarHelper import VarHelper
 
-from lib.ui.statCounter import StatCounter
+from lib.ui.StatCounter import StatCounter
 from PySide6.QtWidgets import *  # type: ignore
 from datetime import datetime
 import os

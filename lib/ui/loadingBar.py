@@ -12,9 +12,9 @@ class LoadingBar(QObject):
         super().__init__()
         self.main = main
         self.timer = QTimer()
-        self.timer.timeout.connect(self.Update)
+        self.timer.timeout.connect(self.update)
 
-        # Progress tracking
+        #   Progress tracking
         self.current = 0
         self.maximum = 100
         self.minimum = 10
@@ -31,24 +31,23 @@ class LoadingBar(QObject):
 
         #   Console state tracking
         self.startTime = 0
-        self.lastUpdate = 0
-        self.console_was_visible = False
+        self.lastupdate = 0
 
     def start(self, maximum=100, message="Loading...", interval=100, name="it", minimum=10):
         self.main.debuggy(
             f"Starting loadingbar: {maximum}max, {interval}ms, {minimum}min, skip:{self.main.General.config.settings['skiploadingbars']}",
             self,
         )
-        if self.main.General.config.settings["skiploadingbars"]:
-            return
 
         if maximum < minimum:
             self.isActive = False
             return
         self._resizeConsole()
         self.main.setEnabled(False)
-        self.console_was_visible = self._isConsoleVisible()
         self.cmdController.disableConsoleOperations(self.message)
+
+        if self.main.General.config.settings["skiploadingbars"]:
+            return
 
         QtHelper._showWinConsole(self.main)
 
@@ -65,7 +64,7 @@ class LoadingBar(QObject):
         self.timer.start(self.interval)
 
         print()
-        self.Update()
+        self.update()
 
     def increase(self, amount=1):
         self.main.debuggy(f"+{amount}", self, True)
@@ -73,14 +72,16 @@ class LoadingBar(QObject):
         if not self.isActive:
             return
 
+        if self.main.General.config.settings["skiploadingbars"]:
+            return
+
         self.current = min(self.current + amount, self.maximum)
 
-        # Force immediate update if we've reached the maximum
-        if self.current >= self.maximum:
-            self.Update()
+        self.update()
 
     def terminate(self):
         self.main.debuggy(f"Terminate", self)
+        self.main.setEnabled(True)
 
         if not self.isActive:
             return
@@ -88,23 +89,21 @@ class LoadingBar(QObject):
         self.timer.stop()
         self.isActive = False
 
-        # Final update showing completion
+        #   Final update showing completion
         self.current = self.maximum
-        self.Update()
+        self.update()
 
         #   Add a final newline for clean output
         print()
 
         self.cmdController.enableConsoleOperations()
-        self.main.setEnabled(True)
 
-        if not self.console_was_visible:
-            QtHelper._hideWinConsole(self.main)
+        QtHelper._hideWinConsole(self.main)
 
         self._restoreConsoleSize()
 
-    def Update(self):
-        self.main.debuggy(f"Update", self)
+    def update(self):
+        self.main.debuggy(f"update", self)
         if not self.isActive:
             return
 
@@ -171,20 +170,6 @@ class LoadingBar(QObject):
             "isActive": self.isActive,
             "elapsedTime": time.time() - self.startTime if self.isActive else 0,
         }
-
-    def _isConsoleVisible(self):
-        """Check if console window is currently visible"""
-        if os.name == "nt":  # Windows
-            try:
-                import win32console
-                import win32gui
-
-                console_window = win32console.GetConsoleWindow()
-                if console_window:
-                    return win32gui.IsWindowVisible(console_window)
-            except ImportError:
-                pass
-        return False
 
     def _resizeConsole(self):
         """Resize console to a compact size suitable for progress display."""

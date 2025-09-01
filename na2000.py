@@ -1,5 +1,6 @@
-from typing import TYPE_CHECKING, Any, Callable
+from typing import TYPE_CHECKING, Any, Callable, List
 
+from lib.Extractor import ExtractorEntry
 from lib.VarHelper import VarHelper
 
 print(f"Script exec: {__name__}")
@@ -23,9 +24,9 @@ from PySide6.QtWidgets import QApplication, QMainWindow, QStyleFactory, QMessage
 from PySide6.QtCore import Qt, QEvent, QObject, QObject, Signal, Slot
 from PySide6.QtGui import QIcon, QKeySequence, QShortcut
 
-from lib.ui.statistics_manager import TabStatistics
-from lib.ui.generalTab import General
-from lib.ui.loadingBar import LoadingBar
+from lib.ui.Statistics_manager import TabStatistics
+from lib.ui.GeneralTab import General
+from lib.ui.LoadingBar import LoadingBar
 
 from lib.Downloader import Downloader
 from lib.QtHelper import QtHelper
@@ -91,34 +92,35 @@ class MainApp(QMainWindow):
             faulthandler.enable()
             faulthandler.enable(open(os.path.join(self.logPath, "fault.log"), "w"))
             self.debug = True
-            self.debuggy(f"[{datetime.now()}] Debug mode enabled", "init")
-            self.debuggy(f"\tgalleryFPath: {self.galleryFPath}", "init")
-            self.debuggy(f"\ttoolsPath: {self.toolsPath}", "init")
-            self.debuggy(f"\ticonPath: {self.iconPath}", "init")
-            self.debuggy(f"\t_runningConfigPath: {self._runningConfigPath}", "init")
-            self.debuggy(f"\tlogPath: {self.logPath}", "init")
-            self.debuggy(f"\t_cookiesDPath: {self._cookiesDPath}", "init")
-            self.debuggy(f"\t_usersDPath: {self._usersDPath}", "init")
-            self.debuggy(f"\t_extConfigDPath: {self._extConfigDPath}", "init")
-            self.debuggy(f"\t_tempDPath: {self._tempDPath}", "init")
-            self.debuggy(f"\t_animPath: {self._animPath}", "init")
-            self.debuggy(f"\t_iconsPath: {self._iconsPath}", "init")
+            self.debuggy(f"Debug mode enabled", "init")
+            self.debuggy(f"\t{self.galleryFPath=}", "init")
+            self.debuggy(f"\t{self.toolsPath=}", "init")
+            self.debuggy(f"\t{self.iconPath=}", "init")
+            self.debuggy(f"\t{self._runningConfigPath=}", "init")
+            self.debuggy(f"\t{self.logPath=}", "init")
+            self.debuggy(f"\t{self._cookiesDPath=}", "init")
+            self.debuggy(f"\t{self._usersDPath=}", "init")
+            self.debuggy(f"\t{self._extConfigDPath=}", "init")
+            self.debuggy(f"\t{self._tempDPath=}", "init")
+            self.debuggy(f"\t{self._animPath=}", "init")
+            self.debuggy(f"\t{self._iconsPath=}", "init")
+            self.debuggy(f"\t{self.defaultOutputPatternsFPath=}", "init")
 
         self.debugManager = DebugManager(self, self._debugDPath)
         self.varHelper = VarHelper(self)
         self.threadHelper = ThreadHelper()
         self.loadingBar = LoadingBar(self)
         self.qtHelper = QtHelper(self)
-        self.downloader = Downloader(self, self.safeTrash, self.toolsPath)
         self.tray = TrayHelper(self)
         self.configurator = Configurator(self)
         self.General = General(self)
+        self.downloader = Downloader(self, self.safeTrash, self.toolsPath)
         self.stats = TabStatistics(self)
         self.threadTimeCounter = ThreadTimeCounter(self)
         self.crashHelper = crashHelper
         self.dataHelper = GlobaldataHelper(self)
         self.extractorsManager = ExtractorsManager(self, self.safeTrash)
-        self.extractors = []
+        self.extractors: List[ExtractorEntry] = []
 
         logger.info(f"[{datetime.now()}] Args: {self.argHelper.args}")
 
@@ -154,36 +156,51 @@ class MainApp(QMainWindow):
         self.qtHelper.setIcon(self.tabs, "dsuiext_4098.ico", index=0)
         self.qtHelper.setIcon(self.tabs, "devmgr_201.ico", index=1)
 
-    def safeTrash(self, fpath: str):
-        """Send file to bin safely, but only if inside the allowed directory
+    def safeTrash(self, path: str, type: str = "any", safe=True):
+        """Send path/file to bin safely, but only if inside the allowed directory and matches type
 
         Args:
-            fpath (str): Absolute file path to trash
+            path (str): Absolute file path to trash
+            type (str, optional): "folder", "file", or "any". Only trash if path matches type
         """
-        self.debuggy(f"[{datetime.now()}] Safe trashing: {fpath}", "trashedFiles")
-        path = os.path.normpath(fpath)
-        allowedDir1 = os.path.normpath(os.path.join(self._scriptDir, "saved"))
-        allowedDir2 = os.path.normpath(os.path.join(self._scriptDir, "external"))
+        self.debuggy(f"Safe trashing: {path}", "trashedFiles")
+        path = os.path.normpath(path)
+        allowedDirs = [
+            os.path.normpath(os.path.join(self._scriptDir, "saved")),
+            os.path.normpath(os.path.join(self._scriptDir, "external")),
+        ]
 
-        #    the file is inside the allowed directory
-        if not os.path.commonpath([allowedDir1, path]) or not os.path.commonpath([allowedDir2, path]):
-            self.qtHelper.Throw(
-                f"Refused to trash {path} because it's outside the allowed directories\n Please report this ",
-                date=True,
-                logger=self.General.logger,
-            )
+        #   Check if the file is inside the allowed directories
+        if safe:
+            if not any(os.path.commonpath([dir, path]) == dir for dir in allowedDirs):
+                self.qtHelper.Throw(
+                    f"Refused to trash {path} because it's outside the allowed directories\n Please report this ",
+                    date=True,
+                    logger=self.General.logger,
+                )
+                return
+
+        #   Check type
+        if type == "file" and not os.path.isfile(path):
+            self.debuggy(f"Refused to trash {path}: not a file", "trashedFiles")
+            return
+        if type == "folder" and not os.path.isdir(path):
+            self.debuggy(f"Refused to trash {path}: not a folder", "trashedFiles")
+            return
+        if type == "any" and not os.path.exists(path):
+            self.debuggy(f"Path does not exist: {path}", "trashedFiles")
             return
 
         if os.path.exists(path):
             try:
                 send2trash(path)
-                self.General.logger.debug(f"Trashed: {path}")
+                self.debuggy(f"Trashed: {path}", "trashedFiles")
             except Exception as e:
-                self.General.logger.debug(f"Failed to trash {path}: {str(e)}")
+                self.debuggy(f"Failed to trash {path}: {str(e)}", "trashedFiles")
         else:
-            self.General.logger.debug(f"Path does not exist: {path}")
+            self.debuggy(f"Path does not exist: {path}", "trashedFiles")
 
-    def _getExtractors(self, withGeneral=True) -> list[dict]:
+    def _getExtractors(self, withGeneral=True) -> list[ExtractorEntry]:
         """Get all extractors, this list is updated whenever one is added, removed etc
         Useful for making operations on all extractors
 
@@ -191,13 +208,13 @@ class MainApp(QMainWindow):
             withGeneral (bool, optional): Also include General tab. Defaults to True.
 
         Returns:
-            list[dict]: array of dict with keys 'ext' for the extractor object and
+            list[ExtractorEntry]: array of extractors with args 'ext' for the extractor object and
             'enabled' to tell if the extractor is enabled in it's settings
         """
         extractors = list(self.extractors)
 
         if withGeneral:
-            extractors.insert(0, {"ext": self.General, "enabled": False})
+            extractors.insert(0, ExtractorEntry(self.General))
 
         return extractors
 
@@ -232,10 +249,8 @@ class MainApp(QMainWindow):
         super().changeEvent(event)
 
     def closeEvent(self, event):
-        exts = self._getExtractors(False)
-
-        for _ext in exts:
-            ext = _ext["ext"]
+        for entry in self._getExtractors(False):
+            ext = entry.ext
 
             if not ext.galleryRunner.running:
                 continue
@@ -264,6 +279,9 @@ class MainApp(QMainWindow):
             self.extractorsManager.savelogs()
             self.debugManager.closeAll()
 
+            self.safeTrash(self.debugManager.debugDPath, "folder")
+            self.safeTrash(self._tempDPath, "folder")
+            self.safeTrash(self.exceptionFPath, "file")
             event.accept()
 
         except Exception as e:
@@ -289,7 +307,7 @@ class MainApp(QMainWindow):
     #   Emits the functions through threadHelper's signal
     def _inv(self, func: Callable[[], Any], *args):
         if func is None:
-            self.main.cmd.error(f"ERROR: Tried to invoke None as a function (args={args})")
+            self.cmd.error(f"ERROR: Tried to invoke None as a function (args={args})")
             return
 
         self.debuggy(f"{func}", "invoked")
@@ -320,8 +338,8 @@ class MainApp(QMainWindow):
             QtHelper._showWinConsole(self)
 
     def tabSwitched(self, index):
-        for _extractor in self._getExtractors():
-            extractor = _extractor["ext"]
+        for entry in self._getExtractors():
+            extractor = entry.ext
             tab = extractor.ui.tabWidget
             tab.setCurrentIndex(index)
 
@@ -332,7 +350,7 @@ class ThreadHelper(QObject):
 
     def __init__(self):
         super().__init__()
-        self.callFunction.connect(self.execute_function, Qt.QueuedConnection)  # type: ignore
+        self.callFunction.connect(self.execute_function, Qt.ConnectionType.QueuedConnection)
 
     @Slot(object)
     def execute_function(self, func):
@@ -387,6 +405,7 @@ if __name__ == "__main__":
             subprocess.run(f"taskkill /F /IM gallery-dl.exe", shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
             logger.warning(f"[{datetime.now()}] Killed every gallery-dl process: {e}")
 
+        print("Check saved/debug/ with the --debug flag")
+        input("Check saved/logs/fault.log with the --debug flag")
         print("Check saved/logs/cmd.txt for full console output")
-        input("Check saved/logs/fault.log if debug was on")
         sys.exit(1)

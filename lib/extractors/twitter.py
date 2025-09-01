@@ -1,8 +1,9 @@
+import os
+import sys
 from typing import Any
 from PySide6.QtGui import QGuiApplication
-from lib.VarHelper import VarHelper
 from lib.extractors.ExtractorTemplate import ExtractorInterface
-from lib.ui.userTable_manager import Table
+from lib.ui.UserTable_manager import Table
 from lib.Enums import Configure, Widgets
 
 import copy
@@ -36,6 +37,37 @@ class Twitter(ExtractorInterface):
         errorListFullURL = "twitter.com/i/status/%s/"
         return errorListEnabled, errorListRegex, errorListIdExtractRegex, errorListFullURL
 
+    def getOutputHandlingCases(self) -> list[dict[str, Any]]:
+        append = [
+            {
+                "MATCH": "Rate limit exceeded",
+                "MESSAGE_ON_ACTION": "Rate limit exceeded\nIncrease the sleep time to prevent your account from possibly getting suspended",
+                "LINE_LEVEL": "RED",
+                "INHIBIT_BOX": False,
+                "ACTION": ["STOP", 1],
+                "VERSION": "1.2",
+            },
+            {
+                "MATCH": "AuthorizationError: (.+) blocked your account",
+                "MESSAGE_ON_ACTION": "Setting the user to skip as you don't have access to this twitter account",
+                "LINE_LEVEL": "YELLOW",
+                "INHIBIT_BOX": False,
+                "ACTION": ["SKIP_USER", 1],
+                "EVENT": "USER_NOTFOUND",
+                "VERSION": "1.2",
+            },
+            {
+                "MATCH": "AuthorizationError: (.+) Tweets are protected",
+                "MESSAGE_ON_ACTION": "Setting the user to skip as you don't have access to this twitter account",
+                "LINE_LEVEL": "YELLOW",
+                "INHIBIT_BOX": False,
+                "ACTION": ["SKIP_USER", 1],
+                "EVENT": "USER_NOTFOUND",
+                "VERSION": "1.2",
+            },
+        ]
+        return append
+
     def getUsertableTemplate(self) -> tuple[list[list[Any]], list[str], str]:
         tableTemplate = [
             [Table.SHOW, Table.COMBO, "Extraction Level", "ExtractionLevel", 1, None],
@@ -62,6 +94,15 @@ class Twitter(ExtractorInterface):
         #       When the extractor reads this dictionary it will instantiate the widgets in self.ui, the widgets will be named: f'{Configure.WIDGET}_{Configure.KEY}'
         ui = [
             {
+                Configure.NAME: "cfg_convert",
+                Configure.WIDGET: Widgets.COMBOBOX,
+                Configure.KEY: "convertmp4",
+                Configure.DEFAULT: 0,
+                Configure.ENTRIES: ["No", "Convert and delete", "Convert and keep"],
+                Configure.TOOLTIP: "Convert videos uploaded as GIFs on twitter\nif you select 'keep' it will keep the video file otherwise remove it \n 'No' means no conversion",
+                Configure.LABEL: "Save twitter GIFs",
+            },
+            {
                 Configure.NAME: "cfg_filename",
                 Configure.WIDGET: Widgets.COMBOBOX,
                 Configure.KEY: "filename",
@@ -69,7 +110,7 @@ class Twitter(ExtractorInterface):
                 Configure.ENTRIES: ["NA2000 (New)", "Old"],
                 Configure.TOOLTIP: "Select between old and new filenames, it's recommended you leave it at 'NA2000 (new)'",
                 Configure.LABEL: "Output filenames",
-            }
+            },
         ]
         return ui
 
@@ -146,6 +187,17 @@ class Twitter(ExtractorInterface):
             if filters:
                 fullBaseConf["extractor"]["twitter"]["image-filter"] = " or ".join(filters)
 
+            convert = extSettings["convertmp4"]
+
+            if convert != 0:
+                value = "keeping" if convert == 2 else "removing"
+                command = "rem Naughty Archiver, please convert {_path} to GIF " + value + " the original"
+                fullBaseConf["extractor"]["twitter"]["postprocessors"].append({
+                    "name": "exec",
+                    "filter": "type == 'animated_gif'",
+                    "command": command,
+                })
+
             #   Now define which jobs to pass to gallery-dl after these line
 
             jobs = []
@@ -209,10 +261,10 @@ class Twitter(ExtractorInterface):
 
     def _twitter_conversationJob(self, user, fullBaseConf):
         config_no_expand = copy.deepcopy(fullBaseConf)
-        config_no_expand["extractor"]["twitter"]["sleep"][0] += 5
-        config_no_expand["extractor"]["twitter"]["sleep"][1] += 5
-        config_no_expand["extractor"]["twitter"]["sleep-request"][0] += 5
-        config_no_expand["extractor"]["twitter"]["sleep-request"][1] += 5
+        config_no_expand["extractor"]["twitter"]["sleep"][0] += 7
+        config_no_expand["extractor"]["twitter"]["sleep"][1] += 7
+        config_no_expand["extractor"]["twitter"]["sleep-request"][0] += 7
+        config_no_expand["extractor"]["twitter"]["sleep-request"][1] += 7
 
         config_no_expand["extractor"]["twitter"].update({
             "expand": False,
@@ -221,10 +273,10 @@ class Twitter(ExtractorInterface):
         })
 
         config_expand = copy.deepcopy(fullBaseConf)
-        config_expand["extractor"]["twitter"]["sleep"][0] += 5
-        config_expand["extractor"]["twitter"]["sleep"][1] += 5
-        config_expand["extractor"]["twitter"]["sleep-request"][0] += 5
-        config_expand["extractor"]["twitter"]["sleep-request"][1] += 5
+        config_expand["extractor"]["twitter"]["sleep"][0] += 7
+        config_expand["extractor"]["twitter"]["sleep"][1] += 7
+        config_expand["extractor"]["twitter"]["sleep-request"][0] += 7
+        config_expand["extractor"]["twitter"]["sleep-request"][1] += 7
 
         config_expand["extractor"]["twitter"].update({"expand": True, "replies": True, "directory": ["conversations"]})
 
@@ -320,6 +372,14 @@ class Twitter(ExtractorInterface):
     def getExtractorUrls(self):
         urls = [
             "twitter.com/%s",
+            "twitter.com/i/%s",
+            "twitter.com/search?q=%s",
+            "twitter.com/i/status/%s",
+            "twitter.com/i/bookmarks",
+            "twitter.com/i/lists/%s",
+            "twitter.com/i/communities/%s",
+            "twitter.com/i/events/%s",
+            "twitter.com/%s/status/%s",
             "twitter.com/%s/highlights",
             "twitter.com/%s/likes",
             "twitter.com/%s/following",
@@ -327,14 +387,6 @@ class Twitter(ExtractorInterface):
             "twitter.com/%s/info",
             "twitter.com/%s/photo",
             "twitter.com/%s/header_photo",
-            "twitter.com/i/%s",
-            "twitter.com/i/bookmarks",
-            "twitter.com/i/lists/%s",
-            "twitter.com/i/communities/%s",
-            "twitter.com/i/events/%s",
-            "twitter.com/i/status/%s",
-            "twitter.com/%s/status/%s",
-            "twitter.com/search?q=%s",
             "twitter.com/hashtag/%s",
             "twitter.com/home",
         ]
@@ -346,8 +398,16 @@ class Twitter(ExtractorInterface):
         clipboard.setText(value)
 
     def defaultJob(self, user, fullBaseConf):
+        conf = copy.deepcopy(fullBaseConf)
+        conf["extractor"]["twitter"].update({
+            "replies": True,
+            "expand": False,
+            "include": "all",
+        })
+        conf["extractor"]["twitter"]["postprocessors"][0]["skip"] = False
+
         return {
             "url": None,
-            "config": copy.deepcopy(fullBaseConf),
+            "config": copy.deepcopy(conf),
             "type": None,
         }

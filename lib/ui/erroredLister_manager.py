@@ -4,14 +4,14 @@ from lib.Enums import ExtractorState, MessageType
 
 if TYPE_CHECKING:
     from na2000 import MainApp
-    from lib.Extractor import Extractor
+    from lib.Extractor import Extractor, ExtractorEntry
 
 from PySide6.QtWidgets import QWidget, QTableWidgetItem, QHeaderView
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QMessageBox
 from PySide6.QtGui import QKeySequence, QShortcut
 
-from lib.ui.erroredLister_ui import Ui_Form
+from lib.ui.ErroredLister_ui import Ui_Form
 from lib.VarHelper import VarHelper
 
 import json

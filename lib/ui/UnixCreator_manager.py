@@ -33,7 +33,9 @@ class UnixCreator(QWidget):
 
         self.loading = self.main.loadingBar
         QShortcut(QKeySequence(Qt.Key.Key_Escape), self).activated.connect(self.close)
-
+        self.ui.btn_folder.setToolTip(
+            "Find the timestamp of the latest file created in a folder. This indicates when the last file got extracte\n It only take in consideration files with the following extensions:\n .png, .jpg, .mp4, .mov, .jpeg, .gif, .wepb, .html, .zip, .mkv"
+        )
         self.main.qtHelper.setIcon(self, "ieframe_20783.ico")
         self.main.qtHelper.setIcon(self.ui.btn_folder, "ieframe_20784.ico")
         self.main.qtHelper.setIcon(self.ui.btn_copy, "dsquery_153.ico")
@@ -123,6 +125,13 @@ class UnixCreator(QWidget):
         exts = (".png", ".jpg", ".mp4", ".mov", ".jpeg", ".gif", ".wepb", ".html", ".zip")
         try:
             timestamp = 0
+<<<<<<< Updated upstream
+=======
+            maxTimestamp = 0
+            filesFound = False
+            items = 0
+            exts = (".png", ".jpg", ".mp4", ".mov", ".jpeg", ".gif", ".wepb", ".html", ".zip", ".mkv")
+>>>>>>> Stashed changes
 
             with os.scandir(folder) as entries:
                 #   Count files with allowed extensions

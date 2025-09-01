@@ -1,5 +1,7 @@
 from typing import TYPE_CHECKING, Callable
 
+from lib.Enums import QMessageBox
+
 if TYPE_CHECKING:
     from na2000 import MainApp
 
@@ -21,6 +23,39 @@ class Downloader:
         self.downloadStartTime = 0
         self.downloadedBytes = 0
         self.loading = main.loadingBar
+        self.forceGdlUpdate = False
+
+        latestGdlVersion = "1.30.5"
+        self.latestGdlVersion = int(latestGdlVersion.replace(".", ""))
+
+        self.everDownloaded = self.main.General.config.settings["Downloader"]["everdownloaded"]
+
+        currentGdlVersion = self.main.General.config.settings["Downloader"]["gdlversion"]
+        self.currentGdlVersion = int(currentGdlVersion.replace(".", ""))
+
+        self.checkForPrompts()
+
+    def checkForPrompts(self):
+        doPrompt = self.everDownloaded and (self.latestGdlVersion > self.currentGdlVersion)
+        self.main.debuggy(
+            f"doPrompt: {doPrompt}, downloaded: {self.everDownloaded}, current ver: {self.currentGdlVersion}, latest: {self.latestGdlVersion}",
+            self,
+        )
+        if doPrompt:
+            reply = QMessageBox.question(
+                None,
+                "Update Available",
+                f"A new version of gallery-dl is available.\n\n"
+                f"Current: {self.currentGdlVersion}\n"
+                f"Latest: {self.latestGdlVersion}\n\n"
+                "Do you want to download it?",
+                QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+            )
+            if reply == QMessageBox.StandardButton.Yes:
+                self.forceGdlUpdate = True
+                self.setup()
+            else:
+                self.main.General.config.settings["Downloader"]["gdlprompt"] = False
 
     def getRequestFileSize(self, url):
         try:
@@ -124,7 +159,7 @@ class Downloader:
 
                         #   Move the file to tools root
                         shutil.move(sourceFPath, destFPath)
-                        self.main.cmd.info(f"[{datetime.now()}] Moved {target} to {name}")
+                        self.main.debuggy(f"[{datetime.now()}] Moved {target} to {name}", self)
                         movedCount += 1
 
                 itemsInDir = len(files) + len(dirs)
@@ -146,15 +181,16 @@ class Downloader:
             self.main.General.logger.error(f"Failed to find, remove or rename the file: {e}")
             return 0
 
-    def downloadWorker(self):
+    def downloadWorker(self, toolsOverride=False):
         try:
             tools = [
                 {
-                    "url": "https://github.com/mikf/gallery-dl/releases/download/v1.30.4/gallery-dl_x86.exe",
+                    "url": "https://github.com/mikf/gallery-dl/releases/download/v1.30.5/gallery-dl_x86.exe",
                     "targets": ["gallery-dl_x86.exe"],
                     "renameTargets": ["gallery-dl.exe"],
                     "filename": "gallery-dl.exe",
                     "unzip": False,
+                    "isGalleryDl": True,  # Add flag to identify gallery-dl
                 },
                 {
                     "url": "https://github.com/BtbN/FFmpeg-Builds/releases/download/latest/ffmpeg-master-latest-win64-gpl.zip",
@@ -162,6 +198,7 @@ class Downloader:
                     "renameTargets": ["ffmpeg.exe"],
                     "filename": "tmp_ffmpeg.zip",
                     "unzip": True,
+                    "isGalleryDl": False,
                 },
                 {
                     "url": "https://mkvtoolnix.download/windows/releases/94.0/mkvtoolnix-32-bit-94.0.zip",
@@ -169,6 +206,7 @@ class Downloader:
                     "renameTargets": ["mkvmerge.exe"],
                     "filename": "tmp_mkvtoolnix.zip",
                     "unzip": True,
+                    "isGalleryDl": False,
                 },
             ]
 
@@ -184,17 +222,25 @@ class Downloader:
                 fName = tool["renameTargets"][0] if tool["renameTargets"] else tool["targets"][0]
                 fPath = os.path.join(self.toolsPath, fName)
 
-                if os.path.exists(fPath):
-                    self.main.cmd.info(f"[{datetime.now()}] Skipping {fName}")
+                #   Skip if file exists, UNLESS it's gallery-dl and we're forcing an update
+                shouldSkip = os.path.exists(fPath) and not (tool.get("isGalleryDl", False) and self.forceGdlUpdate)
+
+                if shouldSkip:
+                    self.main.debuggy(f"[{datetime.now()}] Skipping {fName}", self)
                     self.main._inv(lambda: self.loading.increase(1))
                     continue
 
-                self.main.cmd.info(f"[{datetime.now()}] Downloading {tool['filename']}")
+                #   If we're updating gallery-dl and it exists, remove the old version first
+                if tool.get("isGalleryDl", False) and self.forceGdlUpdate and os.path.exists(fPath):
+                    self.main.debuggy(f"[{datetime.now()}] Removing old {fName} for update", self)
+                    self.safeTrash(fPath)
+
+                self.main.debuggy(f"[{datetime.now()}] Downloading {tool['filename']}", self)
 
                 self.download(tool["url"], dest, f"{tool['filename']}")
 
                 if tool["unzip"]:
-                    self.main.cmd.info(f"[{datetime.now()}] Extracting {tool['filename']}")
+                    self.main.debuggy(f"[{datetime.now()}] Extracting {tool['filename']}", self)
 
                     extractrDPath = os.path.join(self.toolsPath, f"tmp_extract_{tool['filename']}")
                     self.unzip(dest, extractrDPath)
@@ -202,7 +248,7 @@ class Downloader:
                     movedCount = self.findAndMove(extractrDPath, tool["targets"], tool["renameTargets"])
 
                     if movedCount > 0:
-                        self.main.cmd.info(f"[{datetime.now()}] Successfully moved {movedCount} files")
+                        self.main.debuggy(f"[{datetime.now()}] Successfully moved {movedCount} files", self)
 
                     if os.path.exists(extractrDPath):
                         self.safeTrash(extractrDPath)
@@ -212,12 +258,20 @@ class Downloader:
                     if tool["renameTargets"] and tool["renameTargets"][0] != tool["filename"]:
                         newPath = os.path.join(self.toolsPath, tool["renameTargets"][0])
                         os.rename(dest, newPath)
-                        self.main.cmd.info(f"[{datetime.now()}] Renamed {tool['filename']} to {tool['renameTargets'][0]}")
+                        self.main.debuggy(f"[{datetime.now()}] Renamed {tool['filename']} to {tool['renameTargets'][0]}", self)
 
                 self.inv(lambda: self.loading.increase(1))
 
             self.inv(lambda: self.loading.terminate())
             self.main.General.logger.info("Downloads completed")
+            self.main.debuggy(
+                f"Gallery-dl update {self.currentGdlVersion} <- {self.latestGdlVersion}",
+                self,
+            )
+            self.main.General.config.settings["Downloader"]["gdlversion"] = f"{self.latestGdlVersion}"
+
+            # Reset the force update flag after completion
+            self.forceGdlUpdate = False
 
         except Exception as e:
             self.main.varHelper.exception(e)
@@ -226,6 +280,7 @@ class Downloader:
 
     def setup(self):
         os.makedirs(self.toolsPath, exist_ok=True)
+        self.main.General.config.settings["Downloader"]["everdownloaded"] = True
 
         downloadThread = threading.Thread(target=self.downloadWorker)
         downloadThread.daemon = True

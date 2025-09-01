@@ -1,11 +1,40 @@
+<<<<<<< Updated upstream
 Naughty Archiver 2000 v1.2 PreRelease
 	-	App: Custom url jobs cannot be started while extractor is running
+=======
+Naughty Archiver 2000 v1.2 Release
+	-	Extractors: Custom url jobs cannot be started while extractor is running
+>>>>>>> Stashed changes
 	-	App: Added option to not show loading bars
 	-	App: CMD Debug messages aside from initialization and stopping are now file-only (--debug argument)
 	-	Twitter: Added more urls to custom URL box
 	-	App: Made general tab more readable
 	-	Table: No more freak-outs if the path doesn't exist and the auto button was pressed
+<<<<<<< Updated upstream
 	
+=======
+	-	App: Fixed Loading bar keeping console on 
+	-	App: Fixed app crashing from debug mode
+	-	App: Fixed auto UNIX timestamp not selecting the proper latest file value
+	-	Table: Auto UNIX timestamp will work for users with 'default' path
+	-	App: UNIX Timestamp creator was modified to have a textbox to put a unix timestamp in
+	-	Extractors: Fixed 'enabled' attribute always being true when starting all extractors
+	-	Table: Fixed button functions not updating their own index when moving users around/removing
+	-	App: Set gallery-dl url to version 1.30.5
+	-	Extractors: New option to append error handling entries from extractor
+	-	Extractors: Added special handling cases for some extractor's gallery-dl exceptions raised
+	-	Twitter: bumped conversation sleep to +7 instead of +5
+	-	App: Added prompt to download a new version of gallery-dl
+	-	App: Event RESET_CURSOR will now also restart the job
+	-	App: Output handler keeps track of old run and new run errors, if an event is triggered again with the same error it will do a different action (as of now only for reset_cursor)
+	-	Twitter: Fix for twitter new non 'transform' metadata
+	-	Twitter: Added option to convert twitter gifs from .mp4 to .gif
+	-	General: Added option to ignore sql files
+	-	Table: Added option to trash user's sql file
+	-	Table: Fixed addtable button
+	-	App: Bumped config bak files to 3 levels and save only half of the time (except when exiting)
+
+>>>>>>> Stashed changes
 Naughty Archiver 2000 v1.1 Release
 	-	Extractors: No more need to create a custom ui, a dictionary specifying the widgets is all you need
 	-	Extractors: Implemented running custom urls window
@@ -28,7 +57,7 @@ Naughty Archiver 2000 v1.1 Release
 	-	Logic: Output manager new mask key to only act only if a specific operation is being done, for example to ignore an error box while extracting custom urls
 	-	General: Added tool to make it easier to create custom rules for outputs
 	-	Table: Made move up and down buttons auto-repeat if held
-	-	App: Fixed custom url extraction looping n times
+	-	Extractors: Fixed custom url extraction looping n times
 	-	Logic: If user doesn't exist in custom jobs then it will not set the user to skip 
 
 Naughty Archiver 2000 v1.0 Release

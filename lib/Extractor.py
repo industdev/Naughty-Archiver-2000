@@ -14,12 +14,11 @@ import random
 from PySide6.QtWidgets import QApplication, QWidget
 from PySide6.QtCore import Qt
 
-from lib.ui.userTable_manager import UserTable
-from lib.ui.cookieEdit_manager import CookieEdit
-from lib.ui.erroredLister_manager import ErroredLister
-from lib.ui.urlManager_manager import URLManager
-from lib.ui.extractorUi import Ui_Extractor
-from lib.VarHelper import VarHelper
+from lib.ui.UserTable_manager import UserTable
+from lib.ui.CookieEdit_manager import CookieEdit
+from lib.ui.ErroredLister_manager import ErroredLister
+from lib.ui.UrlManager_manager import URLManager
+from lib.ui.ExtractorUi import Ui_Extractor
 from lib.ConsoleLogger import ConsoleLogger
 from lib.FileMonitor import FileMonitor
 from lib.GalleryRunner import GalleryRunner
@@ -29,7 +28,7 @@ from lib.Logic import Logic
 from threading import Event
 from datetime import datetime
 
-from lib.ui.userTable_manager import Table
+from lib.ui.UserTable_manager import Table
 
 import time
 
@@ -83,7 +82,7 @@ class Extractor(QWidget):
             self.userIdentificaiton = table[2]
             self.setupDefaultConfig()
 
-            self.config = Config(self.main, self.widgetsConnection, self.configTemplate, self.configFPath, self.fullName, self.ui)
+            self.config = Config(self.main, self.configTemplate, self.configFPath, self.fullName, self, self.widgetsConnection, self.ui)
 
             #   Logging
             self.logger = ConsoleLogger(self.main, self.ui.theLogPlace, self.logsPath, self.configName, self.config.settings)
@@ -92,7 +91,7 @@ class Extractor(QWidget):
             self.errorLister = ErroredLister(main, self)
             self.galleryRunner = GalleryRunner(main, self)
             self.monitor = FileMonitor(self.logger, self.galleryRunner, main)
-            self.users = UserTable(main, self, self.getUserList())
+            self.users = UserTable(main, self)
             self.commonUserOptions = settings.commonUserOptions
             self.statCounter = main.stats.counter
             self.logic = Logic(self.main.General.config.settings, self)
@@ -132,7 +131,7 @@ class Extractor(QWidget):
                 self.main.General.logger.error(f"Something went wrong while creating the extractor: {e}")
             raise
 
-    def __fillUserEntries(self, userlist):
+    def _fillUserEntries(self, userlist):
         template = self.tableTemplate
         for row in template:
             keyname = row[3]
@@ -148,39 +147,8 @@ class Extractor(QWidget):
                     user[keyname] = defaultvalue
 
     def getUserList(self) -> list[dict]:
-        usersList = []
-        try:
-            #   User table does not exist
-            if not os.path.exists(self.usersFPath):
-                with open(self.usersFPath, "w", encoding="utf-8") as file:
-                    json.dump([], file)
-
-            #   Load user list
-            with open(self.usersFPath, "r", encoding="utf-8") as file:
-                usersList = json.load(file)
-                self.__fillUserEntries(usersList)
-
-            self.inv(lambda: self.logger.debug(f"{self.name} users loaded"))
-
-            self.usersList = usersList
-        except Exception as e:
-            self.main.varHelper.exception(e)
-            self.inv(lambda e=e: self.logger.alert(f"Error loading {self.configName} user list: {e}"))
-            #   Backup
-            bak_path = self.usersFPath + ".bak"
-            if os.path.exists(bak_path):
-                try:
-                    with open(bak_path, "r", encoding="utf-8") as file:
-                        usersList = json.load(file)
-                        self.__fillUserEntries(usersList)
-                    self.inv(lambda: self.logger.alert(f"{self.name} backup user list loaded"))
-                except Exception as e:
-                    raise Exception(f"Failed to load backup for {self.name}: {e}")
-
-        if self.main.debug:
-            string = "\n".join(user["UserHandle"] for user in usersList)
-            self.main.debuggy(string, self)
-        return usersList
+        self._fillUserEntries(self.users.config.settings["users"])
+        return self.users.config.settings["users"]
 
     def showUsersTable(self):
         self.main.debuggy(f"Extractor::showUsersTable", self)
@@ -288,7 +256,7 @@ class Extractor(QWidget):
 
                 if jobOverride:
                     self.setCurrentOperations(operationOverride)
-                    status = self._processJobOverride(jobOverride, operationOverride)
+                    status = self._processJobOverride(jobOverride, ", ".join(s.name for s in operationOverride))
                     self.loopStopRequested = True
                     continue
                 else:
@@ -299,9 +267,11 @@ class Extractor(QWidget):
 
                 if i + 1 != self.maximumruns:
                     self.inv(lambda i=i: self.logger.success(f"Will run again in {self.looptime} seconds ({i + 2}/{self.maximumruns})"))
-
-                self.event_loopStop.clear()
-                if self.event_loopStop.wait(timeout=self.looptime):
+                    self.event_loopStop.clear()
+                    if self.event_loopStop.wait(timeout=self.looptime):
+                        break
+                else:
+                    self.inv(lambda: self.logger.info(f"All runs completed"))
                     break
 
         except Exception as e:
@@ -311,7 +281,7 @@ class Extractor(QWidget):
             self.setCurrentOperations([ExtractorState.IDLE])
             self.monitor.stop()
             self.jobIndex = 0
-            self.inv(lambda: self.generalLogger.log(f"{self.name} extraction stopped"))
+            self.inv(lambda: self.generalLogger.log(f"{self.fullName} extraction stopped"))
             self.inv(lambda: self.logger.log(f"Extraction stopped"))
             self.loopStopRequested = False
             self.main.tray.refreshMenu()
@@ -511,10 +481,10 @@ class Extractor(QWidget):
                 error = galleryStatus[1]
                 if error == Return.FORCE_TERMINATED:
                     if isOverridden:
-                        self.inv(lambda: self.logger.alert(f"{self.name} extraction forcefully stopped at {userHandle}'s URL "))
+                        self.inv(lambda: self.logger.alert(f"Extraction forcefully stopped at {userHandle}'s URL "))
                     else:
-                        self.inv(lambda: self.logger.alert(f"{self.name} extraction forcefully stopped at user {userHandle}"))
-                    self.inv(lambda: self.generalLogger.alert(f"{self.name} extraction stopped forcefully"))
+                        self.inv(lambda: self.logger.alert(f"Extraction forcefully stopped at user {userHandle}"))
+                    self.inv(lambda: self.generalLogger.alert(f"{self.fullName} extraction stopped forcefully"))
                     return Return.FAILED
 
                 elif error == Return.JOB_SKIPPED:
@@ -538,7 +508,7 @@ class Extractor(QWidget):
                                 title=f"{self.name} Warning",
                             )
                         self.inv(lambda: self.logger.warning("The extraction of the job will be restarted"))
-                        self.inv(lambda type=type: self.logger.info(f"{type}..."))
+                        self.inv(lambda type=type: self.logger.info(f"Extracting {type}..."))
                         continue
                     else:
                         if isOverridden:
@@ -563,9 +533,9 @@ class Extractor(QWidget):
                     continue
 
                 else:
-                    self.inv(lambda: self.logger.error(f"{self.name} extraction failed at user {userHandle}"))
+                    self.inv(lambda: self.logger.error(f"Extraction failed at user {userHandle}"))
                     self.inv(lambda g=error: self.logger.error(f"Reason: {g}"))
-                    self.inv(lambda: self.generalLogger.error(f"{self.name} extraction stopped with error"))
+                    self.inv(lambda: self.generalLogger.error(f"{self.fullName} extraction stopped with error"))
                     return Return.FAILED
 
             self.main.debuggy("Out of while", self)
@@ -649,6 +619,7 @@ class Extractor(QWidget):
         append = [
             [Table.HIDE, Table.TEXTBOX, "Last Extracted (Unix)", "LastExtracted", 0, Validation.INTEGER],
             [Table.HIDE, Table.AUTOTIMESTAMP, "", None, None, None],
+            [Table.HIDE, Table.SQLDELETER, "", None, None, None],
         ]
 
         if self.cursorExtractionEnabled:
@@ -772,7 +743,7 @@ class Extractor(QWidget):
     #   The loop will take all users from the usertable and get their jobs
     #   Then a galleryRunner function will start gallery-dl
     def startExtraction(self, jobOverride=None, operationOverride: list[ExtractorState] | None = None):
-        self.logger.debug(f"Extractor::startExtraction -> {True if jobOverride else False}, {operationOverride}")
+        self.logger.debug(f"Extractor::startExtraction -> {True if jobOverride else False}")
 
         #   If asked to start while already running
         if self.loopRunning or self.galleryRunner.running:
@@ -877,3 +848,16 @@ class Extractor(QWidget):
         string = ", ".join(state.name for state in states)
         self.logger.debug(f"Setting current operations to [{string}]")
         self.currentOperations = states
+
+
+class ExtractorEntry:
+    def __init__(self, extractor):
+        self.extractor = extractor
+
+    @property
+    def ext(self):
+        return self.extractor
+
+    @property
+    def enabled(self):
+        return self.extractor.config.settings.get("enabled", True)
