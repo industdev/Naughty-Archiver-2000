@@ -65,7 +65,6 @@ class MainApp(QMainWindow):
         self.galleryFPath = paths.getExternalRes(f"{_externalP}/gallery-dl.exe")
         self.toolsPath = paths.getExternalRes(f"{_externalP}")
         self.iconPath = paths.getExternalRes(f"{_externalP}/icon.ico")
-        self._runningConfigPath = paths.getExternalRes(f"{_externalP}/logic")
 
         _savedP = "saved"
         os.makedirs(os.path.join(self._scriptDir, _savedP), exist_ok=True)
@@ -77,6 +76,7 @@ class MainApp(QMainWindow):
         self._debugDPath = paths.getExternalRes(f"{_savedP}/debug")
         self.exceptionFPath = paths.getExternalRes(f"{_savedP}/latestException.txt")
         self.userOutputPatternsFPath = paths.getExternalRes(f"{_savedP}/userOutputPatterns.json")
+        self._runningConfigPath = paths.getExternalRes(f"{_savedP}/run")
 
         _libP = "lib"
         self._animPath = paths.getInternalRes(f"{_libP}/ui/old/anim")
