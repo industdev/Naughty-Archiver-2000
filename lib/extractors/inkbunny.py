@@ -89,7 +89,7 @@ class Inkbunny(ExtractorInterface):
 
             return jobs, self.defaultJob(user, fullBaseConf)
         except Exception as e:
-            self.main.varHelper.exception(e, main.General.logger)
+            main.varHelper.exception(e, main.General.logger)
             raise Exception(f"Error getting the jobs for {self.extractorName}: {e}")
 
     def _inkbunny_galleryConfig(self, user, base_config):

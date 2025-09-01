@@ -221,7 +221,7 @@ class Twitter(ExtractorInterface):
 
             return jobs, self.defaultJob(user, fullBaseConf)
         except Exception as e:
-            self.main.varHelper.exception(e)
+            main.varHelper.exception(e)
             raise Exception(f"Error getting the jobs for {self.extractorName} (See cmd with CTRL+.): {e}")
 
     def _twitter_mediaJob(self, user, fullBaseConf):

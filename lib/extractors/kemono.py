@@ -116,7 +116,7 @@ class Kemono(ExtractorInterface):
             jobs.append(self._kemono_baseConfig(user, fullBaseConf))
             return jobs, self._kemono_baseConfig(user, fullBaseConf)
         except Exception as e:
-            self.main.varHelper.exception(e)
+            main.varHelper.exception(e)
             raise Exception(f"Error getting the jobs for {self.extractorName} (See cmd with CTRL+.): {e}")
 
     def _kemono_baseConfig(self, user, base_config):

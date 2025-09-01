@@ -119,22 +119,12 @@ class UnixCreator(QWidget):
             self.ui.lbl_unix.setText("UNIX: Error reading folder")
 
     def getTimestampFromFolder(self, folder):  # Add your extensions
-        timestamp = 0
-        filesFound = False
-        items = 0
-        exts = (".png", ".jpg", ".mp4", ".mov", ".jpeg", ".gif", ".wepb", ".html", ".zip")
         try:
             timestamp = 0
-<<<<<<< Updated upstream
-=======
             maxTimestamp = 0
             filesFound = False
             items = 0
             exts = (".png", ".jpg", ".mp4", ".mov", ".jpeg", ".gif", ".wepb", ".html", ".zip", ".mkv")
-<<<<<<< Updated upstream
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes
 
             with os.scandir(folder) as entries:
                 #   Count files with allowed extensions
