@@ -910,7 +910,7 @@ class UserTable(QWidget):
             for i, user in enumerate(self.list):
                 if user.get("UserHandle") == username:
                     self.main.debuggy(f"Updating {username}'s {keyname} key to '{value}' at index {i} where ({self.list[i]=} and )", self)
-                    self.inv(lambda: self.logger.debug(f"Updating {username}'s {keyname} key to '{value[:12]}'..."))
+                    self.inv(lambda: self.logger.debug(f"Updating {username}'s {keyname} key to '{str(value)[:12]}'..."))
                     user[keyname] = value
                     self.inv(lambda u=user, i=i: self.updateRowFromData(u, i))
                     return
