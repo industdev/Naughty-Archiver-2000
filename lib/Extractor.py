@@ -338,6 +338,8 @@ class Extractor(QWidget):
 
                 if not self.inhibitUnixUpdate:
                     self.users.setUserKey(self.user["UserHandle"], "LastExtracted", int(time.time()))
+                else:
+                    self.main.debuggy(f"Skipping {self.user['UserHandle']} unix timestamp update", self)
             return Return.SUCCESS
         except Exception as e:
             self.main.varHelper.exception(e)

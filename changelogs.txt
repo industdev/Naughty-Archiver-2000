@@ -1,5 +1,11 @@
 Naughty Archiver 2000 v1.2.1 Update
-	-	
+	-	App: Fixed --debug flag preventing program start
+	-	Table: Fixed userTable overriding users
+	-	App: Fixed extractor ui windows preventing shutdown when open
+	-	App: Added duplicate user prevention for user tables
+	-	Furaffinity: Fixed a and b cookies being swapped
+	-	App: Made console logger non-zoomable
+	-	Logic: Differentiated between 'FileNotFoundError' and 'NotFoundError'
 
 Naughty Archiver 2000 v1.2 Release
 	-	Extractors: Custom url jobs cannot be started while extractor is running

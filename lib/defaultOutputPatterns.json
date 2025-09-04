@@ -8,7 +8,7 @@
             2
         ],
         "RESET_AT": 200,
-        "VERSION": "1.2",
+        "VERSION": [1,2,1],
         "DEFAULT": true
     },
     {
@@ -19,7 +19,7 @@
             "STOP",
             true
         ],
-        "VERSION": "1.2",
+        "VERSION": [1,2,1],
         "DEFAULT": true
     },
     {
@@ -31,13 +31,13 @@
             2
         ],
         "RESET_AT": 200,
-        "VERSION": "1.2",
+        "VERSION": [1,2,1],
         "DEFAULT": true
     },
     {
         "MATCH": "NameResolutionE",
         "LINE_LEVEL": "YELLOW",
-        "VERSION": "1.2",
+        "VERSION": [1,2,1],
         "DEFAULT": true
     },
     {
@@ -48,7 +48,7 @@
             "STOP",
             true
         ],
-        "VERSION": "1.2",
+        "VERSION": [1,2,1],
         "DEFAULT": true
     },
     {
@@ -61,7 +61,7 @@
             3
         ],
         "RESET_AT": 150,
-        "VERSION": "1.2",
+        "VERSION": [1,2,1],
         "DEFAULT": true
     },
     {
@@ -72,7 +72,7 @@
             "STOP",
             true
         ],
-        "VERSION": "1.2",
+        "VERSION": [1,2,1],
         "DEFAULT": true
     },
     {
@@ -83,7 +83,7 @@
             "STOP",
             2
         ],
-        "VERSION": "1.2",
+        "VERSION": [1,2,1],
         "DEFAULT": true
     },
     {
@@ -97,7 +97,7 @@
             3
         ],
         "RESET_AT": 600,
-        "VERSION": "1.2",
+        "VERSION": [1,2,1],
         "DEFAULT": true
     },
     {
@@ -109,7 +109,7 @@
             "STOP",
             1
         ],
-        "VERSION": "1.2",
+        "VERSION": [1,2,1],
         "DEFAULT": true
     },
     {
@@ -122,7 +122,14 @@
             1
         ],
         "MASK": "ANY_URLS_EXTRACTION",
-        "VERSION": "1.2",
+        "VERSION": [1,2,1],
+        "DEFAULT": true
+    },
+    {
+        "MATCH": "FileNotFoundError",
+        "LINE_LEVEL": "YELLOW",
+        "INHIBIT_BOX": false,
+        "VERSION": [1,2,1],
         "DEFAULT": true
     },
     {
@@ -136,7 +143,7 @@
         ],
         "EVENT": "USER_NOTFOUND",
         "MASK": "NORMAL_EXTRACTION",
-        "VERSION": "1.2",
+        "VERSION": [1,2,1],
         "DEFAULT": true
     },
     {
@@ -150,7 +157,7 @@
         ],
         "EVENT": "USER_NOTFOUND",
         "MASK": "NORMAL_EXTRACTION",
-        "VERSION": "1.2",
+        "VERSION": [1,2,1],
         "DEFAULT": true
     },
     {
@@ -163,7 +170,7 @@
             1
         ],
         "MASK": "ANY_URLS_EXTRACTION",
-        "VERSION": "1.2",
+        "VERSION": [1,2,1],
         "DEFAULT": true
     },
     {
@@ -176,7 +183,7 @@
             1
         ],
         "MASK": "ANY_URLS_EXTRACTION",
-        "VERSION": "1.2",
+        "VERSION": [1,2,1],
         "DEFAULT": true
     },
     {
@@ -187,7 +194,7 @@
             "RETRY_JOB",
             true
         ],
-        "VERSION": "1.2",
+        "VERSION": [1,2,1],
         "DEFAULT": true
     },
     {
@@ -195,7 +202,7 @@
         "LINE_LEVEL": "GREY",
         "INHIBIT_BOX": false,
         "EVENT": "UPDATE_CURSOR",
-        "VERSION": "1.2",
+        "VERSION": [1,2,1],
         "DEFAULT": true
     },
     {
@@ -208,27 +215,27 @@
         ],
         "RESET_AT": 300,
         "EVENT": "RESET_CURSOR",
-        "VERSION": "1.2",
+        "VERSION": [1,2,1],
         "DEFAULT": true
     },
     {
         "MATCH": " \"GET ",
         "LINE_LEVEL": "OTHER",
         "EVENT": "API_CALL",
-        "VERSION": "1.2",
+        "VERSION": [1,2,1],
         "DEFAULT": true
     },
     {
         "MATCH": " \"POST ",
         "LINE_LEVEL": "OTHER",
         "EVENT": "API_CALL",
-        "VERSION": "1.2",
+        "VERSION": [1,2,1],
         "DEFAULT": true
     },
     {
         "MATCH": "depreca",
         "LINE_LEVEL": "YELLOW",
-        "VERSION": "1.2",
+        "VERSION": [1,2,1],
         "DEFAULT": true
     },
     {
@@ -241,13 +248,13 @@
             5
         ],
         "RESET_AT": 100,
-        "VERSION": "1.2",
+        "VERSION": [1,2,1],
         "DEFAULT": true
     },
     {
         "MATCH": "comple",
         "LINE_LEVEL": "WHITE",
-        "VERSION": "1.2",
+        "VERSION": [1,2,1],
         "DEFAULT": true
     }
 ]

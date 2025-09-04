@@ -75,8 +75,8 @@ class Furaffinity(ExtractorInterface):
         return ui
 
     def getJobs(self, user, extSettings, generalSettings, baseConf, deepUpdate, main) -> tuple[list[Any], dict[str, Any]]:
-        a = self.readFile(f"{extSettings['cookiespath']}")
-        b = self.readFile(f"{extSettings['cookiespath']}_token")
+        b = self.readFile(f"{extSettings['cookiespath']}")
+        a = self.readFile(f"{extSettings['cookiespath']}_token")
 
         overrideConf = {
             "extractor": {

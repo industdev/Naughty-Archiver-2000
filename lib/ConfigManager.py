@@ -73,6 +73,7 @@ class Config:
             oldest = self._getBackupFilePath(self.maxBackupLevels)
             if os.path.exists(oldest):
                 self.main.safeTrash(oldest)
+                self.main.debuggy(f"- - - - Config save", self.par)
                 self.main.debuggy(f"Removed oldest backup: {oldest}", self.par)
 
             #   Rotate existing backups

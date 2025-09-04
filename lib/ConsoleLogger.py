@@ -1,5 +1,7 @@
 from typing import TYPE_CHECKING
 
+from PySide6.QtCore import QEvent, QObject, Qt
+
 from lib.Enums import LogLevel
 
 if TYPE_CHECKING:
@@ -18,6 +20,7 @@ class ConsoleLogger:
         start = time.perf_counter()
         self.main = main
         self.textbox = textbox
+        self.textbox.wheelEvent = self.customWheelEvent
         self.logDPath = logPath
         self.extractorName = extractorName
         self.logFPath = os.path.join(self.logDPath, f"{datetime.now().strftime('%Y-%m-%d')}_{self.extractorName}.txt")
@@ -34,6 +37,11 @@ class ConsoleLogger:
         }
         self._setFixedLineHeight()
         self.main.cmd.debug(f" :{__name__}::__init__ ->{(time.perf_counter() - start) * 1000:.6f}ms")
+
+    def customWheelEvent(self, event):
+        if event.modifiers() & Qt.KeyboardModifier.ControlModifier:
+            return
+        QTextEdit.wheelEvent(self.textbox, event)
 
     def log(self, message, msgType: str | LogLevel = LogLevel.WHITE):
         if not isinstance(msgType, LogLevel):
@@ -235,8 +243,6 @@ class ConsoleLogger:
         self.textbox.setUpdatesEnabled(True)
 
     def _setFixedLineHeight(self):
-
-
         cursor = self.textbox.textCursor()
         cursor.select(QTextCursor.SelectionType.Document)
 

@@ -47,8 +47,9 @@ class MainApp(QMainWindow):
         start = time.perf_counter()
         super().__init__()
         self.name = "Naughty Archiver 2000"
-        self.version = "1.2"
+        self.version = "1.2.2"
         self.release = "release"
+        self.versionInt = [1, 2, 2]
 
         self.name = f"{self.name} {self.release} v{self.version}"
         self.cmd = logger
@@ -86,6 +87,7 @@ class MainApp(QMainWindow):
         #   Init
         self.setWindowIcon(QIcon(self.iconPath))
         self.debug = False
+        self.debugManager = DebugManager(self, self._debugDPath)
         self.argHelper = ArgHelper(self)
         self.args = self.argHelper.args
         if self.args.debug:
@@ -106,7 +108,6 @@ class MainApp(QMainWindow):
             self.debuggy(f"\t{self._iconsPath=}", "init")
             self.debuggy(f"\t{self.defaultOutputPatternsFPath=}", "init")
 
-        self.debugManager = DebugManager(self, self._debugDPath)
         self.varHelper = VarHelper(self)
         self.threadHelper = ThreadHelper()
         self.loadingBar = LoadingBar(self)
@@ -274,6 +275,7 @@ class MainApp(QMainWindow):
             self.threadTimeCounter.stop()
             self.dataHelper.stop()
             self.crashHelper.stop()
+
             self.extractorsManager.savelogs()
             self.debugManager.closeAll()
 
@@ -321,6 +323,20 @@ class MainApp(QMainWindow):
         self.setWindowState(self.windowState() & ~Qt.WindowState.WindowMinimized)
         self.activateWindow()
         self.raise_()
+
+    def compareVer(self, version1, version2):
+        """
+        -1 if version1 < version2
+        0 if version1 == version2
+        1 if version1 > version2
+        """
+
+        for i in range(3):
+            if version1[i] < version2[i]:
+                return -1
+            elif version1[i] > version2[i]:
+                return 1
+        return 0
 
     def _hideWinConsole(self):
         ctypes.windll.user32.ShowWindow(ctypes.windll.kernel32.GetConsoleWindow(), 0)

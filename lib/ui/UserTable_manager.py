@@ -1,8 +1,7 @@
-from tkinter import E
 from typing import TYPE_CHECKING, Literal
 
 from lib.ConfigManager import Config
-from lib.Enums import Table, Validation
+from lib.Enums import MessageType, Table, Validation
 
 if TYPE_CHECKING:
     from na2000 import MainApp
@@ -765,6 +764,17 @@ class UserTable(QWidget):
     def getTableData(self) -> dict | Literal[False]:
         try:
             fullTable = []
+            #   Check if there's any duplicate users
+            usersSeen = set()
+            for row in range(self.table.rowCount()):
+                username = self.table.item(row, 3).text()  # type: ignore
+                if username in usersSeen:
+                    self.main.qtHelper.Throw(f"Duplicate user found: {username}", title="Duplicate User", type=MessageType.WARNING)
+                    return False
+                usersSeen.add(username)
+            usersSeen.clear()
+
+            #   Check if rows are valid
             for row in range(self.table.rowCount()):
                 data = self._saveRowData(row)
                 if not self.isRowValid(data, row):
@@ -899,7 +909,7 @@ class UserTable(QWidget):
         try:
             for i, user in enumerate(self.list):
                 if user.get("UserHandle") == username:
-                    self.main.debuggy(f"Updating {username}'s {keyname} key to '{value}' at index {i} ({user=})", self)
+                    self.main.debuggy(f"Updating {username}'s {keyname} key to '{value}' at index {i} where ({self.list[i]=} and )", self)
                     self.inv(lambda: self.logger.debug(f"Updating {username}'s {keyname} key to '{value[:12]}'..."))
                     user[keyname] = value
                     self.inv(lambda u=user, i=i: self.updateRowFromData(u, i))

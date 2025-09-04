@@ -1,6 +1,7 @@
 
 ## What is Naughty archiver 2000
 It's a gallery-dl wrapper built in Python to help managing users, cookies, statistics, handle extraction errors and much more
+The focus is on actively archiving and updating entire profiles of users, but single custom urls can also be extracted
 
 Gallery-dl is made my mikf at https://github.com/mikf/gallery-dl
 
@@ -20,6 +21,8 @@ See changelogs.txt for more features
 Because every extractor has it's own options and it's customized based on gallery-dl, there's only a few already implemented, most gallery-dl settings are also predetermined, such as file names (although still easily modifiable from source).
 
 NA2000 is meant to be run in the background mind-free and can be forcefully terminated at any time
+
+Screenshots:
 <img width="906" height="646" alt="NA2000" src="https://github.com/user-attachments/assets/76e101a2-3283-4fbe-83bb-37e870ac690c" />
 <img width="1293" height="392" alt="NA2000" src="https://github.com/user-attachments/assets/a7fd3fc4-5a82-4e38-9696-ed528408d9b4" />
 <img width="588" height="445" alt="NA2000" src="https://github.com/user-attachments/assets/750c72c5-8370-4fff-a8f8-5e8c1f833ca7" />
@@ -63,7 +66,8 @@ General is the broth in your ramen, everything else is ingredients, you should n
 - Now you decide which extractor you want to have, in the dropdown select it and click insert extractor, a new tab will appear
 
 ### Save data & updates
-Data is stored in the same directory as na2000.exe, making it a portable program, in a folder called `saved`<br/>Please do not delete any file outside the saved folder, do not modify or occupy files in `external`<br/>To update download the new version and drag the saved folder in there, or drag the new version onto the existing one<br/>If you want you can just update gallery-dl by replacing the exe inside `external`
+Data is stored in the same directory as na2000.exe, making it a portable program, in a folder called `saved`<br/>Please do not delete any file outside the saved folder, do not modify or occupy files in `external`<br/>To update download the new version and drag the saved folder in there, or drag the new version onto the existing one<br/>If you want you can just update gallery-dl by replacing the exe inside `external`<br>
+Sensitive data is stored in `saved/cookies`, `saved/run`, share the saved folder only to people you trust, cookies give limited access to your accounts
 ### Arguments
 NA2000 can be called with the following arguments:
 

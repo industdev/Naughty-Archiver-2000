@@ -36,6 +36,7 @@ class OutputHandlerCreator(QWidget):
         self.patternTemplate: dict[str, Any] = {
             Handlers.MATCH.name: "Match Me",
             Handlers.LINE_LEVEL.name: "WHITE",
+            "VERSION": self.main.versionInt,
         }
         self.defaultPatterns = {}
 
@@ -157,15 +158,18 @@ class OutputHandlerCreator(QWidget):
 
     def updateToNewVersion(self):
         defaultEntry = self.defaultPatterns[0]
-        currentDefaultVersion = float(defaultEntry.get("VERSION", "0.0"))
-        currentAppVersion = float(self.main.version)
-        currentDefaultVersion = 0.0
+        currentDefaultVersion = defaultEntry.get("VERSION", [0, 0, 0])
+        if isinstance(currentDefaultVersion, str):
+            currentDefaultVersion = [1, 2, 1]
+
+        currentAppVersion = self.main.versionInt
+
         #   Rebuild default patterns if version is off
-        if currentDefaultVersion >= currentAppVersion:
+        if self.main.compareVer(currentDefaultVersion, currentAppVersion) >= 0:
             return
 
         for pattern in self.defaultPatterns:
-            pattern["VERSION"] = self.main.version
+            pattern["VERSION"] = self.main.versionInt
             pattern["DEFAULT"] = True
 
         with open(self.main.defaultOutputPatternsFPath, "w", encoding="utf-8") as f:
@@ -357,13 +361,13 @@ class OutputHandlerCreator(QWidget):
         if self.currentIndex < 0 or self.currentIndex >= len(self.patterns):
             return
 
-        # Check if this is a default entry and we're not allowed to edit it
+        #   Check if this is a default entry and we're not allowed to edit it
         if self.isCurrentEntryDefault() and not self.unlockDefaultEntries:
             return
 
         config = {}
 
-        # Preserve DEFAULT key if it existed in the original entry
+        #   Preserve DEFAULT key if it existed in the original entry
         originalEntry = self.patterns[self.currentIndex]
         if originalEntry.get("DEFAULT", False):
             config["DEFAULT"] = True
@@ -410,7 +414,7 @@ class OutputHandlerCreator(QWidget):
             config[Handlers.MASK.name] = maskData
 
         #   Version
-        config["VERSION"] = self.main.version
+        config["VERSION"] = self.main.versionInt
 
         self.patterns[self.currentIndex] = config
 
