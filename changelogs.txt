@@ -1,3 +1,10 @@
+Naughty Archiver 2000 v1.2.3 Update
+	-	General: New and cleaner download manager
+
+Naughty Archiver 2000 v1.2.2 Update
+	-	Pixiv: Fixed 'FileNotFoundError' after converting ugoira 
+	-	Furaffinity: Removed original media filename from filenames
+
 Naughty Archiver 2000 v1.2.1 Update
 	-	App: Fixed --debug flag preventing program start
 	-	Table: Fixed userTable overriding users

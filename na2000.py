@@ -28,7 +28,7 @@ from lib.ui.Statistics_manager import TabStatistics
 from lib.ui.GeneralTab import General
 from lib.ui.LoadingBar import LoadingBar
 
-from lib.Downloader import Downloader
+from lib.ui.Download_manager import Downloader
 from lib.QtHelper import QtHelper
 from lib.Configurator import Configurator
 from lib.ExtractorsManager import ExtractorsManager
@@ -47,9 +47,9 @@ class MainApp(QMainWindow):
         start = time.perf_counter()
         super().__init__()
         self.name = "Naughty Archiver 2000"
-        self.version = "1.2.2"
         self.release = "release"
-        self.versionInt = [1, 2, 2]
+        self.versionInt = [1, 2, 3]
+        self.version = ".".join(map(str, self.versionInt))
 
         self.name = f"{self.name} {self.release} v{self.version}"
         self.cmd = logger
@@ -115,7 +115,6 @@ class MainApp(QMainWindow):
         self.tray = TrayHelper(self)
         self.configurator = Configurator(self)
         self.General = General(self)
-        self.downloader = Downloader(self, self.safeTrash, self.toolsPath)
         self.stats = TabStatistics(self)
         self.threadTimeCounter = ThreadTimeCounter(self)
         self.crashHelper = crashHelper

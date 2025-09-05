@@ -188,6 +188,13 @@ class Pixiv(ExtractorInterface):
             overrideConf = {
                 "extractor": {
                     "postprocessors": [
+                        #   Save to zip
+                        {
+                            "name": "ugoira",
+                            "ffmpeg-demuxer": "archive",
+                            "whitelist": ["pixiv", "danbooru"],
+                            "keep-files": True,
+                        },
                         #   Convert to video
                         {
                             "name": "ugoira",
@@ -195,13 +202,6 @@ class Pixiv(ExtractorInterface):
                             "ffmpeg-demuxer": demuxer,
                             "ffmpeg-location": os.path.join(main.toolsPath, "ffmpeg.exe"),
                             "mkvmerge-location": os.path.join(main.toolsPath, "mkvmerge.exe"),
-                            "whitelist": ["pixiv", "danbooru"],
-                            "keep-files": False,
-                        },
-                        #   Save to zip
-                        {
-                            "name": "ugoira",
-                            "ffmpeg-demuxer": "archive",
                             "whitelist": ["pixiv", "danbooru"],
                             "keep-files": False,
                         },
@@ -230,10 +230,11 @@ class Pixiv(ExtractorInterface):
 
             #   If format is 0 then we keep the original frames as individual files and don't convert
             if extSettings["ugoiraformat"] == 0:
-                fullBaseConf["extractor"]["postprocessors"][0] = {}
+                fullBaseConf["extractor"]["postprocessors"][1] = {}
+                fullBaseConf["extractor"]["postprocessors"][0]["keep-files"] = False
             elif extSettings["ugoiraformat"] == 1:
-                fullBaseConf["extractor"]["postprocessors"][0]["ffmpeg-demuxer"] = "auto"
-                fullBaseConf["extractor"]["postprocessors"][0]["ffmpeg-args"] = [
+                fullBaseConf["extractor"]["postprocessors"][1]["ffmpeg-demuxer"] = "auto"
+                fullBaseConf["extractor"]["postprocessors"][1]["ffmpeg-args"] = [
                     "-filter_complex",
                     "split[s0][s1];[s0]palettegen=stats_mode=full[p];[s1][p]paletteuse=dither=bayer:bayer_scale=5:diff_mode=rectangle",
                     "-qscale:v",
@@ -244,7 +245,7 @@ class Pixiv(ExtractorInterface):
 
             #   If we don't want ugoira ZIP files then we remove the postprocessor
             if not extSettings["ugoirakeep"]:
-                fullBaseConf["extractor"]["postprocessors"][1] = {}
+                fullBaseConf["extractor"]["postprocessors"][0] = {}
 
             if user["IncludeNovels"]:
                 fullBaseConf["extractor"][self.galleryName]["include"] = ["avatar", "background", "artworks", "novel-user"]

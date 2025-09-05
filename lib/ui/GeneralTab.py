@@ -4,6 +4,7 @@ from PySide6.QtWidgets import QWidget
 from PySide6.QtCore import Qt
 
 from lib.Enums import Validation
+from lib.ui.Download_manager import Downloader
 from lib.ui.UnixCreator_manager import UnixCreator
 from lib.ui.GeneralTab_ui import Ui_TabGeneral
 from lib.ConsoleLogger import ConsoleLogger
@@ -122,7 +123,7 @@ class General(QWidget):
                 {Configure.WIDGET: "cfgui_sleepmodulate", Configure.KEY: "sleepmodulate", Configure.VALIDATION: Validation.INTEGER},
                 {Configure.WIDGET: "btn_StopRun", Configure.FUNCTION: lambda: main.extractorsManager.startExtractors()},
                 {Configure.WIDGET: "btn_insert", Configure.FUNCTION: lambda: main.extractorsManager.addExtractor()},
-                {Configure.WIDGET: "btn_downloadTools", Configure.FUNCTION: lambda: main.downloader.setup()},
+                {Configure.WIDGET: "btn_downloadTools", Configure.FUNCTION: lambda: self.showToolsDownloader()},
                 {Configure.WIDGET: "btn_showUnixCreator", Configure.FUNCTION: lambda: self.showUnixCreator()},
                 {Configure.WIDGET: "btn_showOutputHandlerCreator", Configure.FUNCTION: lambda: self.showOutputHandlerCreator()},
             ]
@@ -155,7 +156,7 @@ class General(QWidget):
                 "skiploadingbars": False,
                 "nosqlcreation": False,
                 "stoptrigger": 20,
-                "Downloader": {"everdownloaded": False, "gdlversion": "0", "gdlprompt": True},
+                "Downloader": {"everdownloaded": False, "gdlprompt": True},
                 "uuid": None,
                 "autotester": False,
                 "extractors": [],
@@ -165,6 +166,7 @@ class General(QWidget):
             self.logger = ConsoleLogger(self.main, self.ui.theLogPlace, self.logsPath, self.configName, self.config.settings)
             self.unixCreator = UnixCreator(self.main)
             self.outputHandlerCreator = OutputHandlerCreator(self.main, self)
+            self.toolsDownloader = Downloader(self.main, self.main.safeTrash, self.main.toolsPath, self)
 
             self.generalLogger = self.logger
 
@@ -173,7 +175,7 @@ class General(QWidget):
 
             self.main.qtHelper.setIcon(self.ui.btn_StopRun, "imageres_1013.ico")
             self.main.qtHelper.setIcon(self.ui.btn_insert, "hdwwiz_100.ico", size=(16, 16))
-            self.main.qtHelper.setIcon(self.ui.btn_downloadTools, "FM20ENU_5.ico", size=(16, 16))
+            self.main.qtHelper.setIcon(self.ui.btn_downloadTools, "odbcint_1439.ico", size=(16, 16))
             self.main.qtHelper.setIcon(self.ui.btn_showUnixCreator, "ieframe_20783.ico", size=(16, 16))
             self.main.qtHelper.setIcon(self.ui.btn_showOutputHandlerCreator, "FXSRESM_2101.ico", size=(16, 16))
 
@@ -187,6 +189,13 @@ class General(QWidget):
         self.unixCreator.show()
         self.unixCreator.raise_()
         self.unixCreator.activateWindow()
+
+    def showToolsDownloader(self):
+        self.main.debuggy(f"General::showToolsDownloader", self)
+        self.toolsDownloader.setWindowState(Qt.WindowState.WindowNoState)
+        self.toolsDownloader.show()
+        self.toolsDownloader.raise_()
+        self.toolsDownloader.activateWindow()
 
     def showOutputHandlerCreator(self):
         self.main.debuggy(f"General::btn_showOutputHandlerCreator", self)

@@ -18,7 +18,7 @@ def getNormal(metadata):
     else:
         r18 = ""
             
-    return f"furaffinity_{userHandle}_{elementCreationTime}_[{elementId}-{elementName}{r18}].{metadata['extension']}"
+    return f"furaffinity_{userHandle}_{elementCreationTime}_[{elementId}{r18}].{metadata['extension']}"
 
 def getNormal_Postprocessor(metadata):
 
@@ -37,7 +37,7 @@ def getNormal_Postprocessor(metadata):
     else:
         r18 = ""
 
-    return f"furaffinity_{userHandle}_{elementCreationTime}_[{elementId}-{elementName}{r18}].json"
+    return f"furaffinity_{userHandle}_{elementCreationTime}_[{elementId}{r18}].json"
 
 def Shorten(string, length = 64):
     if len(string) > length:
