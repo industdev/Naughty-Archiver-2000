@@ -1,9 +1,13 @@
 from typing import TYPE_CHECKING
 
+
 if TYPE_CHECKING:
     from na2000 import MainApp
     from lib.FileMonitor import FileMonitor
     from lib.ConsoleLogger import ConsoleLogger
+    from lib.Extractor import Extractor
+    from lib.GalleryRunner import GalleryRunner
+
 import os
 import time
 from watchdog.observers import Observer
@@ -12,9 +16,10 @@ import threading
 
 
 class FileCreationHandler(FileSystemEventHandler):
-    def __init__(self, logger: "ConsoleLogger", main: "MainApp", FileMonitor: "FileMonitor"):
+    def __init__(self, logger: "ConsoleLogger", main: "MainApp", FileMonitor: "FileMonitor", extractor: "Extractor"):
         self.main = main
         self.inv = self.main._inv
+        self.extractor = extractor
 
         self.cwd = FileMonitor.watchPath
         self.logger = logger
@@ -59,12 +64,12 @@ class FileCreationHandler(FileSystemEventHandler):
         if filenameLow.endswith(self.metadataExt):
             self.increaseSizeCounter(filePath, "totMetadataSize", 1)
             self.inv(lambda: self.main.stats.counter.increase(1, "totMetadataAmount"))
-            self.inv(lambda: self.main.dataHelper.log(f"[0]{relativePath}"))
+            self.inv(lambda: self.main.dataHelper.log(f"[0]{self.extractor.name}{relativePath}"))
 
         elif filenameLow.endswith(self.mediaExt):
             self.increaseSizeCounter(filePath, "totMediaSize", 5)
             self.inv(lambda: self.main.stats.counter.increase(1, "totMediaAmount"))
-            self.inv(lambda: self.main.dataHelper.log(f"[1]{relativePath}"))
+            self.inv(lambda: self.main.dataHelper.log(f"[1]{self.extractor.name}{relativePath}"))
 
         self.inv(lambda f=filename: self.logger.success(f"[+] {f}"))
         return True
@@ -137,18 +142,18 @@ class FileCreationHandler(FileSystemEventHandler):
 
 
 class FileMonitor:
-    def __init__(self, logger, galleryRunner, main, watchPath="."):
+    def __init__(self, main: "MainApp", extractor: "Extractor", galleryRunner: "GalleryRunner", watchPath="."):
         start = time.perf_counter()
         self.main = main
         self.inv = self.main._inv
 
-        self.logger = logger
+        self.logger = extractor.logger
         self.watchPath = os.path.abspath(watchPath)
         self.observer = Observer()
         self.thread = None
         self.isRunning = False
         self.galleryRunner = galleryRunner
-        self.event_handler = FileCreationHandler(self.logger, self.main, self)
+        self.event_handler = FileCreationHandler(self.logger, self.main, self, extractor)
         self.main.cmd.debug(f" :{__name__}::__init__ -> {(time.perf_counter() - start) * 1000:.6f}ms")
 
     def start(self):
@@ -184,9 +189,9 @@ class FileMonitor:
             self.stopGalleryrunner(f"Error stopping monitor: {e}", False)
 
     def stopGalleryrunner(self, errorText, clear=True):
-        self.inv(lambda e=errorText: self.logger.error(f"Stopping from FileMonitor: {str(e)}"))
+        self.inv(lambda e=errorText: self.logger.error(f"Stopping from FileMonitor: {e}"))
         self.main.cmd.error(f"Stopping from FileMonitor: {errorText}")
-        self.galleryRunner.stopRequested = True
+        self.galleryRunner._stop(f"Stopping from FileMonitor: {errorText}")
         self.stop()
         if clear:
             self.event_handler.processedFiles.clear()

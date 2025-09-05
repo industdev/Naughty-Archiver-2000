@@ -28,7 +28,6 @@ from lib.ui.Statistics_manager import TabStatistics
 from lib.ui.GeneralTab import General
 from lib.ui.LoadingBar import LoadingBar
 
-from lib.ui.Download_manager import Downloader
 from lib.QtHelper import QtHelper
 from lib.Configurator import Configurator
 from lib.ExtractorsManager import ExtractorsManager

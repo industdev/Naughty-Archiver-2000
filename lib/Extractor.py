@@ -90,7 +90,7 @@ class Extractor(QWidget):
 
             self.errorLister = ErroredLister(main, self)
             self.galleryRunner = GalleryRunner(main, self)
-            self.monitor = FileMonitor(self.logger, self.galleryRunner, main)
+            self.monitor = FileMonitor(main, self, self.galleryRunner)
             self.users = UserTable(main, self)
             self.commonUserOptions = settings.commonUserOptions
             self.statCounter = main.stats.counter
