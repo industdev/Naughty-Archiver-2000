@@ -176,7 +176,7 @@ class ErroredLister(QWidget):
             urls = []
 
             self.main.debuggy(f"erroredLister_settings::retrySelected -> search selected", self)
-            self.main.loadingBar.start(len(selected), "Loaing Jobs...", 100, "jobs", 10)
+            self.main.loadingBar.start(len(selected), "Loading Jobs...", 100, "jobs", 10)
             for row in selected:
                 self.main.loadingBar.increase(1)
                 user_item = self.ui.table.item(row, 0)

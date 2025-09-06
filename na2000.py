@@ -419,6 +419,5 @@ if __name__ == "__main__":
             logger.warning(f"[{datetime.now()}] Killed every gallery-dl process: {e}")
 
         print("Check saved/debug/ with the --debug flag")
-        input("Check saved/logs/fault.log with the --debug flag")
         print("Check saved/logs/cmd.txt for full console output")
         sys.exit(1)

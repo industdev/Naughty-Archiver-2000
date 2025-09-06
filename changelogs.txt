@@ -1,7 +1,8 @@
 Naughty Archiver 2000 v1.2.3 Update
 	-	General: New and cleaner download manager
 	-	App: extraction data now includes extractor used for each file
-
+	-	App: Loading bar doesn't use as much cpu anymore
+	-	
 Naughty Archiver 2000 v1.2.2 Update
 	-	Pixiv: Fixed 'FileNotFoundError' after converting ugoira 
 	-	Furaffinity: Removed original media filename from filenames

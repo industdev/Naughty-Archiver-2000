@@ -4,6 +4,8 @@ import time
 from PySide6.QtCore import QTimer, QObject
 import ctypes
 from ctypes import wintypes
+
+from PySide6.QtWidgets import QApplication
 from lib.QtHelper import QtHelper
 
 
@@ -33,7 +35,7 @@ class LoadingBar(QObject):
         self.startTime = 0
         self.lastupdate = 0
 
-    def start(self, maximum=100, message="Loading...", interval=100, name="it", minimum=10):
+    def start(self, maximum=100, message="Loading...", interval=30, name="it", minimum=10):
         self.main.debuggy(
             f"Starting loadingbar: {maximum}max, {interval}ms, {minimum}min, skip:{self.main.General.config.settings['skiploadingbars']}",
             self,
@@ -44,6 +46,7 @@ class LoadingBar(QObject):
             return
         self._resizeConsole()
         self.main.setEnabled(False)
+        QApplication.processEvents()
         self.cmdController.disableConsoleOperations(self.message)
 
         if self.main.General.config.settings["skiploadingbars"]:
@@ -77,11 +80,10 @@ class LoadingBar(QObject):
 
         self.current = min(self.current + amount, self.maximum)
 
-        self.update()
-
     def terminate(self):
         self.main.debuggy(f"Terminate", self)
         self.main.setEnabled(True)
+        QApplication.processEvents()
 
         if not self.isActive:
             return

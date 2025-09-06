@@ -63,7 +63,6 @@ class Downloader(QWidget):
         self.hide()
 
     def getToolsData(self) -> list[dict[str, Any]]:
-        """Return the tools data structure"""
         return [
             {
                 "name": "gallery-dl",
@@ -162,9 +161,9 @@ class Downloader(QWidget):
 
             if size:
                 totalKbSize = size // 1024
-                self.inv(lambda: self.loading.start(totalKbSize, f"Downloading {filename}", 300, "KB", 50))
+                self.inv(lambda: self.loading.start(totalKbSize, f"Downloading {filename}", 50, "KB", 50))
             else:
-                self.inv(lambda: self.loading.start(1000, f"Downloading {filename}", 300, "chunks", 50))
+                self.inv(lambda: self.loading.start(1000, f"Downloading {filename}", 50, "chunks", 50))
 
             self.downloadStartTime = time.time()
             self.downloadedBytes = 0
@@ -226,7 +225,7 @@ class Downloader(QWidget):
                         maximum=totalFiles,
                         message="Extracting files",
                         name="files",
-                        interval=100,
+                        interval=50,
                         minimum=1,
                     )
                 )
@@ -253,7 +252,7 @@ class Downloader(QWidget):
             for root, dirs, files in os.walk(search_dir):
                 items += len(files) + len(dirs)
 
-            self.inv(lambda: self.loading.start(maximum=items, message="Processing files", name="items", minimum=1))
+            self.inv(lambda: self.loading.start(maximum=items, interval=50, message="Processing files", name="items", minimum=1))
 
             movedCount = 0
             for root, dirs, files in os.walk(search_dir):
@@ -327,7 +326,7 @@ class Downloader(QWidget):
 
             toolsAmount = len(tools)
 
-            self.inv(lambda: self.loading.start(maximum=toolsAmount, message="Setting up tools", name="tools", minimum=1))
+            self.inv(lambda: self.loading.start(maximum=toolsAmount, interval=50, message="Setting up tools", name="tools", minimum=1))
 
             for tool in tools:
                 #   Naming
