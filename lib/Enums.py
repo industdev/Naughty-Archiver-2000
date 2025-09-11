@@ -50,8 +50,10 @@ class Handlers(Enum):
     EVENT = "EVENT"
     RESET_AT = "RESET_AT"
     INHIBIT_BOX = "INHIBIT_BOX"
-    MASK = "MASK"
+    STATEMASK = "STATEMASK"
+    RUNNERMASK = "RUNNERMASK"
     ACTION = "ACTION"
+    REPEATED_ACTION = "REPEATED_ACTION"
     MATCH = "MATCH"
 
 
@@ -127,19 +129,20 @@ class EventNames(Enum):
     ERRORED_URL = "ERRORED_URL"
     USER_NOTFOUND = "USER_NOTFOUND"
     CONVERT_TO_GIF = "CONVERT_TO_GIF"
+    TIMESTAMP = "TIMESTAMP"
 
     @classmethod
     def comboBoxEvents(cls):
-        return [cls.API_CALL, cls.UPDATE_CURSOR, cls.RESET_CURSOR, cls.ERRORED_URL, cls.USER_NOTFOUND, cls.CONVERT_TO_GIF]
+        return [cls.API_CALL, cls.UPDATE_CURSOR, cls.RESET_CURSOR, cls.ERRORED_URL, cls.USER_NOTFOUND, cls.CONVERT_TO_GIF, cls.TIMESTAMP]
 
 
 #   Current state of extractor
 class ExtractorState(Enum):
-    NORMAL_EXTRACTION = ("NORMAL_EXTRACTION", "is extracting users")
-    CUSTOM_URLS_EXTRACTION = ("CUSTOM_URLS_EXTRACTION", "is extracting custom URLs")
-    ERRORED_URLS_EXTRACTION = ("ERRORED_URLS_EXTRACTION", "is recovering errored URLs")
-    ANY_URLS_EXTRACTION = ("ANY_URLS_EXTRACTION", "is extracting custom or errored URLs")
-    IDLE = ("IDLE", "is idle (unused)")
+    NORMAL_EXTRACTION = ("NORMAL_EXTRACTION", "extracting user list")
+    CUSTOM_URLS_EXTRACTION = ("CUSTOM_URLS_EXTRACTION", "extracting custom URLs")
+    ERRORED_URLS_EXTRACTION = ("ERRORED_URLS_EXTRACTION", "recovering errored URLs")
+    ANY_URLS_EXTRACTION = ("ANY_URLS_EXTRACTION", "extracting custom or errored URLs")
+    IDLE = ("IDLE", "idle (unused)")
 
     def __init__(self, id: str, desc: str):
         self.id = id
@@ -153,6 +156,6 @@ class Return(Enum):
     SUCCESS = "SUCCESS"
     FAILED = "FAILED"
     ERR_GALLERY_GENERAL = "ERR_GALLERY_GENERAL"
-    ERR_GALLERY_CODE1 = "ERR_GALLERY_CODE1"
+    ERR_RUNNER_CODE1 = "ERR_RUNNER_CODE1"
     ERR_GALLERY_RETRY = "ERR_GALLERY_RETRY"
     FORCE_TERMINATED = "FORCE_TERMINATED"

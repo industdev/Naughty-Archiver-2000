@@ -1,7 +1,6 @@
 import copy
 from typing import Any
-from lib.ui.UserTable_manager import Table
-from lib.Enums import Configure
+from lib.Enums import Configure, Table
 from lib.extractors.ExtractorInterface import ExtractorInterface
 
 
@@ -22,7 +21,7 @@ class Bluesky(ExtractorInterface):
         errorListFullURL = ""
         return errorListEnabled, errorListRegex, errorListIdExtractRegex, errorListFullURL
 
-    def getExtractorUrls(self) -> list[str]:
+    def getExtractorUrls(self) -> tuple[list[str], list[str]]:
         urls = [
             "bsky.app/%s",
             "bsky.app/profile/%s",
@@ -34,7 +33,7 @@ class Bluesky(ExtractorInterface):
             "bsky.app/search?q=%s",
             "bsky.app/hashtag/%s",
         ]
-        return urls
+        return urls, ["bsky.app"]
 
     def getOutputHandlingCases(self) -> list[dict[str, Any]]:
         append = []
@@ -47,14 +46,14 @@ class Bluesky(ExtractorInterface):
 
         return cookiesTextBoxType, cookiesTextBoxText, cookiesShowPixivOauthButton
 
-    def getUsertableTemplate(self):
+    def getUsertableTemplate(self) -> tuple[list[list[Any]], list[list[str]], str]:
         tableTemplate = [
             [Table.SHOW, Table.COMBO, "Extraction Level", "ExtractionLevel", 1, None],
             [Table.SHOW, Table.CHECKBOX, "Skies", "IncludeSkies", False, None],
             [Table.SHOW, Table.CHECKBOX, "Media", "IncludeMedia", True, None],
         ]
 
-        comboTemplate = ["Profile", "Normal"]
+        comboTemplate = [["Profile", "Normal"]]
         userIdentificationString = "Full User Handle"
 
         return tableTemplate, comboTemplate, userIdentificationString
@@ -143,3 +142,6 @@ class Bluesky(ExtractorInterface):
 
     def defaultJob(self, user, base_config):
         pass
+
+    def getRunnerChoice(self) -> int:
+        return 0

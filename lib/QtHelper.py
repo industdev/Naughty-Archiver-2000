@@ -2,10 +2,11 @@ from datetime import datetime
 from typing import TYPE_CHECKING
 
 from lib.Enums import MessageType
+from lib.QtCustomTabWidget import QtCustomTabWidget
 
 if TYPE_CHECKING:
     from na2000 import MainApp
-    from lib.ConsoleLogger import ConsoleLogger
+    from lib.ExtractorLogger import ExtractorLogger
 
 from PySide6.QtWidgets import QMessageBox, QFileDialog, QPushButton, QTabWidget, QToolButton, QLabel, QWidget
 import ctypes
@@ -30,7 +31,7 @@ class QtHelper(QObject):
     def Throw(
         self,
         message: str,
-        logger: "ConsoleLogger" = None,  # type: ignore
+        logger: "ExtractorLogger" = None,  # type: ignore
         title: str | None = None,
         type: MessageType = MessageType.CRITICAL,
         parent=None,
@@ -136,7 +137,14 @@ class QtHelper(QObject):
                 raise ValueError("QTabWidget has no tabs to add an icon to.")
             target_index = index if index is not None else widget.count() - 1
             widget.setTabIcon(target_index, icon)
+        elif isinstance(widget, QtCustomTabWidget):
+            if widget.ui.cfg_list.count() == 0:
+                raise ValueError("QtCustomTabWidget has no tabs to add an icon to.")
+            target_index = index if index is not None else widget.ui.cfg_list.count() - 1
+            widget.setTabIcon(target_index, icon)
         elif isinstance(widget, QWidget):
             widget.setWindowIcon(icon)
         else:
-            raise ValueError(f"Unsupported widget type {type(widget)}. Expected QPushButton, QToolButton, QLabel, QAction, or QTabWidget.")
+            raise ValueError(
+                f"Unsupported widget type {type(widget)}. Expected QPushButton, QToolButton, QLabel, QAction, QTabWidget, or CustomTabWidget."
+            )

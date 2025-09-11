@@ -3,8 +3,8 @@ import sys
 from typing import Any
 from PySide6.QtGui import QGuiApplication
 from lib.extractors.ExtractorTemplate import ExtractorInterface
-from lib.ui.UserTable_manager import Table
-from lib.Enums import Configure, Widgets
+from lib.ExtractorUsersTable import ExtractorUsersTable
+from lib.Enums import Configure, Table, Widgets
 
 import copy
 
@@ -15,7 +15,7 @@ class Twitter(ExtractorInterface):
         self.extractorName = "Twitter"
         self.galleryName = "twitter"
         self.commonUserOptions = ["IncludeTweets", "IncludeMedia"]
-        self.filterAppend = "retweet_id or quote_id or reply_id or subcategory == 'avatar' or subcategory == 'banner' or "
+        self.filterAppend = ["retweet_id", "quote_id", "reply_id", "subcategory == 'avatar'", "subcategory == 'banner'"]
         self.argsAppend = ""
         self.cursorExtractionEnabled = True
         self.sleepTime = 5
@@ -68,7 +68,7 @@ class Twitter(ExtractorInterface):
         ]
         return append
 
-    def getUsertableTemplate(self) -> tuple[list[list[Any]], list[str], str]:
+    def getUsertableTemplate(self) -> tuple[list[list[Any]], list[list[str]], str]:
         tableTemplate = [
             [Table.SHOW, Table.COMBO, "Extraction Level", "ExtractionLevel", 1, None],
             [Table.SHOW, Table.CHECKBOX, "Deep Timeline", "DeepTimeline", False, None],
@@ -76,7 +76,7 @@ class Twitter(ExtractorInterface):
             [Table.SHOW, Table.CHECKBOX, "Media", "IncludeMedia", True, None],
             [Table.SHOW, Table.CHECKBOX, "Retweets", "IncludeRetweets", False, None],
         ]
-        comboTemplate = ["Profile", "Media", "Timeline", "Search", "Conversations"]
+        comboTemplate = [["Profile", "Media", "Timeline", "Search", "Conversations"]]
         userIdentificationString = "User Handle"
 
         return tableTemplate, comboTemplate, userIdentificationString
@@ -84,7 +84,7 @@ class Twitter(ExtractorInterface):
     def getUiConfiguration(self, extractor, main) -> list[dict[Configure, Any]]:
         #   Configure.WIDGET:           Widgets, Type of the widget to add
         #   Configure.KEY*:             String, Configuration key to update when the widget is interacted with
-        #   Configure.DEFAULT:     Any value you want already in the widget (like have it already checked, or have text in it)
+        #   Configure.DEFAULT:          Any value you want already in the widget (like have it already checked, or have text in it)
         #   Configure.LABEL*:           String, Text shown near the widget or if checkbox the text of the checkbox
         #   Configure.TOOLTIP*:         String, Text shown when hovering
         #   Configure.VALIDATION*:      Validation, Enum that corresponds to a function in VarHelper.py, it will check if the input of a text box is for example an invalid path, and it will skip saving the config if so
@@ -222,7 +222,7 @@ class Twitter(ExtractorInterface):
             return jobs, self.defaultJob(user, fullBaseConf)
         except Exception as e:
             main.varHelper.exception(e)
-            raise Exception(f"Error getting the jobs for {self.extractorName} (See cmd with CTRL+.): {e}")
+            raise Exception(f"Error getting the jobs for {self.extractorName} , check the latest exception file: {e}")
 
     def _twitter_mediaJob(self, user, fullBaseConf):
         return {
@@ -331,10 +331,7 @@ class Twitter(ExtractorInterface):
 
     def _twitter_profileJob(self, user, fullBaseConf):
         #   Legacy filename
-        if self.extSettings["filename"] == 1:
-            module = "\fM ./external/logic/twitterVariablesTransform.py:getPostprocessorUserprofile"
-        else:
-            module = "\fM ./external/logic/twitterVariablesTransform.py:getPostprocessorUserprofile"
+        module = "\fM ./external/logic/twitterVariablesTransform.py:getPostprocessorUserprofile"
 
         config = copy.deepcopy(fullBaseConf)
         config["extractor"]["twitter"].update({
@@ -391,7 +388,7 @@ class Twitter(ExtractorInterface):
             "twitter.com/home",
         ]
 
-        return urls
+        return urls, ["x.com", "twitter.com"]
 
     def copyLastCursor(self, value):
         clipboard = QGuiApplication.clipboard()
@@ -411,3 +408,6 @@ class Twitter(ExtractorInterface):
             "config": copy.deepcopy(conf),
             "type": None,
         }
+
+    def getRunnerChoice(self) -> int:
+        return 0

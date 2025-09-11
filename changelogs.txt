@@ -1,8 +1,32 @@
+Naughty Archiver 2000 v1.3 Update
+	-	App: Reworked extractors to support yt-dlp
+	-	Extractors: Added nicovideo and youtube extractor
+	-	Extractors: Filterappend is now a list of strings, not a string
+	-	Extractors: Made written gallery-dl json job file no more indented 
+	-	App: Added Aria2c, yt-dlp and ffprobe as downloadable
+	-	Logic: Output patterns can now mask runner type 
+	-	Extractors: Failed filename keys will revert to 'None' instead of breaking the extraction
+	-	Logic: Skipping a job for the user will no longer update user UNIX timestamp, as it means the extraction is not complete and has to be remade later
+	-	Logic: Output patterns can now include a different action if the action is triggered again for the next job
+	-	Extractors: Debug files for extractios will be separated for each extractor
+	-	App: Test fix for table overriding users on setUserKey again  
+	- 	App: Remade Ui to see the list of all extractors present
+	-	Extractors: Added information devils
+	-	App: Added 'quick' option to custom URLs extraction which will change the extraction behaviour
+	-	App: Cookies path will be treated as relative
+	-	Logic: Fixed output patterns not being compiled as a case insensitive regex
+	-	App: Removed month from logs since i don't think anyone will have it run for that long
+	-	App: If a job restarts for more than 2 times it will skip instead
+	-	App: By default job restarts on exit code 1
+	-	Table: Fixed usertable not visibly bringing back removed users when discard button was pressed
+	-	App: Added ability to add a list of urls directly for extraction, as long as they match the pre-existing url formats
+	-	App: Streamlined classes naming
+	
 Naughty Archiver 2000 v1.2.3 Update
 	-	General: New and cleaner download manager
 	-	App: extraction data now includes extractor used for each file
 	-	App: Loading bar doesn't use as much cpu anymore
-	-	
+
 Naughty Archiver 2000 v1.2.2 Update
 	-	Pixiv: Fixed 'FileNotFoundError' after converting ugoira 
 	-	Furaffinity: Removed original media filename from filenames

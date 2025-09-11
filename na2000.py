@@ -1,5 +1,6 @@
 from typing import TYPE_CHECKING, Any, Callable, List
 
+from lib import Extractor
 from lib.Extractor import ExtractorEntry
 from lib.VarHelper import VarHelper
 
@@ -24,21 +25,22 @@ from PySide6.QtWidgets import QApplication, QMainWindow, QStyleFactory, QMessage
 from PySide6.QtCore import Qt, QEvent, QObject, QObject, Signal, Slot
 from PySide6.QtGui import QIcon, QKeySequence, QShortcut
 
-from lib.ui.Statistics_manager import TabStatistics
-from lib.ui.GeneralTab import General
-from lib.ui.LoadingBar import LoadingBar
-
+from lib.QtCustomTabWidget import QtCustomTabWidget
+from lib.StatisticsTab import StatisticsTab
+from lib.LoadingBar import LoadingBar
+from lib.GeneralTab import GeneralTab
 from lib.QtHelper import QtHelper
-from lib.Configurator import Configurator
+from lib.ExtractorConfigurator import ExtractorConfigurator
 from lib.ExtractorsManager import ExtractorsManager
-from lib.TrayHelper import TrayHelper
-from lib.CrashHelper import CrashHelper
-from lib.ThreadTimeCounter import ThreadTimeCounter
-from lib.ArgHelper import ArgHelper
-from lib.GlobaldataHelper import GlobaldataHelper
+from lib.TrayManager import TrayManager
+from lib.CrashHandler import CrashHelper
+from lib.TimeCounter import TimeCounter
+from lib.ArgParser import ArgParser
+from lib.GlobalDataHelper import GlobalDataHelper
 from lib.CmdLogger import CmdLogger
 from lib.PathManager import PathManager
-from lib.DebugManager import DebugManager
+from lib.Debugger import DebugManager
+from lib.CacheManager import CacheManager
 
 
 class MainApp(QMainWindow):
@@ -62,7 +64,6 @@ class MainApp(QMainWindow):
 
         #   Paths
         _externalP = "external"
-        self.galleryFPath = paths.getExternalRes(f"{_externalP}/gallery-dl.exe")
         self.toolsPath = paths.getExternalRes(f"{_externalP}")
         self.iconPath = paths.getExternalRes(f"{_externalP}/icon.ico")
 
@@ -87,14 +88,14 @@ class MainApp(QMainWindow):
         self.setWindowIcon(QIcon(self.iconPath))
         self.debug = False
         self.debugManager = DebugManager(self, self._debugDPath)
-        self.argHelper = ArgHelper(self)
-        self.args = self.argHelper.args
+        self.argParser = ArgParser(self)
+        self.args = self.argParser.args
+
         if self.args.debug:
             faulthandler.enable()
             faulthandler.enable(open(os.path.join(self.logPath, "fault.log"), "w"))
             self.debug = True
             self.debuggy(f"Debug mode enabled", "init")
-            self.debuggy(f"\t{self.galleryFPath=}", "init")
             self.debuggy(f"\t{self.toolsPath=}", "init")
             self.debuggy(f"\t{self.iconPath=}", "init")
             self.debuggy(f"\t{self._runningConfigPath=}", "init")
@@ -107,21 +108,22 @@ class MainApp(QMainWindow):
             self.debuggy(f"\t{self._iconsPath=}", "init")
             self.debuggy(f"\t{self.defaultOutputPatternsFPath=}", "init")
 
+        self.cacheManager = CacheManager(self)
         self.varHelper = VarHelper(self)
         self.threadHelper = ThreadHelper()
         self.loadingBar = LoadingBar(self)
         self.qtHelper = QtHelper(self)
-        self.tray = TrayHelper(self)
-        self.configurator = Configurator(self)
-        self.General = General(self)
-        self.stats = TabStatistics(self)
-        self.threadTimeCounter = ThreadTimeCounter(self)
+        self.tray = TrayManager(self)
+        self.configurator = ExtractorConfigurator(self)
+        self.General = GeneralTab(self)
+        self.stats = StatisticsTab(self)
+        self.threadTimeCounter = TimeCounter(self)
         self.crashHelper = crashHelper
-        self.dataHelper = GlobaldataHelper(self)
+        self.dataHelper = GlobalDataHelper(self)
         self.extractorsManager = ExtractorsManager(self, self.safeTrash)
         self.extractors: List[ExtractorEntry] = []
 
-        logger.info(f"[{datetime.now()}] Args: {self.argHelper.args}")
+        logger.info(f"[{datetime.now()}] Args: {self.argParser.args}")
 
         if self.args.runall:
             self.extractorsManager.startExtractors()
@@ -132,7 +134,6 @@ class MainApp(QMainWindow):
         #   Init extractors
         self.initTabs()
         self.extractorsManager.initExtractors()
-
         self.configurator.updateNonExtractorUI()
         self.tray.trayThread.start()
 
@@ -148,9 +149,10 @@ class MainApp(QMainWindow):
         self.cmd.debug(f" :{__name__}::__init__ -> {(time.perf_counter() - start) * 1000:.6f}ms")
 
     def initTabs(self):
-        self.tabs = QTabWidget()
+        self.tabs = QtCustomTabWidget(self)
         self.setCentralWidget(self.tabs)
         self.tabs.addTab(self.stats, "Stats")
+
         self.tabs.addTab(self.General, "General")
         self.qtHelper.setIcon(self.tabs, "dsuiext_4098.ico", index=0)
         self.qtHelper.setIcon(self.tabs, "devmgr_201.ico", index=1)
@@ -162,7 +164,8 @@ class MainApp(QMainWindow):
             path (str): Absolute file path to trash
             type (str, optional): "folder", "file", or "any". Only trash if path matches type
         """
-        self.debuggy(f"Safe trashing: {path}", "trashedFiles")
+        self.debuggy(f"Safe trashing: {path}", "TrashedFiles")
+
         path = os.path.normpath(path)
         allowedDirs = [
             os.path.normpath(os.path.join(self._scriptDir, "saved")),
@@ -179,25 +182,27 @@ class MainApp(QMainWindow):
                 )
                 return
 
-        #   Check type
-        if type == "file" and not os.path.isfile(path):
-            self.debuggy(f"Refused to trash {path}: not a file", "trashedFiles")
-            return
-        if type == "folder" and not os.path.isdir(path):
-            self.debuggy(f"Refused to trash {path}: not a folder", "trashedFiles")
-            return
-        if type == "any" and not os.path.exists(path):
-            self.debuggy(f"Path does not exist: {path}", "trashedFiles")
+        if not os.path.exists(path):
+            self.debuggy(f"Path does not exist: {path}", "TrashedFiles")
             return
 
-        if os.path.exists(path):
-            try:
-                send2trash(path)
-                self.debuggy(f"Trashed: {path}", "trashedFiles")
-            except Exception as e:
-                self.debuggy(f"Failed to trash {path}: {str(e)}", "trashedFiles")
-        else:
-            self.debuggy(f"Path does not exist: {path}", "trashedFiles")
+        #   Check type
+        if type == "file" and not os.path.isfile(path):
+            self.debuggy(f"Refused to trash {path}: not a file", "TrashedFiles")
+            return
+        if type == "folder" and not os.path.isdir(path):
+            self.debuggy(f"Refused to trash {path}: not a folder", "TrashedFiles")
+            return
+        if type == "any" and not os.path.exists(path):
+            self.debuggy(f"Path does not exist: {path}", "TrashedFiles")
+            return
+
+        try:
+            send2trash(path)
+            self.debuggy(f"Trashed: {path}", "TrashedFiles")
+        except Exception as e:
+            self.varHelper.exception(e)
+            self.debuggy(f"Failed to trash {path}: {str(e)}", "TrashedFiles")
 
     def _getExtractors(self, withGeneral=True) -> list[ExtractorEntry]:
         """Get all extractors, this list is updated whenever one is added, removed etc
@@ -248,23 +253,23 @@ class MainApp(QMainWindow):
         super().changeEvent(event)
 
     def closeEvent(self, event):
-        for entry in self._getExtractors(False):
-            ext = entry.ext
-
-            if not ext.galleryRunner.running:
-                continue
-
-            reply = QMessageBox.question(
-                self,
-                f"{ext.fullName} is still running",
-                f"\n{ext.fullName} is still running\nshut down anyways?",
-                QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
-            )
-            if reply == QMessageBox.StandardButton.No:
-                event.ignore()
-                return
-
         try:
+            for entry in self._getExtractors(False):
+                ext = entry.ext
+
+                if not ext.runnerManager.running:
+                    continue
+
+                reply = QMessageBox.question(
+                    self,
+                    f"{ext.fullName} is still running",
+                    f"\n{ext.fullName} is still running\nshut down anyways?",
+                    QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+                )
+                if reply == QMessageBox.StandardButton.No:
+                    event.ignore()
+                    return
+
             self.General.logger.info(f"[{datetime.now()}] NA2000 tries to shut down...")
             self.loadingBar.terminate()
             self.extractorsManager.stopProcedure()
@@ -273,11 +278,8 @@ class MainApp(QMainWindow):
             self.threadTimeCounter.stop()
             self.dataHelper.stop()
             self.crashHelper.stop()
-
             self.extractorsManager.savelogs()
             self.debugManager.closeAll()
-
-            self.safeTrash(self.debugManager.debugDPath, "folder")
             self.safeTrash(self._tempDPath, "folder")
             self.safeTrash(self.exceptionFPath, "file")
             event.accept()
@@ -413,9 +415,11 @@ if __name__ == "__main__":
             crashHelper._handleCrash(crashHelper.title, crashHelper.logPath, list(crashHelper.pidList), crashHelper._log)
 
             crashHelper.stop()
-            logger.warning(f"[{datetime.now()}] Killed registered gallery-dl processes")
+            logger.warning(f"[{datetime.now()}] Killed registered runner processes")
         except Exception as e:
             subprocess.run(f"taskkill /F /IM gallery-dl.exe", shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            subprocess.run(f"taskkill /F /IM yt-dlp.exe", shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+
             logger.warning(f"[{datetime.now()}] Killed every gallery-dl process: {e}")
 
         print("Check saved/debug/ with the --debug flag")

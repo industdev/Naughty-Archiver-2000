@@ -1,9 +1,10 @@
 # Naughty archiver 2000
 
-NA2000 is a gallery-dl wrapper dedicated to data hoarders and archivers built in Python to help managing users, cookies, statistics, handle extraction errors and much more
+NA2000 is a gallery-dl and yt-dlp wrapper dedicated to data hoarders and archivers built in Python to help managing users, cookies, statistics, handle extraction errors and much more
 The focus is on actively archiving and updating entire profiles of users, but single custom urls can also be extracted
 
-Gallery-dl is made my mikf at <https://github.com/mikf/gallery-dl>
+Gallery-dl is made by mikf at <https://github.com/mikf/gallery-dl>
+Yt-dlp is made by themselves at <https://github.com/yt-dlp/yt-dlp>
 
 Here's the list of features:
 
@@ -17,7 +18,7 @@ Here's the list of features:
 
 See changelogs.txt for more features
 
-Because every extractor has it's own options and it's customized based on gallery-dl, there's only a few already implemented, most gallery-dl settings are also predetermined, such as file names (although still easily modifiable from source).
+Because every extractor has it's own options and it's customized based on gallery-dl or yt-dlp, there's only a few already implemented, most settings are also predetermined, such as file names (although still easily modifiable from source).
 
 NA2000 is meant to be run in the background mind-free and can be forcefully terminated at any time
 
@@ -31,7 +32,7 @@ Screenshots:
 Please report any bugs or changes you wish, some extractors weren't tested fully
 Before reporting any issue:
 
-- Check if there's a new version of [gallery-dl](https://github.com/mikf/gallery-dl), replace gallery-dl.exe with the new version a try again
+- Check if there's a new version of [gallery-dl](https://github.com/mikf/gallery-dl) or yt-dlp, replace their exe with the new version a try again
 - Append debug logs by starting the app with the --debug flag
 
 Almost every exception will be fully written in `saved/latestException.txt`
@@ -43,12 +44,14 @@ Report issues in this repository if:
 - Gallery-dl throws a keyerror exception in the console
 - Gallery-dl crashes or doesn't start
 
-Report issues in [gallery-dl](https://github.com/mikf/gallery-dl) repository if:
+Report issues in the runners repositories if:
 
 - There's API errors that don't progress the extraction
 
 Errors that begin with '[g-dl]' in the console are from the gallery-dl process
-The configuration files passed in gallery-dl are found in `./saved/run`
+Errors that begin with '[yt-dlp]' in the console are from the yt-dlp process
+
+The configuration files passed to the executable is found in `./saved/run`
 
 ## How to install
 
@@ -60,7 +63,7 @@ Download the and run the exe file or download the repo and run the following com
 
 The program will be ready to use, it can only run one instance at a time per folder
 
-To build install the modules and use `pyinstaller na2000.spec`
+(To build the application yourself install the modules and use `pyinstaller na2000.spec`)
 
 ## How to use
 
@@ -72,6 +75,7 @@ General is the broth in your ramen, everything else is ingredients, you should n
 - Hover over them to see an explanation
 - Click on the button that says 'download tools', select every tool and click download
 - Now you decide which extractor you want to have, in the dropdown select it and click insert extractor, a new tab will appear
+- Enter your cookies and default path in the extractor
 
 ### Save data & updates
 
@@ -88,7 +92,7 @@ NA2000 can be called with the following arguments:
     --runall  : Upon launch NA2000 will start all enabled extractors automatically
     --debug   : Debug information in saved/debug
 
-To auto-start on boot press `Win + R`  and type `shell:startup` here create a batch file like the following, making sure you use the right python path
+To auto-start on boot press `Win + R`  and type `shell:startup`, here create a batch file like the following, making sure you use the right python path
 
     "D:\PROGRAMS_X64\anaconda\envs\NA2000\python.exe" "D:\\NA 2000\na2000.py" --hidden --runall
 
@@ -125,18 +129,30 @@ Example: If we want to extract user 'shrimp' on twitter put `shrimp` under User 
 The operations you see on the bottom of the window are for this table and will operate of selected users (most left checkbox selected)
 
 Shortcuts:
-    - `Ctrl+A`: Select all users
-    - `Ctrl+D`: Unselect all users
-    - `Ctrl+Up`: Move checked users up
-    - `Ctrl+Down`: Move checked users dow
-    - `Del: Remove` checked users
-    - `Ctrl+N`: Insert a new user
-    - `Ctrl+Shift+D`: Duplicate selected users
-    - `Ctrl+E`: Export the table
-    - `Ctrl+I`: Import a table
-    - `Ctrl+S`: Save and close
-    - `Ctrl+Q`: Discard changes and close
-    - `Escape`: Save and close
+
+- `Ctrl+A`: Select all users
+
+- `Ctrl+D`: Unselect all users
+
+- `Ctrl+Up`: Move checked users up
+
+- `Ctrl+Down`: Move checked users down
+
+- `Del: Remove` checked users
+
+- `Ctrl+N`: Insert a new user
+
+- `Ctrl+Shift+D`: Duplicate selected users
+
+- `Ctrl+E`: Export the table
+
+- `Ctrl+I`: Import a table
+
+- `Ctrl+S`: Save and close
+
+- `Ctrl+Q`: Discard changes and close
+  
+- `Escape`: Save and close
 
 To save the table for the extractor press the bottom left button with a writing icon, hover for tooltips
 
@@ -149,13 +165,17 @@ The cookies must be NETSCAPE formatted
 ### Running extractor & logging
 
 Go to the General tab and press 'Run all', this will run all extractors enabled  
-You will see output coming out on the console, you can hide or show verbose output with the button above 'debug'  
+You will see output coming out on the console, you can hide or show verbose output with the 'debug' button
+
 As an optimization NA2000 will keep track of the last time you've extracted each user, so that it can stop instead of continuing until the end of the profile. It does this through UNIX timestamps
+
 After every user of one extractor are done it will repeat the process again as many times as you define
 
 ## Creating a custom extractor
 
  You are sad that your favorite extractor is not there, I tried to make it as easy as possible to create a custom one, it will involve some easy coding
+
+Note that the extractor has to already exist in gallery-dl or Yt-dlp to be made
 
 For this example we will create a Bluesky extractor
 
@@ -181,7 +201,7 @@ What you can personalize (non-logic):
 - `filterAppend`
 - `cookiesTextBoxText`
 - Errored URLs list manager
-- The jobs/URLs that will be passed to gallery-dl
+- The jobs/URLs that will be passed to the runner
 - Cursor extraction and updating
 - Users options
 - URLs Definitions
@@ -203,23 +223,23 @@ Now open the program, go in the general tab, settings, turn on `'Validate extrac
 
 ### Debugging your extractor
 
-Jobs are configuration files passed to gallery-dl like you would do with `.conf` files  
+Jobs are configuration files passed to the runner like you would do with `.conf` files  
 You need a filename for your extracted files but to know which keys and format to use you need metadata extracted from the extractor  
-What you should do is set the filename key to `temp.json`, and run an extraction, then save that file and base your filenames after the keys in there, alternatively run the url with the `-K` flag  
-You can even call an module to decide the filename for you, like the extractors already present, very useful for dynamic filenames
+What you should do is set the filename key to `temp.json`, and run an extraction, then save that file and base your filenames after the keys in there
+Gallery-dl can even call an module to decide the filename, like the extractors already present, very useful for dynamic filenames
 
 ## Useful classes
 
 You may edit these classes for your specific purpose
 
-`GalleryOutputHandler` Manages extractor events based on gallery-dl output, the pattern data gets fed from `outputHandlerCreator_manager`  
+`GalleryOutputHandler` Manages extractor events based on gallery-dl output, the pattern data gets fed from `OutputHandlerCreator_manager`  
 `OutputEvents` List of events that can occur in `GalleryOutputHandler`  
 `GalleryRunner` Class that starts a gallery-dl process  
-`Logic.py` Base .conf file for gallery-dl (Before extractors override the settings)  
 `Extractor` Main class that starts and setups an extractor, provides the already-made widgets and configuration  
 `ExtractorManager` Does operations on all extractors  
-`CrashHelper` Kills gallery-dl on sudden crashes  
-`\external\logic*` Filenames of the extractors
+`CrashHelper` Kills runners on sudden crashes  
+`\external\logic*` Filenames for gallery-dl extractors
+`\lib\runners*` Runners available with base configuration before extractior override (gallery-dl & yt-dlp)
 
 Helper classes:
 `QtHelper` `VarHelper` `Enums`
@@ -227,7 +247,9 @@ Helper classes:
 ## Resources
 
 - Every icon in lib/ui/ico by Microsoft
-- Gallery-dl by mikf. This program is fully dependent on gallery-dl and as such every rule that applies to gallery-dl's license also applies to this program, code from this repository outside FFMPEG, MKVMERGE and GALLERY-DL, is considered part of original code.
+- Gallery-dl by mikf. This program is fully dependent on gallery-dl and yt-dlp and as such every rule that applies to gallery-dl's and yt-dlp licenses also applies to this program, code from this repository outside FFMPEG, MKVMERGE, GALLERY-DL and YT-DLP, is considered part of original code.
 
-Do not get discouraged by the program's name  
+Do not get discouraged by the program's name, i refrained from calling it Mischievous Archiver 2000
 Written in python as a learning vector
+
+All of the extraction is thanks to amazing programmers that have spend countless hours fixing and making their software perfect, especially mikf, which doesn't hate anyone that dares to make configuration, because cmd arguments are mere flags that shall point to a friendly JSON file, neatly documented and neatly implemented

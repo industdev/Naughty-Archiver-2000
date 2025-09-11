@@ -15,7 +15,7 @@ import json
 import shutil
 
 
-class Config:
+class ConfigManager:
     def __init__(
         self,
         main: "MainApp",
@@ -140,6 +140,7 @@ class Config:
 
     def saveConfig(self, overwrite=None, forced=False):
         try:
+            self.main.debuggy(f"- - - -", self.par)
             self.main.debuggy(f"Saving {self.name} config", self.par)
             self.main.debuggy(f" :{self.currentInterval=}, {self.saveInterval=}, {forced=}, overwrite={overwrite is not None}", self.par)
 
@@ -282,14 +283,12 @@ class Config:
                 self.main.cmd.error(f"[{datetime.now()}] {self.name}: Critical error loading config: {e}")
                 raise
 
-    def _pathToCookiesFilename(self, path):
+    def _pathToCookiesFilename(self, fileName):
         try:
-            if path == "":
+            if fileName == "":
                 return "No cookie is selected"
-            if Path(path).exists():
-                return "Selected cookies: " + Path(path).stem
             else:
-                return "No cookie is selected"
+                return f"Selected cookies: {fileName}"
         except (OSError, RuntimeError):
             return "No cookie is selected"
 

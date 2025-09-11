@@ -1,56 +1,25 @@
-from datetime import datetime
+from Helper import Helper
 
 
 def getNormal(metadata):
-    userHandle = metadata["user_profile"]["name"]
-    userHandle = sanitize(userHandle)
-    userID = metadata["user_profile"]["id"]
-    elementCreationTime = _ExtractDate(metadata["date"])
-    elementId = metadata["id"]
-    elementTitle = sanitize(metadata["title"])
-    elementTitle = Shorten(elementTitle)
+    userHandle = metadata.get("user_profile", {}).get("name")
+    userHandle = Helper.sanitize(userHandle)
+    userID = metadata.get("user_profile", {}).get("id")
+    elementCreationTime = Helper.extractDate(metadata.get("date"))
+    elementId = metadata.get("id")
+    elementTitle = Helper.sanitize(metadata.get("title"))
+    elementTitle = Helper.shorten(elementTitle)
 
-    return f"kemono_{userHandle}-{userID}_{elementCreationTime}_[{elementId}-{elementTitle}].{metadata['extension']}"
+    return f"kemono_{userHandle}-{userID}_{elementCreationTime}_[{elementId}-{elementTitle}].{metadata.get('extension')}"
+
 
 def getNormal_Postprocessor(metadata):
-    userHandle = metadata["user_profile"]["name"]
-    userHandle = sanitize(userHandle)
-    userID = metadata["user_profile"]["id"]
-    elementCreationTime = _ExtractDate(metadata["date"])
-    elementId = metadata["id"]
-    elementTitle = sanitize(metadata["title"])
-    elementTitle = Shorten(elementTitle)
+    userHandle = metadata.get("user_profile", {}).get("name")
+    userHandle = Helper.sanitize(userHandle)
+    userID = metadata.get("user_profile", {}).get("id")
+    elementCreationTime = Helper.extractDate(metadata.get("date"))
+    elementId = metadata.get("id")
+    elementTitle = Helper.sanitize(metadata.get("title"))
+    elementTitle = Helper.shorten(elementTitle)
 
     return f"kemono_{userHandle}-{userID}_{elementCreationTime}_[{elementId}-{elementTitle}].json"
-
-def Shorten(string):
-    if len(string) > 64:
-        string = string[:64]
-    return string
-
-def sanitize(filename):
-
-    illegal_char_replacements = {
-        '/': '⁄', 
-        '\\': '∖',
-        ':': '꞉',
-        '*': '∗',
-        '?': '？',
-        '"': '＂',
-        '<': '＜',
-        '>': '＞',
-        '|': '｜',
-        '_': '＿',
-    }
-
-    sanitized = filename
-    for char, replacement in illegal_char_replacements.items():
-        sanitized = sanitized.replace(char, replacement)
-
-    return sanitized
-
-
-def _ExtractDate(dt):
-    date_obj = dt.date()
-    return date_obj
-

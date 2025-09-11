@@ -1,7 +1,7 @@
 import copy
 from typing import Any
-from lib.ui.UserTable_manager import Table
-from lib.Enums import Configure, Validation, Widgets
+from lib.ExtractorUsersTable import ExtractorUsersTable
+from lib.Enums import Configure, Table, Validation, Widgets
 from lib.extractors.ExtractorInterface import ExtractorInterface
 
 
@@ -10,7 +10,7 @@ class Furaffinity(ExtractorInterface):
         self.extractorName = "Furaffinity"
         self.galleryName = "furaffinity"
         self.commonUserOptions = None
-        self.filterAppend = ""
+        self.filterAppend = []
         self.argsAppend = ""
         self.sleepTime = 1
         self.cursorExtractionEnabled = False
@@ -34,7 +34,7 @@ class Furaffinity(ExtractorInterface):
         append = []
         return append
 
-    def getExtractorUrls(self) -> list[str]:
+    def getExtractorUrls(self) -> tuple[list[str], list[str]]:
         urls = [
             "furaffinity.net/%s",
             "furaffinity.net/gallery/%s",
@@ -46,9 +46,9 @@ class Furaffinity(ExtractorInterface):
             "furaffinity.net/msg/submissions",
             "t.furaffinity.net/%s",
         ]
-        return urls
+        return urls, ["furaffinity.net", "t.furaffinity.net"]
 
-    def getUsertableTemplate(self):
+    def getUsertableTemplate(self) -> tuple[list[list[Any]], list[list[str]], str]:
         tableTemplate = [
             [Table.SHOW, Table.CHECKBOX, "Scraps", "Scraps", True, None],
         ]
@@ -60,6 +60,8 @@ class Furaffinity(ExtractorInterface):
         return tableTemplate, comboTemplate, userIdentificationString
 
     def getUiConfiguration(self, extractor, main) -> list[dict[Configure, Any]]:
+        self.extractor = extractor
+
         ui = [
             {
                 Configure.NAME: "cfg_desctype",
@@ -75,8 +77,8 @@ class Furaffinity(ExtractorInterface):
         return ui
 
     def getJobs(self, user, extSettings, generalSettings, baseConf, deepUpdate, main) -> tuple[list[Any], dict[str, Any]]:
-        b = self.readFile(f"{extSettings['cookiespath']}")
-        a = self.readFile(f"{extSettings['cookiespath']}_token")
+        b = self.readFile(self.extractor.getCookiesPath())
+        a = self.readFile(f"{self.extractor.getCookiesPath()}_token")
 
         overrideConf = {
             "extractor": {
@@ -119,3 +121,6 @@ class Furaffinity(ExtractorInterface):
     def defaultJob(self, user, base_config):
         config = copy.deepcopy(base_config)
         return {"url": None, "config": config, "type": None}
+
+    def getRunnerChoice(self) -> int:
+        return 0

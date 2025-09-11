@@ -1,18 +1,15 @@
-from datetime import datetime
+from Helper import Helper
 
 
 def initializeVariables(metadata):
-    try:
-        getMetadataType(metadata)
+    getMetadataType(metadata)
 
-        if metadata_type == "User":
-            initUserVariables(metadata)
-            return
-        elif (metadata_type == "background") or (metadata_type == "avatar"):
-            initBannerOrAvatarVariables(metadata)
-            return
-    except Exception as e:
-        raise Exception(f"Error in initializeVariables {e}")
+    if metadata_type == "User":
+        initUserVariables(metadata)
+        return
+    elif (metadata_type == "background") or (metadata_type == "avatar"):
+        initBannerOrAvatarVariables(metadata)
+        return
 
     initTweetVariables(metadata)
 
@@ -29,21 +26,21 @@ def initUserVariables(metadata):
     global elementCreationTime
     global elementCount
 
-    elementTweetID = metadata["rest_id"]
+    elementTweetID = metadata.get("rest_id")
     elementQuoteID = getQuoteID(metadata)
     elementRetweetID = getRetweetID(metadata)
     elementReplyID = getReplyID(metadata)
 
-    try:
-        elementCreationTime = getDate(metadata["legacy"]["created_at"])
-        userHandle = sanitize(metadata["legacy"]["screen_name"])
-        userCreationtime = getDate(metadata["legacy"]["created_at"])
-    except:
-        elementCreationTime = getDate(metadata["core"]["created_at"])
-        userHandle = sanitize(metadata["core"]["screen_name"])
-        userCreationtime = getDate(metadata["core"]["created_at"])
+    if metadata.get("legacy"):
+        elementCreationTime = Helper.extractCreationDate(metadata.get("legacy", {}).get("created_at"))
+        userHandle = Helper.sanitize(metadata.get("legacy", {}).get("screen_name"))
+        userCreationtime = Helper.extractCreationDate(metadata.get("legacy", {}).get("created_at"))
+    else:
+        elementCreationTime = Helper.extractCreationDate(metadata.get("core", {}).get("created_at"))
+        userHandle = Helper.sanitize(metadata.get("core", {}).get("screen_name"))
+        userCreationtime = Helper.extractCreationDate(metadata.get("core", {}).get("created_at"))
 
-    userID = metadata["rest_id"]
+    userID = metadata.get("rest_id")
 
 
 def initBannerOrAvatarVariables(metadata):
@@ -59,14 +56,14 @@ def initBannerOrAvatarVariables(metadata):
     global elementAvatarName
     global elementAvatarExtention
 
-    userID = metadata["user"]["rest_id"]
-    userHandle = sanitize(metadata["user"]["legacy"]["name"])
+    userID = metadata.get("user", {}).get("rest_id")
+    userHandle = Helper.sanitize(metadata.get("user", {}).get("legacy", {}).get("name"))
     if bannerExists(metadata):
-        elementBannerName = getBannerName(metadata["user"]["legacy"]["profile_banner_url"])
+        elementBannerName = getBannerName(metadata.get("user", {}).get("legacy", {}).get("profile_banner_url"))
         elementBannerExtention = "jpg"
     if avatarExists(metadata):
-        elementAvatarName = sanitize(getName(metadata["user"]["legacy"]["profile_image_url_https"]))
-        elementAvatarExtention = getExtention(metadata["user"]["legacy"]["profile_image_url_https"])
+        elementAvatarName = Helper.sanitize(getName(metadata.get("user", {}).get("legacy", {}).get("profile_image_url_https")))
+        elementAvatarExtention = getExtention(metadata.get("user", {}).get("legacy", {}).get("profile_image_url_https"))
 
 
 def initTweetVariables(metadata):
@@ -88,18 +85,12 @@ def initTweetVariables(metadata):
     elementQuoteID = getQuoteID(metadata)
     elementRetweetID = getRetweetID(metadata)
     elementReplyID = getReplyID(metadata)
-    elementCreationTime = getDate(metadata["legacy"]["created_at"])
-    elementCount = metadata["count"]
+    elementCreationTime = Helper.extractCreationDate(metadata.get("legacy", {}).get("created_at"))
+    elementCount = metadata.get("count")
     elementImageExtention = getElementImageExtention(metadata)
-    elementTweetID = metadata["rest_id"]
-    userID = metadata["core"]["user_results"]["result"]["rest_id"]
-    userHandle = sanitize(metadata["core"]["user_results"]["result"]["legacy"]["name"])
-
-
-def getDate(created_at_str):
-    date_format = "%a %b %d %H:%M:%S %z %Y"
-    created_at = datetime.strptime(created_at_str, date_format)
-    return created_at.strftime("%Y-%m-%d")
+    elementTweetID = metadata.get("rest_id")
+    userID = metadata.get("core", {}).get("user_results", {}).get("result", {}).get("rest_id")
+    userHandle = Helper.sanitize(metadata.get("core", {}).get("user_results", {}).get("result", {}).get("legacy", {}).get("name"))
 
 
 def getExtention(s):
@@ -123,61 +114,41 @@ def getBannerName(s):
 
 
 def getElementImageExtention(metadata):
-    try:
-        media_url_https = metadata["legacy"]["entities"]["media"][0]["media_url_https"]
+    media_url_https = metadata.get("legacy", {}).get("entities", {}).get("media", [{}])[0].get("media_url_https")
+    if media_url_https:
         return getExtention(media_url_https)
-    except (KeyError, IndexError):
-        return ""
+    return ""
 
 
 def getMetadataType(metadata):
     global metadata_type
-    try:
-        metadata_type = metadata["__typename"]
-    except KeyError:
-        if metadata["subcategory"] == "background":
-            metadata_type = "background"
-        elif metadata["subcategory"] == "avatar":
-            metadata_type = "avatar"
-        else:
-            metadata_type = "tweet"
+    metadata_type = metadata.get("__typename")
+    if metadata.get("subcategory") == "background":
+        metadata_type = "background"
+    elif metadata.get("subcategory") == "avatar":
+        metadata_type = "avatar"
+    else:
+        metadata_type = "tweet"
 
 
 def getReplyID(metadata):
-    try:
-        return metadata["legacy"]["in_reply_to_status_id_str"]
-    except KeyError:
-        return 0
+    return metadata.get("legacy", {}).get("in_reply_to_status_id_str") or 0
 
 
 def getRetweetID(metadata):
-    try:
-        return metadata["legacy"]["retweeted_status_id_str"]
-    except KeyError:
-        return 0
+    return metadata.get("legacy", {}).get("retweeted_status_id_str") or 0
 
 
 def getQuoteID(metadata):
-    try:
-        return metadata["legacy"]["quoted_status_id_str"]
-    except KeyError:
-        return 0
+    return metadata.get("legacy", {}).get("quoted_status_id_str") or 0
 
 
 def bannerExists(metadata):
-    try:
-        metadata["user"]["legacy"]["profile_banner_url"]
-        return 1
-    except Exception:
-        return 0
+    return bool(metadata.get("user", {}).get("legacy", {}).get("profile_banner_url"))
 
 
 def avatarExists(metadata):
-    try:
-        metadata["user"]["legacy"]["profile_image_url_https"]
-        return 1
-    except Exception:
-        return 0
+    return bool(metadata.get("user", {}).get("legacy", {}).get("profile_image_url_https"))
 
 
 def getPostprocessorUserprofile(metadata):
@@ -193,28 +164,3 @@ def getFilenameTweet(metadata):
 def getPostprocessorTweet(metadata):
     initializeVariables(metadata)
     return f"twitter_{userHandle}-{userID}_{elementCreationTime}_{elementTweetID}.json"
-
-
-def sanitize(filename):
-    illegal_char_replacements = {
-        "/": "⁄",
-        "\\": "∖",
-        ":": "꞉",
-        "*": "∗",
-        "?": "？",
-        '"': "＂",
-        "<": "＜",
-        ">": "＞",
-        "|": "｜",
-        "_": "＿",
-    }
-
-    sanitized = filename
-    for char, replacement in illegal_char_replacements.items():
-        sanitized = sanitized.replace(char, replacement)
-
-    return sanitized
-
-
-def extractDate(dt):
-    return dt.strftime("%Y-%m-%d")

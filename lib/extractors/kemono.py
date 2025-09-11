@@ -1,7 +1,7 @@
 import copy
 from typing import Any
-from lib.ui.UserTable_manager import Table
-from lib.Enums import Configure
+from lib.ExtractorUsersTable import ExtractorUsersTable
+from lib.Enums import Configure, Table
 from lib.extractors.ExtractorInterface import ExtractorInterface
 
 
@@ -10,12 +10,12 @@ class Kemono(ExtractorInterface):
         self.extractorName = "Kemonoparty"
         self.galleryName = "kemono"
         self.commonUserOptions = None
-        self.filterAppend = ""
+        self.filterAppend = []
         self.argsAppend = ""
         self.sleepTime = 3
         self.cursorExtractionEnabled = False
 
-    def getExtractorUrls(self) -> list[str]:
+    def getExtractorUrls(self) -> tuple[list[str], list[str]]:
         urls = [
             "kemono.cr/%s",
             "kemono.cr/%s/user/%s",
@@ -24,7 +24,7 @@ class Kemono(ExtractorInterface):
             "kemono.cr/posts/%s",
             "kemono.cr/artists/%s",
         ]
-        return urls
+        return urls, ["kemono.cr"]
 
     def getCookiesSettings(self) -> tuple[int, list[str], bool]:
         cookiesTextBoxType = 0
@@ -53,7 +53,7 @@ class Kemono(ExtractorInterface):
         ]
         return append
 
-    def getUsertableTemplate(self):
+    def getUsertableTemplate(self) -> tuple[list[list[Any]], list[list[str]], str]:
         tableTemplate = [
             [Table.SHOW, Table.COMBO, "Type", "urltype", 1, None],
             [Table.HIDE, Table.CHECKBOX, "File meta", "filemeta", False, None],
@@ -64,15 +64,17 @@ class Kemono(ExtractorInterface):
         ]
 
         comboTemplate = [
-            "Discord Server",
-            "Patreon.com",
-            "Fanbox.cc",
-            "Gumroad.com",
-            "subscribestar.adult",
-            "play.dlsite.com",
-            "Fantia.jp",
-            "Boosty.to",
-            "Afdian.net",
+            [
+                "Discord Server",
+                "Patreon.com",
+                "Fanbox.cc",
+                "Gumroad.com",
+                "subscribestar.adult",
+                "play.dlsite.com",
+                "Fantia.jp",
+                "Boosty.to",
+                "Afdian.net",
+            ]
         ]
         userIdentificationString = "Kemono ID"
 
@@ -117,10 +119,10 @@ class Kemono(ExtractorInterface):
             return jobs, self._kemono_baseConfig(user, fullBaseConf)
         except Exception as e:
             main.varHelper.exception(e)
-            raise Exception(f"Error getting the jobs for {self.extractorName} (See cmd with CTRL+.): {e}")
+            raise Exception(f"Error getting the jobs for {self.extractorName} , check the latest exception file: {e}")
 
     def _kemono_baseConfig(self, user, base_config):
-        comboValues = self.getUsertableTemplate()[1]
+        comboValues = self.getUsertableTemplate()[1][0]
         _typeindex = user["urltype"]
         urltype = comboValues[_typeindex]
 
@@ -137,3 +139,6 @@ class Kemono(ExtractorInterface):
     def defaultJob(self, user, base_config):
         config = copy.deepcopy(base_config)
         return {"url": None, "config": config, "type": None}
+
+    def getRunnerChoice(self) -> int:
+        return 0

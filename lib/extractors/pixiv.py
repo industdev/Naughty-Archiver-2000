@@ -1,8 +1,8 @@
 import copy
 from typing import Any
-from lib.Configurator import Widgets
-from lib.Enums import Configure, Validation
-from lib.ui.UserTable_manager import Table
+from lib.ExtractorConfigurator import Widgets
+from lib.Enums import Configure, Table, Validation
+from lib.ExtractorUsersTable import ExtractorUsersTable
 from lib.extractors.ExtractorInterface import ExtractorInterface
 import os
 
@@ -12,7 +12,7 @@ class Pixiv(ExtractorInterface):
         self.extractorName = "Pixiv"
         self.galleryName = "pixiv"
         self.commonUserOptions = None
-        self.filterAppend = "subcategory == 'avatar' or subcategory == 'banner' or "
+        self.filterAppend = ["subcategory == 'avatar'", "subcategory == 'banner'"]
         self.argsAppend = ""
         self.cursorExtractionEnabled = False
         self.sleepTime = 3
@@ -100,7 +100,7 @@ class Pixiv(ExtractorInterface):
         ]
         return append
 
-    def getExtractorUrls(self) -> list[str]:
+    def getExtractorUrls(self) -> tuple[list[str], list[str]]:
         #   Define an array of strings where '%s' will be replaced by the user input, this will be used for the custom urls page
         #   It should be None if you don't want this functionality
         urls = [
@@ -115,18 +115,19 @@ class Pixiv(ExtractorInterface):
             "pixiv.net/tags/%s",
             "pixiv.net/ranking.php",
         ]
-        return urls
+        return urls, ["pixiv.net"]
 
-    def getUsertableTemplate(self) -> tuple[list[list[Any]], list[str], str]:
+    def getUsertableTemplate(self) -> tuple[list[list[Any]], list[list[str]], str]:
         tableTemplate = [[Table.SHOW, Table.CHECKBOX, "Novels", "IncludeNovels", False, None]]
 
-        comboTemplate = []
+        comboTemplate = [[]]
 
         userIdentificationString = "User ID"
 
         return tableTemplate, comboTemplate, userIdentificationString
 
     def getUiConfiguration(self, extractor, main) -> list[dict[Configure, Any]]:
+        self.extractor = extractor
         ui = [
             {
                 Configure.NAME: "cfg_ugoiraFormat",
@@ -170,7 +171,7 @@ class Pixiv(ExtractorInterface):
 
     def getJobs(self, user, extSettings, generalSettings, baseConf, deepUpdate, main) -> tuple[list[Any], dict[str, Any]]:
         try:
-            token = self.readFile(f"{extSettings['cookiespath']}_token")
+            token = self.readFile(f"{self.extractor.getCookiesPath()}_token")
 
             if extSettings["ugoiraformat"] == 0:
                 ugoiraExtension = None
@@ -203,6 +204,7 @@ class Pixiv(ExtractorInterface):
                             "ffmpeg-location": os.path.join(main.toolsPath, "ffmpeg.exe"),
                             "mkvmerge-location": os.path.join(main.toolsPath, "mkvmerge.exe"),
                             "whitelist": ["pixiv", "danbooru"],
+                            "mtime": generalSettings["mtimeenabled"],
                             "keep-files": False,
                         },
                     ],
@@ -277,3 +279,6 @@ class Pixiv(ExtractorInterface):
     def defaultJob(self, user, base_config):
         config = copy.deepcopy(base_config)
         return {"url": None, "config": config, "type": None}
+
+    def getRunnerChoice(self) -> int:
+        return 0

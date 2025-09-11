@@ -1,3 +1,13 @@
+# -*- coding: utf-8 -*-
+
+################################################################################
+## Form generated from reading UI file 'GeneralTabMdASuv.ui'
+##
+## Created by: Qt User Interface Compiler version 6.9.1
+##
+## WARNING! All changes made in this file will be lost when recompiling UI file!
+################################################################################
+
 from PySide6.QtCore import QCoreApplication, QDate, QDateTime, QLocale, QMetaObject, QObject, QPoint, QRect, QSize, QTime, QUrl, Qt
 from PySide6.QtGui import (
     QBrush,
@@ -283,7 +293,7 @@ class Ui_TabGeneral(object):
         self.scrollArea.setWidgetResizable(True)
         self.settings = QWidget()
         self.settings.setObjectName("settings")
-        self.settings.setGeometry(QRect(0, -86, 583, 684))
+        self.settings.setGeometry(QRect(0, -147, 583, 738))
         self.verticalLayout_3 = QVBoxLayout(self.settings)
         self.verticalLayout_3.setObjectName("verticalLayout_3")
         self.verticalLayout_3.setContentsMargins(-1, 6, 12, -1)
@@ -753,7 +763,7 @@ class Ui_TabGeneral(object):
         # endif
         self.grpbox_settings_3.setPalette(palette33)
         self.grpbox_settings_3.setLayoutDirection(Qt.LayoutDirection.LeftToRight)
-        self.grpbox_settings_3.setTitle("Gallery-dl Settings")
+        self.grpbox_settings_3.setTitle("Runner Settings")
         self.grpbox_settings_3.setFlat(True)
         self.formLayout = QFormLayout(self.grpbox_settings_3)
         self.formLayout.setObjectName("formLayout")
@@ -829,16 +839,56 @@ class Ui_TabGeneral(object):
         palette38.setBrush(QPalette.ColorGroup.Inactive, QPalette.ColorRole.WindowText, brush2)
         self.cfgui_extendedmetadata.setPalette(palette38)
 
-        self.formLayout.setWidget(2, QFormLayout.ItemRole.FieldRole, self.cfgui_extendedmetadata)
+        self.formLayout.setWidget(4, QFormLayout.ItemRole.FieldRole, self.cfgui_extendedmetadata)
+
+        self.cfg_retries = QLineEdit(self.grpbox_settings_3)
+        self.cfg_retries.setObjectName("cfg_retries")
+        palette39 = QPalette()
+        palette39.setBrush(QPalette.ColorGroup.Active, QPalette.ColorRole.Text, brush2)
+        # if QT_VERSION >= QT_VERSION_CHECK(5, 12, 0)
+        palette39.setBrush(QPalette.ColorGroup.Active, QPalette.ColorRole.PlaceholderText, brush15)
+        # endif
+        palette39.setBrush(QPalette.ColorGroup.Inactive, QPalette.ColorRole.Text, brush2)
+        # if QT_VERSION >= QT_VERSION_CHECK(5, 12, 0)
+        palette39.setBrush(QPalette.ColorGroup.Inactive, QPalette.ColorRole.PlaceholderText, brush15)
+        # endif
+        palette39.setBrush(QPalette.ColorGroup.Disabled, QPalette.ColorRole.Text, brush1)
+        # if QT_VERSION >= QT_VERSION_CHECK(5, 12, 0)
+        palette39.setBrush(QPalette.ColorGroup.Disabled, QPalette.ColorRole.PlaceholderText, brush16)
+        # endif
+        self.cfg_retries.setPalette(palette39)
+
+        self.formLayout.setWidget(2, QFormLayout.ItemRole.FieldRole, self.cfg_retries)
+
+        self.lbl_retries = QLabel(self.grpbox_settings_3)
+        self.lbl_retries.setObjectName("lbl_retries")
+        self.lbl_retries.setMinimumSize(QSize(100, 0))
+        palette40 = QPalette()
+        palette40.setBrush(QPalette.ColorGroup.Active, QPalette.ColorRole.WindowText, brush2)
+        palette40.setBrush(QPalette.ColorGroup.Inactive, QPalette.ColorRole.WindowText, brush2)
+        palette40.setBrush(QPalette.ColorGroup.Disabled, QPalette.ColorRole.WindowText, brush1)
+        self.lbl_retries.setPalette(palette40)
+        self.lbl_retries.setAlignment(Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignTrailing | Qt.AlignmentFlag.AlignVCenter)
+
+        self.formLayout.setWidget(2, QFormLayout.ItemRole.LabelRole, self.lbl_retries)
+
+        self.cfg_mtimeEnabled = QCheckBox(self.grpbox_settings_3)
+        self.cfg_mtimeEnabled.setObjectName("cfg_mtimeEnabled")
+        palette41 = QPalette()
+        palette41.setBrush(QPalette.ColorGroup.Active, QPalette.ColorRole.WindowText, brush2)
+        palette41.setBrush(QPalette.ColorGroup.Inactive, QPalette.ColorRole.WindowText, brush2)
+        self.cfg_mtimeEnabled.setPalette(palette41)
+
+        self.formLayout.setWidget(3, QFormLayout.ItemRole.FieldRole, self.cfg_mtimeEnabled)
 
         self.cfgui_nosqlcreation = QCheckBox(self.grpbox_settings_3)
         self.cfgui_nosqlcreation.setObjectName("cfgui_nosqlcreation")
-        palette39 = QPalette()
-        palette39.setBrush(QPalette.ColorGroup.Active, QPalette.ColorRole.WindowText, brush2)
-        palette39.setBrush(QPalette.ColorGroup.Inactive, QPalette.ColorRole.WindowText, brush2)
-        self.cfgui_nosqlcreation.setPalette(palette39)
+        palette42 = QPalette()
+        palette42.setBrush(QPalette.ColorGroup.Active, QPalette.ColorRole.WindowText, brush2)
+        palette42.setBrush(QPalette.ColorGroup.Inactive, QPalette.ColorRole.WindowText, brush2)
+        self.cfgui_nosqlcreation.setPalette(palette42)
 
-        self.formLayout.setWidget(3, QFormLayout.ItemRole.FieldRole, self.cfgui_nosqlcreation)
+        self.formLayout.setWidget(5, QFormLayout.ItemRole.FieldRole, self.cfgui_nosqlcreation)
 
         self.verticalLayout_3.addWidget(self.grpbox_settings_3)
 
@@ -882,18 +932,31 @@ class Ui_TabGeneral(object):
         )
         # endif // QT_CONFIG(tooltip)
         self.lbl_looptime_3.setText(QCoreApplication.translate("TabGeneral", "Extractor type", None))
+        # if QT_CONFIG(tooltip)
+        self.btn_insert.setToolTip(QCoreApplication.translate("TabGeneral", "Insert a new extraction", None))
+        # endif // QT_CONFIG(tooltip)
         self.btn_insert.setText(QCoreApplication.translate("TabGeneral", "Insert", None))
         # if QT_CONFIG(tooltip)
         self.btn_downloadTools.setToolTip(
             QCoreApplication.translate(
                 "TabGeneral",
-                "<html><head/><body><p>Download Gallery-dl, ffmpeg and mkvtoolnix</p><p>You can also download them manually and put them in the /external folder as:</p><p>/gallery-dl.exe</p><p>/ffmpeg.exe</p><p>/mkvmerge.exe</p><p>All around it should be 170MB</p></body></html>",
+                "Download tools needed for extraction\n"
+                "You can also download them manually and put them in the /external folder as:\n"
+                "gallery-dl.exe, yt-dlp.exe, aria2c.exe, ffmpeg.exe, ffprobe.exe, mkvmerge.exe",
                 None,
             )
         )
         # endif // QT_CONFIG(tooltip)
-        self.btn_downloadTools.setText(QCoreApplication.translate("TabGeneral", "Download tools", None))
+        self.btn_downloadTools.setText(QCoreApplication.translate("TabGeneral", "Tools downloader", None))
+        # if QT_CONFIG(tooltip)
+        self.btn_showUnixCreator.setToolTip(QCoreApplication.translate("TabGeneral", "Create UNIX timestamps", None))
+        # endif // QT_CONFIG(tooltip)
         self.btn_showUnixCreator.setText(QCoreApplication.translate("TabGeneral", "UNIX timestamp creator", None))
+        # if QT_CONFIG(tooltip)
+        self.btn_showOutputHandlerCreator.setToolTip(
+            QCoreApplication.translate("TabGeneral", "Create more ways to handle output errors", None)
+        )
+        # endif // QT_CONFIG(tooltip)
         self.btn_showOutputHandlerCreator.setText(QCoreApplication.translate("TabGeneral", "Output handling manager", None))
         self.groupBox.setTitle(QCoreApplication.translate("TabGeneral", "Extraction Settings", None))
         # if QT_CONFIG(tooltip)
@@ -943,12 +1006,12 @@ class Ui_TabGeneral(object):
         self.cfgui_exitcode.setToolTip(
             QCoreApplication.translate(
                 "TabGeneral",
-                "If the gallery-dl process randomly decides to shut down, this will automatically repeat the job, otherwise skip to the next user",
+                "<html><head/><body><p>If the runner process randomly decides to shut down, be it a bug or a temporary disconnection,  it will normally repeat the job. </p><p>However it may get stuck in a loop, so here you can decide whether to skip the job or skip the user if it retries the job multiple times</p></body></html>",
                 None,
             )
         )
         # endif // QT_CONFIG(tooltip)
-        self.cfgui_exitcode.setText(QCoreApplication.translate("TabGeneral", "Restart on exit code 1", None))
+        self.cfgui_exitcode.setText(QCoreApplication.translate("TabGeneral", "Code 1 skips user instead of job ", None))
         # if QT_CONFIG(tooltip)
         self.cfgui_errorboxes.setToolTip(
             QCoreApplication.translate("TabGeneral", "Pop up error or warning boxes to alert you of problems", None)
@@ -995,7 +1058,7 @@ class Ui_TabGeneral(object):
         self.cfgui_maxlogsize.setToolTip(
             QCoreApplication.translate(
                 "TabGeneral",
-                "<html><head/><body><p>Max log size in MB in saved/logs/*.txt</p><p>The logs will be gracefully sent to the bin after closing the program</p></body></html>",
+                "Max log size in MB in saved/logs/*.txt\nThe logs will be gracefully sent to the bin after closing the program",
                 None,
             )
         )
@@ -1019,6 +1082,9 @@ class Ui_TabGeneral(object):
         self.cfgui_autotester.setToolTip(QCoreApplication.translate("TabGeneral", "Test if the extractors are valid automatically", None))
         # endif // QT_CONFIG(tooltip)
         self.cfgui_autotester.setText(QCoreApplication.translate("TabGeneral", "Validate extractors on launch", None))
+        # if QT_CONFIG(tooltip)
+        self.cfgui_skiploadingbars.setToolTip(QCoreApplication.translate("TabGeneral", "Skip loading bars popups", None))
+        # endif // QT_CONFIG(tooltip)
         self.cfgui_skiploadingbars.setText(QCoreApplication.translate("TabGeneral", "No Loading bars pop-up", None))
         # if QT_CONFIG(tooltip)
         self.lbl_maxlogentries.setToolTip(
@@ -1051,22 +1117,38 @@ class Ui_TabGeneral(object):
         self.cfgui_extendedmetadata.setToolTip(
             QCoreApplication.translate(
                 "TabGeneral",
-                "<html><head/><body><p>Adds to every gallery-dl job configuration:</p><p>&quot;http-metadata&quot;</p><p>&quot;version-metadata&quot;</p><p>&quot;extractor-metadata&quot;</p><p>&quot;url-metadata&quot;</p></body></html>",
+                "<html><head/><body><p>Adds more metadata flags to the extraction that would otherwise considered redundant</p></body></html>",
                 None,
             )
         )
         # endif // QT_CONFIG(tooltip)
         self.cfgui_extendedmetadata.setText(QCoreApplication.translate("TabGeneral", "Extended metadata", None))
         # if QT_CONFIG(tooltip)
+        self.cfg_retries.setToolTip(
+            QCoreApplication.translate("TabGeneral", "How many times to retry failed connections and others\n'-1' is infinite", None)
+        )
+        # endif // QT_CONFIG(tooltip)
+        self.cfg_retries.setText("")
+        self.cfg_retries.setPlaceholderText(QCoreApplication.translate("TabGeneral", "Integer (Seconds)", None))
+        self.lbl_retries.setText(QCoreApplication.translate("TabGeneral", "Retries", None))
+        # if QT_CONFIG(tooltip)
+        self.cfg_mtimeEnabled.setToolTip(
+            QCoreApplication.translate(
+                "TabGeneral", "Apply the last modified date to downloaded files\nYt-dlp will use an alternative way to do so", None
+            )
+        )
+        # endif // QT_CONFIG(tooltip)
+        self.cfg_mtimeEnabled.setText(QCoreApplication.translate("TabGeneral", "Apply m-time timestamps", None))
+        # if QT_CONFIG(tooltip)
         self.cfgui_nosqlcreation.setToolTip(
             QCoreApplication.translate(
                 "TabGeneral",
-                "<html><head/><body><p>Every user is supplied with their own .sql file</p><p>It's used to keep track of files downloaded so to skip re-downloading them</p><p>If you don't want this functionality enable this</p></body></html>",
+                "Ignore and don't update users SQL files which keep track of downloaded files so that they don't get re-downloaded. Enabling this will download already downloaded files",
                 None,
             )
         )
         # endif // QT_CONFIG(tooltip)
-        self.cfgui_nosqlcreation.setText(QCoreApplication.translate("TabGeneral", "Ignore users SQL files", None))
+        self.cfgui_nosqlcreation.setText(QCoreApplication.translate("TabGeneral", "Ignore SQL Files", None))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab2), QCoreApplication.translate("TabGeneral", "Settings", None))
 
     # retranslateUi

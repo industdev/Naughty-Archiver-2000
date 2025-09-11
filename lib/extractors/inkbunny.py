@@ -1,7 +1,7 @@
 import copy
 from typing import Any
-from lib.ui.UserTable_manager import Table
-from lib.Enums import Configure
+from lib.ExtractorUsersTable import ExtractorUsersTable
+from lib.Enums import Configure, Table
 from lib.extractors.ExtractorInterface import ExtractorInterface
 
 
@@ -10,7 +10,7 @@ class Inkbunny(ExtractorInterface):
         self.extractorName = "Inkbunny"
         self.galleryName = "inkbunny"
         self.commonUserOptions = None
-        self.filterAppend = ""
+        self.filterAppend = []
         self.argsAppend = ""
         self.sleepTime = 3
 
@@ -38,7 +38,7 @@ class Inkbunny(ExtractorInterface):
         append = []
         return append
 
-    def getExtractorUrls(self) -> list[str]:
+    def getExtractorUrls(self) -> tuple[list[str], list[str]]:
         urls = [
             "inkbunny.net/%s",
             "inkbunny.net/s/%s",
@@ -47,9 +47,9 @@ class Inkbunny(ExtractorInterface):
             "inkbunny.net/userfavorites_process.php?mode=watching&user_id=%s",
             "inkbunny.net/submissionsviewall.php?text=%s&mode=search&type=%s",
         ]
-        return urls
+        return urls, ["inkbunny.net"]
 
-    def getUsertableTemplate(self):
+    def getUsertableTemplate(self) -> tuple[list[list[Any]], list[list[str]], str]:
         tableTemplate = [
             [Table.SHOW, Table.CHECKBOX, "Scraps", "Scraps", False, None],
         ]
@@ -103,3 +103,6 @@ class Inkbunny(ExtractorInterface):
     def defaultJob(self, user, base_config):
         config = copy.deepcopy(base_config)
         return {"url": None, "config": config, "type": None}
+
+    def getRunnerChoice(self) -> int:
+        return 0

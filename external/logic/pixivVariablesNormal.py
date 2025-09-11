@@ -1,87 +1,52 @@
-from datetime import datetime
+from Helper import Helper
 
 
 def getNormal(metadata):
-    userHandle = metadata["user"]["name"]
-    userHandle = sanitize(userHandle)
-    
-    userID = metadata["user"]["id"]
-    elementCreationTime = _ExtractDate(metadata['date'])
-    
-    if metadata["subcategory"] == "avatar":
-        mediaName = metadata["user"]["profile_image_urls"]["medium"]
-        mediaName = mediaName.split('/')[-1]
-        mediaName = Shorten(mediaName.split('_')[1])
-        return f"pixiv_{userHandle}-{userID}_{elementCreationTime}_{mediaName}_avatar.{metadata['extension']}"
-    
-    elementId = metadata["id"]
-    elementTitle = sanitize(metadata["title"])
-    if metadata["x_restrict"]:
+    userHandle = metadata.get("user", {}).get("name")
+    userHandle = Helper.sanitize(userHandle)
+
+    userID = metadata.get("user", {}).get("id")
+    elementCreationTime = Helper.extractDate(metadata.get("date"))
+
+    if metadata.get("subcategory") == "avatar":
+        mediaName = metadata.get("user", {}).get("profile_image_urls", {}).get("medium")
+        mediaName = mediaName.split("/")[-1]
+        mediaName = Helper.limit(mediaName.split("_")[1])
+        return f"pixiv_{userHandle}-{userID}_{elementCreationTime}_{mediaName}_avatar.{metadata.get('extension')}"
+
+    elementId = metadata.get("id")
+    elementTitle = Helper.sanitize(metadata.get("title"))
+    if metadata.get("x_restrict"):
         R18 = "-R18"
     else:
         R18 = ""
-    
-    return f"pixiv_{userHandle}-{userID}_{elementCreationTime}_[{elementId}-{elementTitle}{R18}]_{metadata['num']}.{metadata['extension']}"
+
+    return f"pixiv_{userHandle}-{userID}_{elementCreationTime}_[{elementId}-{elementTitle}{R18}]_{metadata.get('num')}.{metadata.get('extension')}"
+
 
 def getNormal_Postprocessor(metadata):
-    userHandle = metadata["user"]["name"]
-    userHandle = sanitize(userHandle)
-    userID = metadata["user"]["id"]
-    elementCreationTime = _ExtractDate(metadata['date'])
-    
+    userHandle = metadata.get("user", {}).get("name")
+    userHandle = Helper.sanitize(userHandle)
+    userID = metadata.get("user", {}).get("id")
+    elementCreationTime = Helper.extractDate(metadata.get("date"))
 
-
-    if metadata["subcategory"] == "avatar":
-        mediaName = metadata["user"]["profile_image_urls"]["medium"]
-        mediaName = mediaName.split('/')[-1]
-        mediaName = Shorten(mediaName.split('_')[1])
+    if metadata.get("subcategory") == "avatar":
+        mediaName = metadata.get("user", {}).get("profile_image_urls", {}).get("medium")
+        mediaName = mediaName.split("/")[-1]
+        mediaName = Helper.limit(mediaName.split("_")[1])
         return f"pixiv_{userHandle}-{userID}_{elementCreationTime}_{mediaName}_avatar.json"
-    
-    if metadata["subcategory"] == "background":
-        mediaName = metadata["profile"]["background_image_url"]
-        mediaName = mediaName.split('/')[-1]
-        mediaName = Shorten(mediaName.split('_')[1])
+
+    if metadata.get("subcategory") == "background":
+        mediaName = metadata.get("profile", {}).get("background_image_url")
+        mediaName = mediaName.split("/")[-1]
+        mediaName = Helper.limit(mediaName.split("_")[1])
         return f"pixiv_{userHandle}-{userID}_{elementCreationTime}_{mediaName}_banner.json"
 
-    elementId = metadata["id"]
-    elementTitle = sanitize(metadata["title"])
-    if metadata["x_restrict"]:
+    elementId = metadata.get("id")
+    elementTitle = Helper.sanitize(metadata.get("title"))
+    if metadata.get("x_restrict"):
         R18 = "-R18"
     else:
         R18 = ""
-        
+
     return f"pixiv_{userHandle}-{userID}_{elementCreationTime}_[{elementId}-{elementTitle}{R18}].json"
-
-def Shorten(string):
-    split2 = f"{string[:4]}{string[-4:]}"
-    return split2
-
-def sanitize(filename):
-
-    illegal_char_replacements = {
-        '/': '⁄', 
-        '\\': '∖',
-        ':': '꞉',
-        '*': '∗',
-        '?': '？',
-        '"': '＂',
-        '<': '＜',
-        '>': '＞',
-        '|': '｜',
-        '_': '＿',
-    }
-
-    sanitized = filename
-    for char, replacement in illegal_char_replacements.items():
-        sanitized = sanitized.replace(char, replacement)
-
-    return sanitized
-
-def extractDate(dt):
-    return dt.strftime('%Y-%m-%d')
-
-
-def _ExtractDate(dt):
-    date_obj = dt.date()
-    return date_obj
-

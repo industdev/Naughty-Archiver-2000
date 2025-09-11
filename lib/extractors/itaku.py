@@ -9,7 +9,7 @@ class Itaku(ExtractorInterface):
         self.extractorName = "Itaku"
         self.galleryName = "itaku"
         self.commonUserOptions = None
-        self.filterAppend = None
+        self.filterAppend = []
         self.argsAppend = None
         self.sleepTime = 3
 
@@ -31,7 +31,7 @@ class Itaku(ExtractorInterface):
 
         return errorListEnabled, errorListRegex, errorListIdExtractRegex, errorListFullURL
 
-    def getExtractorUrls(self) -> list[str]:
+    def getExtractorUrls(self) -> tuple[list[str], list[str]]:
         urls = [
             "itaku.ee/%s",
             "itaku.ee/images/%s",
@@ -43,15 +43,15 @@ class Itaku(ExtractorInterface):
             "itaku.ee/profile/%s/bookmarks/image/%s",
             "itaku.ee/home/images?tags=%s",
         ]
-        return urls
+        return urls, ["itaku.ee"]
 
     def getOutputHandlingCases(self) -> list[dict[str, Any]]:
         append = []
         return append
 
-    def getUsertableTemplate(self) -> tuple[list[list[Any]], list[str], str]:
+    def getUsertableTemplate(self) -> tuple[list[list[Any]], list[list[str]], str]:
         tableTemplate = []
-        comboTemplate = []
+        comboTemplate = [[]]
 
         userIdentificationString = "User Handle"
 
@@ -87,3 +87,6 @@ class Itaku(ExtractorInterface):
     def defaultJob(self, user, base_config):
         config = copy.deepcopy(base_config)
         return {"url": None, "config": config, "type": None}
+
+    def getRunnerChoice(self) -> int:
+        return 0

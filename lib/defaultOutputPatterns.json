@@ -1,122 +1,570 @@
 [
     {
+        "MATCH": "^(?!\\[).*",
+        "LINE_LEVEL": "GREY",
+        "INHIBIT_BOX": false,
+        "RUNNERMASK": "yt-dlp",
+        "VERSION": [
+            1,
+            2,
+            3
+        ]
+    },
+    {
+        "MATCH": "\\[youtube\\] Video unavailable",
+        "MESSAGE_ON_ACTION": "Video not found alert",
+        "LINE_LEVEL": "RED",
+        "INHIBIT_BOX": false,
+        "ACTION": [
+            "SKIP_JOB",
+            1
+        ],
+        "STATEMASK": "ANY_URLS_EXTRACTION",
+        "RUNNERMASK": "yt-dlp",
+        "VERSION": [
+            1,
+            2,
+            3
+        ],
+        "DEFAULT": true
+    },
+    {
+        "MATCH": "404: Not Found",
+        "MESSAGE_ON_ACTION": "404 Not found Alert",
+        "LINE_LEVEL": "RED",
+        "INHIBIT_BOX": false,
+        "ACTION": [
+            "RETRY_JOB",
+            1
+        ],
+        "REPEATED_ACTION": "SKIP_USER",
+        "VERSION": [
+            1,
+            2,
+            3
+        ],
+        "DEFAULT": true
+    },
+    {
+        "MATCH": "^WARNING:",
+        "LINE_LEVEL": "YELLOW",
+        "INHIBIT_BOX": false,
+        "RUNNERMASK": "yt-dlp",
+        "VERSION": [
+            1,
+            2,
+            3
+        ],
+        "DEFAULT": true
+    },
+    {
+        "MATCH": "^ERROR:",
+        "LINE_LEVEL": "RED",
+        "INHIBIT_BOX": false,
+        "RUNNERMASK": "yt-dlp",
+        "SKIP": true,
+        "VERSION": [
+            1,
+            2,
+            3
+        ],
+        "DEFAULT": true
+    },
+    {
+        "MATCH": "^send: ",
+        "LINE_LEVEL": "OTHER",
+        "INHIBIT_BOX": false,
+        "EVENT": "API_CALL",
+        "RUNNERMASK": "yt-dlp",
+        "VERSION": [
+            1,
+            2,
+            3
+        ],
+        "DEFAULT": true
+    },
+    {
+        "MATCH": "^header: ",
+        "LINE_LEVEL": "GREY",
+        "INHIBIT_BOX": false,
+        "RUNNERMASK": "yt-dlp",
+        "VERSION": [
+            1,
+            2,
+            3
+        ],
+        "DEFAULT": true
+    },
+    {
+        "MATCH": "^requests: ",
+        "LINE_LEVEL": "GREY",
+        "INHIBIT_BOX": false,
+        "RUNNERMASK": "yt-dlp",
+        "VERSION": [
+            1,
+            2,
+            3
+        ],
+        "DEFAULT": true
+    },
+    {
+        "MATCH": "^reply: ",
+        "LINE_LEVEL": "GREY",
+        "INHIBIT_BOX": false,
+        "RUNNERMASK": "yt-dlp",
+        "VERSION": [
+            1,
+            2,
+            3
+        ],
+        "DEFAULT": true
+    },
+    {
+        "MATCH": "^director: ",
+        "LINE_LEVEL": "GREY",
+        "INHIBIT_BOX": false,
+        "RUNNERMASK": "yt-dlp",
+        "VERSION": [
+            1,
+            2,
+            3
+        ],
+        "DEFAULT": true
+    },
+    {
+        "MATCH": "Downloading .*?format",
+        "LINE_LEVEL": "GREY",
+        "INHIBIT_BOX": false,
+        "RUNNERMASK": "yt-dlp",
+        "VERSION": [
+            1,
+            2,
+            3
+        ],
+        "DEFAULT": true
+    },
+    {
+        "MATCH": "^\\[Merger\\]",
+        "LINE_LEVEL": "GREY",
+        "INHIBIT_BOX": false,
+        "RUNNERMASK": "yt-dlp",
+        "VERSION": [
+            1,
+            2,
+            3
+        ],
+        "DEFAULT": true
+    },
+    {
+        "MATCH": "^\\[Metadata\\]",
+        "LINE_LEVEL": "GREY",
+        "INHIBIT_BOX": false,
+        "RUNNERMASK": "yt-dlp",
+        "VERSION": [
+            1,
+            2,
+            3
+        ],
+        "DEFAULT": true
+    },
+    {
+        "MATCH": "Deleting original file",
+        "LINE_LEVEL": "GREY",
+        "INHIBIT_BOX": false,
+        "RUNNERMASK": "yt-dlp",
+        "VERSION": [
+            1,
+            2,
+            3
+        ],
+        "DEFAULT": true
+    },
+    {
+        "MATCH": "^\\[download\\]",
+        "LINE_LEVEL": "GREY",
+        "INHIBIT_BOX": false,
+        "RUNNERMASK": "yt-dlp",
+        "VERSION": [
+            1,
+            2,
+            3
+        ],
+        "DEFAULT": true
+    },
+    {
+        "MATCH": "^\\[info\\] Writing.*?:",
+        "LINE_LEVEL": "GREY",
+        "INHIBIT_BOX": false,
+        "RUNNERMASK": "yt-dlp",
+        "VERSION": [
+            1,
+            2,
+            3
+        ],
+        "DEFAULT": true
+    },
+    {
+        "DEFAULT": true,
         "MATCH": "Could not authenticate you",
         "MESSAGE_ON_ACTION": "Make sure your cookies are set up properly",
-        "LINE_LEVEL": "RED",
-        "ACTION": [
-            "STOP",
-            2
-        ],
-        "RESET_AT": 200,
-        "VERSION": [
-            1,
-            2,
-            3
-        ],
-        "DEFAULT": true
-    },
-    {
-        "MATCH": "Requesting guest",
-        "MESSAGE_ON_ACTION": "Make sure your cookies are set up properly",
-        "LINE_LEVEL": "RED",
-        "ACTION": [
-            "STOP",
-            true
-        ],
-        "VERSION": [
-            1,
-            2,
-            3
-        ],
-        "DEFAULT": true
-    },
-    {
-        "MATCH": "AuthorizationError",
-        "MESSAGE_ON_ACTION": "Make sure your cookies are set up properly",
-        "LINE_LEVEL": "RED",
-        "ACTION": [
-            "STOP",
-            2
-        ],
-        "RESET_AT": 200,
-        "VERSION": [
-            1,
-            2,
-            3
-        ],
-        "DEFAULT": true
-    },
-    {
-        "MATCH": "NameResolutionE",
-        "LINE_LEVEL": "YELLOW",
-        "VERSION": [
-            1,
-            2,
-            3
-        ],
-        "DEFAULT": true
-    },
-    {
-        "MATCH": "Logging in as g",
-        "MESSAGE_ON_ACTION": "Make sure your cookies are set up properly",
-        "LINE_LEVEL": "RED",
-        "ACTION": [
-            "STOP",
-            true
-        ],
-        "VERSION": [
-            1,
-            2,
-            3
-        ],
-        "DEFAULT": true
-    },
-    {
-        "MATCH": "An unexpected error occurred",
-        "MESSAGE_ON_ACTION": "Gallery-dl had an unexpected error too many times in a row",
         "LINE_LEVEL": "RED",
         "INHIBIT_BOX": false,
         "ACTION": [
             "STOP",
-            3
+            2
         ],
-        "RESET_AT": 150,
+        "RESET_AT": 200,
         "VERSION": [
             1,
             2,
             3
-        ],
-        "DEFAULT": true
+        ]
     },
     {
-        "MATCH": "cookies: \\[Errno 2\\]",
-        "MESSAGE_ON_ACTION": "Cannot find the proper cookies in the specified path",
+        "DEFAULT": true,
+        "MATCH": "AuthorizationError",
+        "MESSAGE_ON_ACTION": "Make sure your cookies are set up properly",
         "LINE_LEVEL": "RED",
-        "ACTION": [
-            "STOP",
-            true
-        ],
-        "VERSION": [
-            1,
-            2,
-            3
-        ],
-        "DEFAULT": true
-    },
-    {
-        "MATCH": "ImportError",
-        "MESSAGE_ON_ACTION": "Something is wrong with gallery-dl, try replacing gallery-dl with a newer version",
-        "LINE_LEVEL": "RED",
+        "INHIBIT_BOX": false,
         "ACTION": [
             "STOP",
             2
         ],
+        "RESET_AT": 200,
+        "VERSION": [
+            1,
+            2,
+            3
+        ]
+    },
+    {
+        "DEFAULT": true,
+        "MATCH": "NameResolutionError",
+        "LINE_LEVEL": "YELLOW",
+        "INHIBIT_BOX": false,
+        "VERSION": [
+            1,
+            2,
+            3
+        ]
+    },
+    {
+        "DEFAULT": true,
+        "MATCH": "Requesting guest",
+        "MESSAGE_ON_ACTION": "Make sure your cookies are set up properly",
+        "LINE_LEVEL": "RED",
+        "INHIBIT_BOX": false,
+        "ACTION": [
+            "STOP",
+            1
+        ],
+        "RUNNERMASK": "g-dl",
+        "VERSION": [
+            1,
+            2,
+            3
+        ]
+    },
+    {
+        "DEFAULT": true,
+        "MATCH": "Logging in as guest",
+        "MESSAGE_ON_ACTION": "Make sure your cookies are set up properly",
+        "LINE_LEVEL": "RED",
+        "INHIBIT_BOX": false,
+        "ACTION": [
+            "STOP",
+            1
+        ],
+        "RUNNERMASK": "g-dl",
+        "VERSION": [
+            1,
+            2,
+            3
+        ]
+    },
+    {
+        "DEFAULT": true,
+        "MATCH": "cookies: \\[Errno 2\\]",
+        "MESSAGE_ON_ACTION": "Cannot find the proper cookies in the specified path",
+        "LINE_LEVEL": "RED",
+        "INHIBIT_BOX": false,
+        "ACTION": [
+            "STOP",
+            1
+        ],
+        "RUNNERMASK": "g-dl",
+        "VERSION": [
+            1,
+            2,
+            3
+        ]
+    },
+    {
+        "MATCH": "AssertionError",
+        "MESSAGE_ON_ACTION": "{runner} assert statement failed",
+        "LINE_LEVEL": "RED",
+        "INHIBIT_BOX": false,
+        "ACTION": [
+            "SKIP_JOB",
+            1
+        ],
+        "REPEATED_ACTION": "STOP",
         "VERSION": [
             1,
             2,
             3
         ],
         "DEFAULT": true
+    },
+    {
+        "MATCH": "ArithmeticError",
+        "MESSAGE_ON_ACTION": "{runner} failed a mathematical operation",
+        "LINE_LEVEL": "RED",
+        "INHIBIT_BOX": false,
+        "ACTION": [
+            "SKIP_JOB",
+            1
+        ],
+        "REPEATED_ACTION": "STOP",
+        "VERSION": [
+            1,
+            2,
+            3
+        ],
+        "DEFAULT": true
+    },
+    {
+        "MATCH": "FloatingPointError",
+        "MESSAGE_ON_ACTION": "{runner} failed a mathematical operation",
+        "LINE_LEVEL": "RED",
+        "INHIBIT_BOX": false,
+        "ACTION": [
+            "SKIP_JOB",
+            1
+        ],
+        "REPEATED_ACTION": "STOP",
+        "VERSION": [
+            1,
+            2,
+            3
+        ],
+        "DEFAULT": true
+    },
+    {
+        "MATCH": "IndexError",
+        "MESSAGE_ON_ACTION": "{runner} index error",
+        "LINE_LEVEL": "RED",
+        "INHIBIT_BOX": false,
+        "ACTION": [
+            "SKIP_JOB",
+            1
+        ],
+        "REPEATED_ACTION": "SKIP_USER",
+        "VERSION": [
+            1,
+            2,
+            3
+        ],
+        "DEFAULT": true
+    },
+    {
+        "MATCH": "MemoryError",
+        "MESSAGE_ON_ACTION": "{runner} Program ran out of memory",
+        "LINE_LEVEL": "RED",
+        "INHIBIT_BOX": false,
+        "ACTION": [
+            "STOP",
+            1
+        ],
+        "VERSION": [
+            1,
+            2,
+            3
+        ],
+        "DEFAULT": true
+    },
+    {
+        "MATCH": "NameError",
+        "MESSAGE_ON_ACTION": "{runner} Variable does not exist",
+        "LINE_LEVEL": "RED",
+        "INHIBIT_BOX": false,
+        "ACTION": [
+            "SKIP_JOB",
+            1
+        ],
+        "REPEATED_ACTION": "STOP",
+        "VERSION": [
+            1,
+            2,
+            3
+        ],
+        "DEFAULT": true
+    },
+    {
+        "MATCH": "RuntimeError",
+        "MESSAGE_ON_ACTION": "{runner} runtime exception",
+        "LINE_LEVEL": "RED",
+        "INHIBIT_BOX": false,
+        "ACTION": [
+            "SKIP_JOB",
+            1
+        ],
+        "REPEATED_ACTION": "STOP",
+        "VERSION": [
+            1,
+            2,
+            3
+        ],
+        "DEFAULT": true
+    },
+    {
+        "MATCH": "UnboundLocalError",
+        "MESSAGE_ON_ACTION": "{runner} local variable referenced before assignment",
+        "LINE_LEVEL": "RED",
+        "INHIBIT_BOX": false,
+        "ACTION": [
+            "SKIP_JOB",
+            1
+        ],
+        "REPEATED_ACTION": "STOP",
+        "VERSION": [
+            1,
+            2,
+            3
+        ],
+        "DEFAULT": true
+    },
+    {
+        "MATCH": "TypeError",
+        "MESSAGE_ON_ACTION": "{runner} type error",
+        "LINE_LEVEL": "RED",
+        "INHIBIT_BOX": false,
+        "ACTION": [
+            "SKIP_JOB",
+            1
+        ],
+        "REPEATED_ACTION": "SKIP_USER",
+        "VERSION": [
+            1,
+            2,
+            3
+        ],
+        "DEFAULT": true
+    },
+    {
+        "MATCH": "ValueError",
+        "MESSAGE_ON_ACTION": "{runner} invalid data type assignment",
+        "LINE_LEVEL": "RED",
+        "INHIBIT_BOX": false,
+        "ACTION": [
+            "SKIP_JOB",
+            1
+        ],
+        "REPEATED_ACTION": "SKIP_USER",
+        "VERSION": [
+            1,
+            2,
+            3
+        ],
+        "DEFAULT": true
+    },
+    {
+        "DEFAULT": true,
+        "MATCH": "KeyError",
+        "MESSAGE_ON_ACTION": "{runner} keyerror, make an issue on github",
+        "LINE_LEVEL": "RED",
+        "INHIBIT_BOX": false,
+        "ACTION": [
+            "SKIP_JOB",
+            1
+        ],
+        "REPEATED_ACTION": "SKIP_USER",
+        "VERSION": [
+            1,
+            2,
+            3
+        ]
+    },
+    {
+        "MATCH": "Unicode.*?Error",
+        "MESSAGE_ON_ACTION": "{runner} unicode error",
+        "LINE_LEVEL": "RED",
+        "INHIBIT_BOX": false,
+        "ACTION": [
+            "SKIP_JOB",
+            1
+        ],
+        "REPEATED_ACTION": "SKIP_USER",
+        "VERSION": [
+            1,
+            2,
+            3
+        ],
+        "DEFAULT": true
+    },
+    {
+        "DEFAULT": true,
+        "MATCH": "ImportError",
+        "MESSAGE_ON_ACTION": "Something is wrong with {runner}, try replacing gallery-dl with a newer version",
+        "LINE_LEVEL": "RED",
+        "INHIBIT_BOX": false,
+        "ACTION": [
+            "STOP",
+            2
+        ],
+        "RESET_AT": 600,
+        "VERSION": [
+            1,
+            2,
+            3
+        ]
+    },
+    {
+        "DEFAULT": true,
+        "MATCH": "FileNotFoundError",
+        "LINE_LEVEL": "YELLOW",
+        "INHIBIT_BOX": false,
+        "VERSION": [
+            1,
+            2,
+            3
+        ]
+    },
+    {
+        "DEFAULT": true,
+        "MATCH": "Unsupported URL",
+        "MESSAGE_ON_ACTION": "Unsupported URL alert on {extractor} extractor, if extractor is official please make an issue on github",
+        "LINE_LEVEL": "YELLOW",
+        "INHIBIT_BOX": false,
+        "ACTION": [
+            "SKIP_JOB",
+            1
+        ],
+        "REPEATED_ACTION": "SKIP_JOB",
+        "STATEMASK": "NORMAL_EXTRACTION",
+        "VERSION": [
+            1,
+            2,
+            3
+        ]
+    },
+    {
+        "DEFAULT": true,
+        "MATCH": "Unsupported URL",
+        "MESSAGE_ON_LINE": "Unsupported URL alert",
+        "LINE_LEVEL": "YELLOW",
+        "INHIBIT_BOX": false,
+        "ACTION": [
+            "SKIP_JOB",
+            1
+        ],
+        "REPEATED_ACTION": "SKIP_JOB",
+        "STATEMASK": "ANY_URLS_EXTRACTION",
+        "VERSION": [
+            1,
+            2,
+            3
+        ]
     },
     {
         "MATCH": "Waiting until ",
@@ -137,8 +585,9 @@
         "DEFAULT": true
     },
     {
+        "DEFAULT": true,
         "MATCH": "is not recognized as an internal or external command",
-        "MESSAGE_ON_ACTION": "Gallery-dl was not found in the external folder",
+        "MESSAGE_ON_ACTION": "{runner} was not found in the external folder",
         "LINE_LEVEL": "RED",
         "INHIBIT_BOX": false,
         "ACTION": [
@@ -149,40 +598,12 @@
             1,
             2,
             3
-        ],
-        "DEFAULT": true
+        ]
     },
     {
-        "MATCH": "Unsupported URL",
-        "MESSAGE_ON_LINE": "Unsupported URL alert",
-        "LINE_LEVEL": "YELLOW",
-        "INHIBIT_BOX": false,
-        "ACTION": [
-            "SKIP_JOB",
-            1
-        ],
-        "MASK": "ANY_URLS_EXTRACTION",
-        "VERSION": [
-            1,
-            2,
-            3
-        ],
-        "DEFAULT": true
-    },
-    {
-        "MATCH": "FileNotFoundError",
-        "LINE_LEVEL": "YELLOW",
-        "INHIBIT_BOX": false,
-        "VERSION": [
-            1,
-            2,
-            3
-        ],
-        "DEFAULT": true
-    },
-    {
+        "DEFAULT": true,
         "MATCH": "NotFoundError",
-        "MESSAGE_ON_ACTION": "This user doesn't exist! (Supposedly)\nThe user will be set to skip in the user table",
+        "MESSAGE_ON_ACTION": "{user} doesn't exist! (Supposedly)\nThe user will be set to skip in the user table",
         "LINE_LEVEL": "YELLOW",
         "INHIBIT_BOX": false,
         "ACTION": [
@@ -190,17 +611,17 @@
             1
         ],
         "EVENT": "USER_NOTFOUND",
-        "MASK": "NORMAL_EXTRACTION",
+        "STATEMASK": "NORMAL_EXTRACTION",
         "VERSION": [
             1,
             2,
             3
-        ],
-        "DEFAULT": true
+        ]
     },
     {
+        "DEFAULT": true,
         "MATCH": "KeyError - 'user'",
-        "MESSAGE_ON_ACTION": "This user doesn't exist! (Supposedly)\nThe user will be set to skip in the user table",
+        "MESSAGE_ON_ACTION": "{user} doesn't exist! (Supposedly)\nThe user will be set to skip in the user table",
         "LINE_LEVEL": "YELLOW",
         "INHIBIT_BOX": false,
         "ACTION": [
@@ -208,77 +629,82 @@
             1
         ],
         "EVENT": "USER_NOTFOUND",
-        "MASK": "NORMAL_EXTRACTION",
+        "STATEMASK": "NORMAL_EXTRACTION",
+        "RUNNERMASK": "g-dl",
         "VERSION": [
             1,
             2,
             3
-        ],
-        "DEFAULT": true
+        ]
     },
     {
+        "DEFAULT": true,
         "MATCH": "NotFoundError",
-        "MESSAGE_ON_ACTION": "This user/url doesn't exist! (Supposedly)",
+        "MESSAGE_ON_ACTION": "{user} item doesn't exist! (Supposedly)",
         "LINE_LEVEL": "YELLOW",
         "INHIBIT_BOX": true,
         "ACTION": [
             "SKIP_JOB",
             1
         ],
-        "MASK": "ANY_URLS_EXTRACTION",
+        "STATEMASK": "ANY_URLS_EXTRACTION",
         "VERSION": [
             1,
             2,
             3
-        ],
-        "DEFAULT": true
+        ]
     },
     {
+        "DEFAULT": true,
         "MATCH": "KeyError - 'user'",
-        "MESSAGE_ON_ACTION": "This user/url doesn't exist! (Supposedly)",
+        "MESSAGE_ON_ACTION": "{user} item doesn't exist! (Supposedly)",
         "LINE_LEVEL": "YELLOW",
         "INHIBIT_BOX": true,
         "ACTION": [
             "SKIP_JOB",
             1
         ],
-        "MASK": "ANY_URLS_EXTRACTION",
+        "STATEMASK": "ANY_URLS_EXTRACTION",
+        "RUNNERMASK": "g-dl",
         "VERSION": [
             1,
             2,
             3
-        ],
-        "DEFAULT": true
+        ]
     },
     {
+        "DEFAULT": true,
         "MATCH": "Unknown request cursor:",
         "LINE_LEVEL": "YELLOW",
-        "EVENT": "RESET_CURSOR",
+        "INHIBIT_BOX": false,
         "ACTION": [
             "RETRY_JOB",
-            true
+            1
         ],
+        "EVENT": "RESET_CURSOR",
+        "RUNNERMASK": "g-dl",
         "VERSION": [
             1,
             2,
             3
-        ],
-        "DEFAULT": true
+        ]
     },
     {
+        "DEFAULT": true,
         "MATCH": " Cursor: ",
         "LINE_LEVEL": "GREY",
         "INHIBIT_BOX": false,
         "EVENT": "UPDATE_CURSOR",
+        "RUNNERMASK": "g-dl",
         "VERSION": [
             1,
             2,
             3
-        ],
-        "DEFAULT": true
+        ]
     },
     {
-        "MATCH": "Unable to retrieve (.*) from this timeline",
+        "DEFAULT": true,
+        "MATCH": "Unable to retrieve .*? from this timeline",
         "LINE_LEVEL": "RED",
         "INHIBIT_BOX": false,
         "ACTION": [
@@ -287,50 +713,45 @@
         ],
         "RESET_AT": 300,
         "EVENT": "RESET_CURSOR",
+        "RUNNERMASK": "g-dl",
         "VERSION": [
             1,
             2,
             3
-        ],
-        "DEFAULT": true
+        ]
     },
     {
+        "DEFAULT": true,
         "MATCH": " \"GET ",
         "LINE_LEVEL": "OTHER",
+        "INHIBIT_BOX": false,
         "EVENT": "API_CALL",
+        "RUNNERMASK": "g-dl",
         "VERSION": [
             1,
             2,
             3
-        ],
-        "DEFAULT": true
+        ]
     },
     {
+        "DEFAULT": true,
         "MATCH": " \"POST ",
         "LINE_LEVEL": "OTHER",
+        "INHIBIT_BOX": false,
         "EVENT": "API_CALL",
+        "RUNNERMASK": "g-dl",
         "VERSION": [
             1,
             2,
             3
-        ],
-        "DEFAULT": true
+        ]
     },
     {
-        "MATCH": "depreca",
+        "DEFAULT": true,
+        "MATCH": "api error",
+        "MESSAGE_ON_ACTION": "Too many API Errors, report to {runner}",
         "LINE_LEVEL": "YELLOW",
-        "VERSION": [
-            1,
-            2,
-            3
-        ],
-        "DEFAULT": true
-    },
-    {
-        "MATCH": "api err",
-        "MESSAGE_ON_ACTION": "Too many API Errors, report to gallery-dl",
         "INHIBIT_BOX": true,
-        "LINE_LEVEL": "YELLOW",
         "ACTION": [
             "STOP",
             5
@@ -340,17 +761,30 @@
             1,
             2,
             3
-        ],
-        "DEFAULT": true
+        ]
     },
     {
-        "MATCH": "comple",
-        "LINE_LEVEL": "WHITE",
+        "DEFAULT": true,
+        "MATCH": "deprecated",
+        "LINE_LEVEL": "YELLOW",
+        "INHIBIT_BOX": false,
+        "RUNNERMASK": "g-dl",
         "VERSION": [
             1,
             2,
             3
-        ],
-        "DEFAULT": true
+        ]
+    },
+    {
+        "DEFAULT": true,
+        "MATCH": "completed",
+        "LINE_LEVEL": "WHITE",
+        "INHIBIT_BOX": false,
+        "RUNNERMASK": "g-dl",
+        "VERSION": [
+            1,
+            2,
+            3
+        ]
     }
 ]

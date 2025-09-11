@@ -7,12 +7,19 @@
 #   Don't forget to import these modules
 import copy
 from typing import Any
-from lib.ui.UserTable_manager import Table
-from lib.Enums import Configure, Validation, Widgets
+from lib.ExtractorUsersTable import ExtractorUsersTable
+from lib.Enums import Configure, Table, Validation, Widgets
 from lib.extractors.ExtractorInterface import ExtractorInterface
-
+from lib.runners.Ytdlp import Ytdlp
 
 #   Rename the class to your liking but keep ExtractorInterface
+#   Terminology:
+#       extractor: The class you are making here that will send commands to the runner
+#       runner: The program that will run the extraction, gallery-dl or yt-dlp
+#       job: A single extraction task, it has an url and a configuration, there can be multiple jobs per user
+#       user: An entry in the user table, 'UserHandle' is one of the default keys, other keys are defined by you in getUsertableTemplate
+
+
 class ExtractorTemplate(ExtractorInterface):
     def __init__(self) -> None:
         #   Mandatory: define the settings of the extractor, if you are unsure you can leave options without '*' to none
@@ -37,13 +44,19 @@ class ExtractorTemplate(ExtractorInterface):
         #       sleepTime(Int):
         #           Default value for sleep
 
-        self.extractorName = "Test"
-        self.galleryName = "test"
-        self.commonUserOptions = ["One", "Two"]
-        self.filterAppend = "Test1 or Test2 "
-        self.argsAppend = "Test1 or Test2 "
-        self.cursorExtractionEnabled = False
-        self.sleepTime = 4
+        self.extractorName: str = "Test"
+        self.galleryName: str = "test"
+        self.commonUserOptions: list[str] = ["One", "Two"]
+        self.filterAppend: list[str] = ["Test1", "Test2"]
+        self.argsAppend: str = "--Test1 --Test2 "
+        self.cursorExtractionEnabled: bool = False
+        self.sleepTime: int = 4
+
+    def getRunnerChoice(self) -> int:
+        #   Select between yt-dlp and gallery-dl
+        #       0: gallery-dl
+        #       1: yt-dlp
+        return 0
 
     def getCookiesSettings(self) -> tuple[int, list[str], bool]:
         #   Mandatory: define the settings for the cookies menu
@@ -86,11 +99,14 @@ class ExtractorTemplate(ExtractorInterface):
 
         return errorListEnabled, errorListRegex, errorListIdExtractRegex, errorListFullURL
 
-    def getExtractorUrls(self) -> list[str]:
+    def getExtractorUrls(self) -> tuple[list[str], list[str]]:
         #   Define an array of strings where '%s' will be replaced by the user input, this will be used for the custom urls page
         #   It should be None if you don't want this functionality
         urls = ["extractor.com/%s", "extractor.com/search?q=%s", "extractor.com/i/status/%s"]
-        return urls
+
+        #   Define which aliases your extractor urls have for importing custom URLs from list
+        aliases = ["extractor.com", "x.com", "twitter.com", "ext.or"]
+        return urls, aliases
 
     def getOutputHandlingCases(self) -> list[dict[str, Any]]:
         #   Optional: Append to the top of the output manager table more handling cases specifically tied to this extractor
@@ -110,7 +126,7 @@ class ExtractorTemplate(ExtractorInterface):
         ]
         return append
 
-    def getUsertableTemplate(self) -> tuple[list[list[Any]], list[str], str]:
+    def getUsertableTemplate(self) -> tuple[list[list[Any]], list[list[str]], str]:
         #   Stores information to create user tables of different extractors
         #   Each entry in the matrix describes what the row holds, inside the rows there's what each column will have
         #       0:Show on Addtable (Shows the option in the smaller table when adding an user to not make it too cluttered, use Table.SHOW or Table.HIDE)
@@ -135,8 +151,11 @@ class ExtractorTemplate(ExtractorInterface):
 
         #   Define every level/element in the combobox in your table
         #   Required if any of the columns have comboboxes
-        #   If you need more than 1 combobox i may implement it
-        comboTemplate = ["First option", "Second option"]
+        #   It should be an array that defines each combobox entries, defined by an array
+        comboTemplate = [
+            ["First option 1", "Second option 1"],  # First combobox
+            ["First option 2", "Second option 2"],  # Second combobox
+        ]
 
         #       userIdentificationString(String):
         #           Text to show as the type of username needed in the column, example: 'User Handle', 'User short ID', 'Gallery number'
@@ -150,7 +169,7 @@ class ExtractorTemplate(ExtractorInterface):
         #   Here you also define which keys the widgets are connected to
         #   By default no widget is needed
 
-        #   Configure.NAME*             String, Widget name in the class (like btn_setUsers or cfg_argumentAppend), respect python's format
+        #   Configure.NAME*             String, Any string can do (like btn_setUsers or cfg_argumentAppend), respect python's variable naming rules
         #   Configure.WIDGET*:          Widgets, Type of the widget to add
         #                                   Widgets.CHECKBOX
         #                                   Widgets.TEXTBOX
@@ -216,26 +235,44 @@ class ExtractorTemplate(ExtractorInterface):
 
     def getJobs(self, user, extSettings, generalSettings, baseConf, deepUpdate, main) -> tuple[list[Any], dict[str, Any]]:
         try:
-            #   This function returns the list of jobs to pass to the gallery-dl configuration
-            #   It is extractor dependent, it will overlap from the top:
-            #       baseConf (logic.py)
-            #       overrideConf -> fullBaseConf (defined here)
-            #       User custom config (defined in each different job by the user data)
+            #   This function returns the list of jobs to pass to the runner configuration
+            #   From baseConf it will be overwritten with:
+            #       baseConf (defined in Gallerydl.py or Ytdlp.py), which is the default configuration for the runner
+            #       overrideConf (defined here), that changes baseConf options for this extractor
+            #       User custom config (defined in each different job by the user data), that changes extractor options based on the user
 
             #   The job configurations are based on the current user passed as argument, so here you apply the keys you put in the user table for each user
-            #   This is the equivalent of 'conf' files when you do them manually for gallery-dl
-            #   Feel free to overwrite any options that come from logic.py, which already comes with options that should be the same between every extractor
+            #   This is the equivalent of 'conf' files when you do them manually for gallery-dl or yt-dlp
+            #   Feel free to overwrite any options that come from gallerydl.py or yt-dlp.py, which already come with options that should be the same between every extractor
+            #   In short, when you click 'run' in the extractor tab, the extractor will call this function for each user in the user table, and append all jobs returned to a single array that will be passed to the runner
 
-            #   Settings not entirely provided:
-            #       extractor.postprocessors.filename
-            #       extractor.cookies (If your extractor needs more than 1 cookie or not a path to the cookies)
-            #       extractor.filename
-            #       extractor.directory (If it needs a separation between files)
+            #   Gallery-dl Configuration reference:
+            #       Settings not entirely provided:
+            #           extractor.postprocessors.filename
+            #           extractor.cookies (If your extractor needs more than 1 cookie or not a path to the cookies)
+            #           extractor.filename
+            #           extractor.directory (If it needs a separation based on metadata)
+            #       How to edit the base job:
+            #           1 - Define a dictionary and write the options you need to override from the base
+            #           2 - Run deepUpdate() on the configuration (see snippet later)
 
-            #   How to edit the base job:
-            #       1 - Define a dictionary and write the options you need to override from the base
-            #       2 - Run deepUpdate() on the job (see snippet later)
+            #   Yt-dlp Configuration reference:
+            #       Settings not entirely provided:
+            #           -o (Output filename )
+            #       How to edit the base job:
+            #           1 - Define an array where every element is a full command line argument to pass to yt-dlp
+            #           2 - To modify pre-existing arguments in the configuration use Ytdlp.searchReplace function:
+            #                   Ytdlp.searchReplace(array, searchString, replaceString) # replaces a whole match
+            #                   Ytdlp.modifyArgValue(array, argument, ) # replaces argument, ex: modifyArgValue(array, '-o', 'output dir') will find -o and replace what's after it with output dir so that in the argument list it becomes '-o output dir'
 
+            #   Always return a tuple with:
+            #       1 - An array of jobs to run, each job is a dictionary with
+            #           'url'       The url that the runner is going to use
+            #           'config'    The config that the runner is going to read (json or array of arguments)
+            #           'type'      Just a log of the current type of extraction
+            #       2 - A default job
+
+            #   Gallery-dl example only
             overrideConf = {
                 "extractor": {
                     self.galleryName: {
@@ -246,7 +283,7 @@ class ExtractorTemplate(ExtractorInterface):
                     }
                 }
             }
-            #   It's required right after defining the options to override
+            #   It's required right after defining the options to override the default configuration
             #   You can keep modifying the config after this
             fullBaseConf = copy.deepcopy(baseConf)
             deepUpdate(fullBaseConf, overrideConf)
@@ -259,16 +296,16 @@ class ExtractorTemplate(ExtractorInterface):
             if extSettings["changeFilenameToBar"]:
                 fullBaseConf["extractor"][self.galleryName]["filename"] = "Bar"
 
-            #   Now define which jobs to pass to gallery-dl after these lines
+            #   Now define which jobs to pass to the runner after these lines
             #   Remember to append and return the right format for jobs:
             #       Array of dictionaries with
-            #       'url'       The url that gallery-dl is going to user
-            #       'config'    The config that gallery-dl is going to read (json above)
+            #       'url'       The url that the runner is going to use
+            #       'config'    The config that the runner is going to read (json above)
             #       'type'      Just a log of the current type of extraction
             #   The extractor will run on all jobs given
             #   To separate the kinds of job you should use a function that returns a modified job based on the current configuration or user
             #   Pass the normal config and user to the function and you can modify the configuration
-            #   You should deepcopy the config so that they don't share an address and thus be changed when one changses
+            #   You should deepcopy the config so that they don't share an address and thus be changed when one changes
 
             jobs = []
             jobs.append(self._normalJob(user, fullBaseConf))

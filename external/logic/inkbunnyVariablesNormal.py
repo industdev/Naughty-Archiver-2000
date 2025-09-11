@@ -1,57 +1,25 @@
-from datetime import datetime
+from Helper import Helper
 
 
 def getNormal(metadata):
-    userHandle = metadata["username"]
-    userHandle = sanitize(userHandle)
-    userID = metadata["user_id"]
-    elementCreationTime = _ExtractDate(metadata["date"])
-    elementId = metadata["submission_id"]
-    if metadata["scraps"]:
-        return f"inkbunny_{userHandle}-{userID}_{elementCreationTime}_{elementId}_scrap.{metadata['extension']}"
+    userHandle = metadata.get("username")
+    userHandle = Helper.sanitize(userHandle)
+    userID = metadata.get("user_id")
+    elementCreationTime = Helper.extractDate(metadata.get("date"))
+    elementId = metadata.get("submission_id")
+    if metadata.get("scraps"):
+        return f"inkbunny_{userHandle}-{userID}_{elementCreationTime}_{elementId}_scrap.{metadata.get('extension')}"
     else:
-        return f"inkbunny_{userHandle}-{userID}_{elementCreationTime}_{elementId}.{metadata['extension']}"
+        return f"inkbunny_{userHandle}-{userID}_{elementCreationTime}_{elementId}.{metadata.get('extension')}"
+
 
 def getNormal_Postprocessor(metadata):
-    userHandle = metadata["username"]
-    userHandle = sanitize(userHandle)
-    userID = metadata["user_id"]
-    elementCreationTime = _ExtractDate(metadata["date"])
-    elementId = metadata["submission_id"]
-    if metadata["scraps"]:
+    userHandle = metadata.get("username")
+    userHandle = Helper.sanitize(userHandle)
+    userID = metadata.get("user_id")
+    elementCreationTime = Helper.extractDate(metadata.get("date"))
+    elementId = metadata.get("submission_id")
+    if metadata.get("scraps"):
         return f"inkbunny_{userHandle}-{userID}_{elementCreationTime}_{elementId}_scrap.json"
     else:
         return f"inkbunny_{userHandle}-{userID}_{elementCreationTime}_{elementId}.json"
-
-
-def Shorten(string):
-    if len(string) > 64:
-        string = string[:64]
-    return string
-
-def sanitize(filename):
-
-    illegal_char_replacements = {
-        '/': '⁄', 
-        '\\': '∖',
-        ':': '꞉',
-        '*': '∗',
-        '?': '？',
-        '"': '＂',
-        '<': '＜',
-        '>': '＞',
-        '|': '｜',
-        '_': '＿',
-    }
-
-    sanitized = filename
-    for char, replacement in illegal_char_replacements.items():
-        sanitized = sanitized.replace(char, replacement)
-
-    return sanitized
-
-
-def _ExtractDate(dt):
-    date_obj = dt.date()
-    return date_obj
-

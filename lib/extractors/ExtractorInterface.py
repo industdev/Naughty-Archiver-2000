@@ -19,11 +19,11 @@ class ExtractorInterface(ABC):
         pass
 
     @abstractmethod
-    def getExtractorUrls(self) -> list[str]:
+    def getExtractorUrls(self) -> tuple[list[str], list[str]]:
         pass
 
     @abstractmethod
-    def getUsertableTemplate(self) -> tuple[list[list[Any]], list[str], str]:
+    def getUsertableTemplate(self) -> tuple[list[list[Any]], list[list[str]], str]:
         pass
 
     @abstractmethod
@@ -42,4 +42,8 @@ class ExtractorInterface(ABC):
 
     @abstractmethod
     def defaultJob(self, user, fullBaseConf):
+        pass
+
+    @abstractmethod
+    def getRunnerChoice(self) -> int:
         pass

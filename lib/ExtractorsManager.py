@@ -18,6 +18,9 @@ from lib.extractors.inkbunny import Inkbunny
 from lib.extractors.itaku import Itaku
 from lib.extractors.twitter import Twitter
 from lib.extractors.bluesky import Bluesky
+from lib.extractors.bluesky import Bluesky
+from lib.extractors.nicovideo import Nicovideo
+from lib.extractors.youtube import Youtube
 
 
 class ExtractorsManager:
@@ -44,6 +47,8 @@ class ExtractorsManager:
                 "Furaffinity": lambda id: Extractor(Furaffinity(), main, id),
                 "Inkbunny": lambda id: Extractor(Inkbunny(), main, id),
                 "Itaku": lambda id: Extractor(Itaku(), main, id),
+                "Youtube": lambda id: Extractor(Youtube(), main, id),
+                "Nicovideo": lambda id: Extractor(Nicovideo(), main, id),
             }
             #   You are done!
         except Exception:
@@ -77,7 +82,7 @@ class ExtractorsManager:
             isEnabled = entry.enabled
             extractor = entry.ext
 
-            if isEnabled and not extractor.galleryRunner.running:
+            if isEnabled and not extractor.runnerManager.running:
                 extractor.logger.debug("Requested start")
                 extractor.startExtraction()
 
@@ -85,7 +90,7 @@ class ExtractorsManager:
         self.generalLogger.info("Refreshing all extractor's output handlers patterns on next run")
         for entry in self.main._getExtractors(False):
             extractor = entry.ext
-            extractor.galleryRunner.reloadPatterns = True
+            extractor.runnerManager.reloadPatterns = True
 
     def stopProcedure(self):
         self.stopExtractors()
@@ -103,7 +108,7 @@ class ExtractorsManager:
     def resetExtractorsErrorsPerMinute(self):
         for entry in self.main._getExtractors(False):
             extractor: "Extractor" = entry.ext
-            extractor.galleryRunner.lineChanger.errorCounter = 0
+            extractor.runnerManager.lineChanger.errorCounter = 0
 
     def closeExtractorsUi(self):
         self.generalLogger.debug(f"Closing and saving extractors UI...")
@@ -111,7 +116,7 @@ class ExtractorsManager:
             extractor = entry.ext
             extractor.users.saveTable()
             extractor.users.discardClose()
-            extractor.urlManager.close()
+            extractor.urlsCreator.close()
             extractor.errorLister.close()
             self.main.General.logger.info(f"Closed and saved {extractor.configName} UI")
 
@@ -183,6 +188,7 @@ class ExtractorsManager:
     def _refreshExtractorUi(self, extractor: "Extractor"):
         try:
             extractor.config.updateUI()
+            self.main.tabSwitched(1)
         except Exception as e:
             raise Exception(f"Failed to refresh Extractor's ui: {e}")
 
